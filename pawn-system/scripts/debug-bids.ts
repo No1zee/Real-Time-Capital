@@ -1,0 +1,37 @@
+import { PrismaClient } from "@prisma/client"
+
+const prisma = new PrismaClient()
+
+async function main() {
+    console.log("🔍 Debugging Bids...")
+
+    const auction = await prisma.auction.findFirst({
+        include: {
+            bids: { include: { user: true }, orderBy: { amount: "desc" } },
+            autoBids: { include: { user: true } }
+        }
+    })
+
+    if (!auction) {
+        console.log("No auction found")
+        return
+    }
+
+    console.log(`Auction ID: ${auction.id}`)
+    console.log(`Current Bid: ${auction.currentBid}`)
+    console.log(`Status: ${auction.status}`)
+
+    console.log("\n--- Bids ---")
+    auction.bids.forEach(bid => {
+        console.log(`$${bid.amount} - ${bid.user.name} (${bid.user.email})`)
+    })
+
+    console.log("\n--- Auto Bids ---")
+    auction.autoBids.forEach(ab => {
+        console.log(`Max: $${ab.maxAmount} - ${ab.user.name}`)
+    })
+}
+
+main()
+    .catch(console.error)
+    .finally(() => prisma.$disconnect())

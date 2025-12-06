@@ -1,0 +1,180 @@
+"use server"
+
+import { db } from "@/lib/db"
+import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
+import { z } from "zod"
+
+const loanSchema = z.object({
+    // Customer
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    nationalId: z.string().min(1, "National ID is required"),
+    phoneNumber: z.string().min(1, "Phone number is required"),
+
+    // Item
+    itemName: z.string().min(1, "Item name is required"),
+    category: z.string().min(1, "Category is required"),
+    brand: z.string().optional(),
+    model: z.string().optional(),
+    itemDescription: z.string().min(1, "Description is required"),
+    serialNumber: z.string().optional(),
+    valuation: z.coerce.number().min(0, "Valuation must be positive"),
+    images: z.string().optional(), // JSON string of image URLs
+
+    // Loan
+    principalAmount: z.coerce.number().min(0, "Principal amount must be positive"),
+    interestRate: z.coerce.number().min(0, "Interest rate must be positive"),
+    durationDays: z.coerce.number().int().min(1, "Duration must be at least 1 day"),
+})
+
+export type State = {
+    errors?: {
+        firstName?: string[]
+        lastName?: string[]
+        nationalId?: string[]
+        phoneNumber?: string[]
+        itemName?: string[]
+        category?: string[]
+        brand?: string[]
+        model?: string[]
+        itemDescription?: string[]
+        serialNumber?: string[]
+        valuation?: string[]
+        images?: string[]
+        principalAmount?: string[]
+        interestRate?: string[]
+        durationDays?: string[]
+    }
+    message?: string | null
+}
+
+export async function createLoan(prevState: State, formData: FormData) {
+    const validatedFields = loanSchema.safeParse({
+        firstName: formData.get("firstName"),
+        lastName: formData.get("lastName"),
+        nationalId: formData.get("nationalId"),
+        phoneNumber: formData.get("phoneNumber"),
+        itemName: formData.get("itemName"),
+        category: formData.get("category"),
+        brand: formData.get("brand"),
+        model: formData.get("model"),
+        itemDescription: formData.get("itemDescription"),
+        serialNumber: formData.get("serialNumber"),
+        valuation: formData.get("valuation"),
+        images: formData.get("images"),
+        principalAmount: formData.get("principalAmount"),
+        interestRate: formData.get("interestRate"),
+        durationDays: formData.get("durationDays"),
+    })
+
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors,
+            message: "Missing Fields. Failed to Create Loan.",
+        }
+    }
+
+    const {
+        firstName,
+        lastName,
+        nationalId,
+        phoneNumber,
+        itemName,
+        category,
+        brand,
+        model,
+        itemDescription,
+        serialNumber,
+        valuation,
+        images,
+        principalAmount,
+        interestRate,
+        durationDays,
+    } = validatedFields.data
+
+    try {
+        // 1. Find or Create Customer
+        let customer = await db.customer.findUnique({
+            where: { nationalId },
+        })
+
+        if (!customer) {
+            customer = await db.customer.create({
+                data: {
+                    firstName,
+                    lastName,
+                    nationalId,
+                    phoneNumber,
+                },
+            })
+        }
+
+        // 2. Calculate Due Date
+        const startDate = new Date()
+        const dueDate = new Date(startDate)
+        dueDate.setDate(dueDate.getDate() + durationDays)
+
+        // 3. Create Loan and Item
+        await db.loan.create({
+            data: {
+                customerId: customer.id,
+                principalAmount,
+                interestRate,
+                durationDays,
+                startDate,
+                dueDate,
+                status: "ACTIVE",
+                items: {
+                    create: {
+                        name: itemName,
+                        category,
+                        brand,
+                        model,
+                        description: itemDescription,
+                        serialNumber,
+                        valuation,
+                        status: "PLEDGED",
+                        images: images || "[]",
+                    },
+                },
+            },
+        })
+    } catch (error) {
+        console.error("Database Error:", error)
+        return {
+            message: "Database Error: Failed to Create Loan.",
+        }
+    }
+
+    revalidatePath("/loans")
+    redirect("/loans")
+}
+
+export async function updateLoanStatus(loanId: string, newStatus: string) {
+    try {
+        // Update Loan
+        await db.loan.update({
+            where: { id: loanId },
+            data: { status: newStatus },
+        })
+
+        // If Defaulted, mark item as FOR_SALE
+        if (newStatus === "DEFAULTED") {
+            const item = await db.item.findFirst({ where: { loanId } })
+            if (item) {
+                await db.item.update({
+                    where: { id: item.id },
+                    data: { status: "FOR_SALE" },
+                })
+            }
+        }
+
+        revalidatePath(`/loans/${loanId}`)
+        revalidatePath("/loans")
+        return { success: true }
+    } catch (error) {
+        console.error("Failed to update status:", error)
+        return { success: false, message: "Failed to update status" }
+    }
+}
