@@ -14,7 +14,7 @@ async function main() {
             category: "Electronics",
             valuation: 500,
             images: "[]",
-            status: "AUCTION",
+            status: "IN_AUCTION",
         }
     })
 
