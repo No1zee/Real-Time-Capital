@@ -37,7 +37,9 @@ export async function getAllUsers(query?: string) {
     return users
 }
 
-export async function updateUserRole(userId: string, role: string) {
+import { UserRole } from "@prisma/client"
+
+export async function updateUserRole(userId: string, role: UserRole) {
     const session = await auth()
     const currentUser = session?.user as any
 
