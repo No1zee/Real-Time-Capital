@@ -7,7 +7,7 @@ export default async function InventoryPage() {
     const items = await db.item.findMany({
         where: {
             status: {
-                in: ["FOR_SALE", "SOLD"],
+                in: ["IN_AUCTION", "SOLD"],
             },
         },
         orderBy: {
@@ -23,7 +23,7 @@ export default async function InventoryPage() {
     })
 
     const totalInventoryValue = items
-        .filter(i => i.status === "FOR_SALE")
+        .filter(i => i.status === "IN_AUCTION")
         .reduce((sum, item) => sum + Number(item.valuation), 0)
 
     const totalSales = items
@@ -94,7 +94,7 @@ export default async function InventoryPage() {
                                             <td className="p-2 align-middle">{item.category}</td>
                                             <td className="p-2 align-middle">${Number(item.valuation).toFixed(2)}</td>
                                             <td className="p-2 align-middle">
-                                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${item.status === "FOR_SALE"
+                                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${item.status === "IN_AUCTION"
                                                     ? "border-blue-200 bg-blue-50 text-blue-700"
                                                     : "border-green-200 bg-green-50 text-green-700"
                                                     }`}>
