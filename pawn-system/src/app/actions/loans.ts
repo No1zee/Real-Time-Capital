@@ -134,7 +134,7 @@ export async function createLoan(prevState: State, formData: FormData) {
                         description: itemDescription,
                         serialNumber,
                         valuation,
-                        status: "PLEDGED",
+                        status: "PAWNED",
                         images: images || "[]",
                     },
                 },
@@ -151,7 +151,9 @@ export async function createLoan(prevState: State, formData: FormData) {
     redirect("/loans")
 }
 
-export async function updateLoanStatus(loanId: string, newStatus: string) {
+import { LoanStatus } from "@prisma/client"
+
+export async function updateLoanStatus(loanId: string, newStatus: LoanStatus) {
     try {
         // Update Loan
         await db.loan.update({
@@ -165,7 +167,7 @@ export async function updateLoanStatus(loanId: string, newStatus: string) {
             if (item) {
                 await db.item.update({
                     where: { id: item.id },
-                    data: { status: "FOR_SALE" },
+                    data: { status: "IN_AUCTION" },
                 })
             }
         }

@@ -46,8 +46,8 @@ export default async function WalletPage() {
                                     <div key={tx.id} className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/5 hover:bg-white/10 transition-colors">
                                         <div className="flex items-center gap-4">
                                             <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-500/20 text-green-500' :
-                                                    tx.type === 'WITHDRAWAL' ? 'bg-red-500/20 text-red-500' :
-                                                        'bg-blue-500/20 text-blue-500'
+                                                tx.type === 'WITHDRAWAL' ? 'bg-red-500/20 text-red-500' :
+                                                    'bg-blue-500/20 text-blue-500'
                                                 }`}>
                                                 {tx.type === 'DEPOSIT' ? <ArrowDownLeft className="w-5 h-5" /> :
                                                     tx.type === 'WITHDRAWAL' ? <ArrowUpRight className="w-5 h-5" /> :
@@ -110,16 +110,7 @@ export default async function WalletPage() {
                         <p className="text-white/80 text-sm mb-6">
                             Available for bidding and purchases
                         </p>
-                        <div className="p-4 bg-black/20 rounded-lg backdrop-blur-sm">
-                            <div className="flex justify-between text-sm mb-2">
-                                <span className="text-white/70">Held in Bids</span>
-                                <span className="font-medium">{formatCurrency(Number(user.frozenBalance))}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-white/70">Total Assets</span>
-                                <span className="font-bold">{formatCurrency(Number(user.walletBalance) + Number(user.frozenBalance))}</span>
-                            </div>
-                        </div>
+
                     </CardContent>
                 </Card>
             </div>

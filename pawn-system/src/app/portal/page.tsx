@@ -10,7 +10,7 @@ export default async function PortalDashboard() {
     const loans = await getCustomerLoans()
     const items = await getCustomerItems()
 
-    const activeLoans = loans.filter(l => l.status === "ACTIVE" || l.status === "OVERDUE")
+    const activeLoans = loans.filter(l => l.status === "ACTIVE" || l.status === "DEFAULTED")
     const totalDebt = activeLoans.reduce((sum, loan) => {
         return sum + Number(loan.principalAmount)
     }, 0)

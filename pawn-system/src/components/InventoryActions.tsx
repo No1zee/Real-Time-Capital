@@ -16,7 +16,7 @@ interface InventoryActionsProps {
 export function InventoryActions({ item }: InventoryActionsProps) {
     const [isSellModalOpen, setIsSellModalOpen] = useState(false)
 
-    if (item.status !== "FOR_SALE") return null
+    if (item.status !== "IN_AUCTION") return null
 
     return (
         <>
