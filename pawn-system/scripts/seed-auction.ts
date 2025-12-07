@@ -4,6 +4,7 @@ import { PrismaClientValidationError } from "@prisma/client/runtime/library"
 const prisma = new PrismaClient()
 
 async function main() {
+    // Force update for deployment
     console.log("🌱 Seeding Test Auction...")
 
     // 1. Create an Item
