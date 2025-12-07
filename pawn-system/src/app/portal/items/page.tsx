@@ -38,7 +38,7 @@ export default async function PortalItemsPage() {
                                 <div className="flex flex-wrap gap-2">
                                     <Badge variant="outline">{item.category}</Badge>
                                     {item.brand && <Badge variant="outline">{item.brand}</Badge>}
-                                    <Badge variant={item.status === "IN_PAWN" ? "default" : "secondary"}>
+                                    <Badge variant={item.status === "PAWNED" ? "default" : "secondary"}>
                                         {item.status}
                                     </Badge>
                                 </div>
