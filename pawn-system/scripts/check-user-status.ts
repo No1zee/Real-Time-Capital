@@ -33,7 +33,6 @@ async function main() {
             console.log(`ID: ${user.id}`)
             console.log(`Role: ${user.role}`)
             console.log(`Wallet Balance: ${user.walletBalance}`)
-            console.log(`Frozen Balance: ${user.frozenBalance}`)
 
             console.log(`\nRecent Bids (${user.bids.length}):`)
             if (user.bids.length === 0) {
