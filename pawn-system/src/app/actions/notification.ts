@@ -27,71 +27,57 @@ export async function getNotifications() {
         const notifications = await prisma.notification.findMany({
             where: {
                 userId: session.user.id,
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-            take: 20,
-        })
-        return notifications
-    } catch (error) {
-        console.error("Failed to fetch notifications:", error)
-        return []
-    }
-}
-
-export async function markAsRead(notificationId: string) {
-    const session = await auth()
-    if (!session?.user?.id) return
+                const session = await auth()
+    if(!session?.user?.id) return
 
     try {
-        await prisma.notification.update({
-            where: {
-                id: notificationId,
-                userId: session.user.id,
-            },
-            data: {
-                isRead: true,
-            },
-        })
+                    await prisma.notification.update({
+                        where: {
+                            id: notificationId,
+                            userId: session.user.id,
+                        },
+                        data: {
+                            isRead: true,
+                        },
+                    })
         revalidatePath("/portal")
-    } catch (error) {
-        console.error("Failed to mark notification as read:", error)
-    }
-}
+                } catch(error) {
+                    console.error("Failed to mark notification as read:", error)
+                }
+            }
 
 export async function markAllAsRead() {
-    const session = await auth()
-    if (!session?.user?.id) return
+            const session = await auth()
+    if(!session?.user?.id) return
 
     try {
-        await prisma.notification.updateMany({
-            where: {
-                userId: session.user.id,
-                isRead: false,
-            },
-            data: {
-                isRead: true,
-            },
-        })
+                await prisma.notification.updateMany({
+                    where: {
+                        userId: session.user.id,
+                        isRead: false,
+                    },
+                    data: {
+                        isRead: true,
+                    },
+                })
         revalidatePath("/portal")
-    } catch (error) {
-        console.error("Failed to mark all notifications as read:", error)
-    }
-}
+            } catch(error) {
+                console.error("Failed to mark all notifications as read:", error)
+            }
+        }
 
 export async function getUnreadCount() {
-    const session = await auth()
-    if (!session?.user?.id) return 0
+            const session = await auth()
+            if (!session?.user?.id) return 0
 
-    try {
-        return await prisma.notification.count({
-            where: {
-                userId: session.user.id,
-                isRead: false,
-            },
-        })
-    } catch (error) {
-        return 0
-    }
-}
+            try {
+                return await prisma.notification.count({
+                    where: {
+                        userId: session.user.id,
+                        isRead: false,
+                    },
+                })
+            } catch (error) {
+                return 0
+            }
+        }
