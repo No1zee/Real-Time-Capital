@@ -46,7 +46,7 @@ export default async function InventoryPage() {
                         <div className="text-sm font-medium text-muted-foreground">Items For Sale</div>
                         <Package className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="text-2xl font-bold">{items.filter(i => i.status === "FOR_SALE").length}</div>
+                    <div className="text-2xl font-bold">{items.filter(i => i.status === "IN_AUCTION").length}</div>
                 </div>
                 <div className="rounded-xl border bg-card text-card-foreground shadow-sm p-6">
                     <div className="flex flex-row items-center justify-between space-y-0 pb-2">
