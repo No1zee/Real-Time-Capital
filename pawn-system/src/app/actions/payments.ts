@@ -94,3 +94,43 @@ export async function getUserTransactions() {
         orderBy: { createdAt: "desc" }
     })
 }
+
+export type PaymentState = {
+    message: string | null
+    errors?: {
+        amount?: string[]
+        method?: string[]
+        reference?: string[]
+    }
+}
+
+export async function addPayment(prevState: PaymentState, formData: FormData): Promise<PaymentState> {
+    const loanId = formData.get("loanId") as string
+    const amountStr = formData.get("amount") as string
+    const method = formData.get("method") as string
+    const reference = formData.get("reference") as string
+
+    // Validate
+    const amount = parseFloat(amountStr)
+    if (isNaN(amount) || amount <= 0) {
+        return { message: "Invalid amount", errors: { amount: ["Amount must be greater than 0"] } }
+    }
+
+    try {
+        await prisma.payment.create({
+            data: {
+                loanId,
+                amount,
+                method,
+                reference: reference || null,
+                date: new Date()
+            }
+        })
+
+        revalidatePath(`/portal/loans/${loanId}`)
+        return { message: "Payment recorded successfully" }
+    } catch (error) {
+        console.error("Payment error:", error)
+        return { message: "Failed to record payment" }
+    }
+}
