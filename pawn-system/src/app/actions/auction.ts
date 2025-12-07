@@ -34,7 +34,7 @@ export async function createAuction(formData: FormData) {
 
     await prisma.item.update({
         where: { id: itemId },
-        data: { status: "AUCTION" },
+        data: { status: "IN_AUCTION" },
     })
 
     revalidatePath("/auctions")
@@ -389,7 +389,8 @@ export async function getAuction(id: string) {
 export async function getUnredeemedItems() {
     return await prisma.item.findMany({
         where: {
-            status: { in: ["OVERDUE", "FOR_SALE"] }, // Items ready for auction
+            status: "PAWNED",
+            loan: { status: "DEFAULTED" },
             auction: { is: null } // Not already in an auction
         }
     })
