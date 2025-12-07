@@ -1,6 +1,8 @@
 import { auth } from "@/auth"
-import { ProfileVerification } from "@/components/profile-verification"
+import { KYCUploadForm } from "@/components/kyc-upload-form"
 import { redirect } from "next/navigation"
+import { getUserBids } from "@/app/actions/user"
+import { BiddingHistory } from "@/components/bidding-history"
 
 export default async function ProfilePage() {
     const session = await auth()
@@ -8,6 +10,8 @@ export default async function ProfilePage() {
     if (!session?.user) {
         redirect("/login")
     }
+
+    const bids = await getUserBids()
 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
@@ -35,7 +39,12 @@ export default async function ProfilePage() {
                 </div>
             </div>
 
-            <ProfileVerification user={session.user} />
+            <KYCUploadForm
+                status={(session.user as any).verificationStatus || "UNVERIFIED"}
+                note={(session.user as any).verificationNote}
+            />
+
+            <BiddingHistory bids={bids} />
         </div>
     )
 }

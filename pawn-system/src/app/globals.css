@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "./tw-animate.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --color-border: hsl(var(--border));
@@ -27,6 +30,15 @@
 
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -69,14 +81,6 @@
   }
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
 
   *,
@@ -90,67 +94,133 @@
 
 @layer base {
   :root {
-    /* Base: Deep Midnight Blue */
-    --background: 222 47% 11%;
+    /* DEFAULT: Luxury Theme (Gold/Navy) */
+    --background: 224 71% 4%;
     --foreground: 210 40% 98%;
 
-    /* Card: Rich Dark Slate with slight transparency for glassmorphism */
-    --card: 217 33% 17%;
+    --card: 222 47% 11%;
     --card-foreground: 210 40% 98%;
 
-    /* Popover: Rich Dark Slate */
-    --popover: 217 33% 17%;
+    --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    /* Primary: Luxury Gold */
-    --primary: 45 93% 47%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 48 96% 53%;
+    --primary-foreground: 224 71% 4%;
 
-    /* Secondary: Deep Blue/Slate */
-    --secondary: 215 28% 17%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    /* Muted: Subtle Slate */
-    --muted: 215 28% 17%;
+    --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
 
-    /* Accent: Bright Gold */
-    --accent: 45 93% 47%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 48 96% 53%;
+    --accent-foreground: 224 71% 4%;
 
-    /* Destructive */
-    --destructive: 0 63% 31%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    /* Border: Subtle Gold/Slate mix */
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 45 93% 47%;
-
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 48 96% 53%;
     --radius: 0.75rem;
+
+    /* Sidebar - Luxury matches background */
+    --sidebar: 224 71% 4%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 48 96% 53%;
+    --sidebar-primary-foreground: 224 71% 4%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 48 96% 53%;
   }
 
-  .dark {
-    /* Inherit root values since we are forcing dark mode vibe */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 45 93% 47%;
-    --primary-foreground: 222 47% 11%;
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 45 93% 47%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 63% 31%;
+  [data-theme="luxury"] {
+    /* Same as root/default */
+  }
+
+  [data-theme="corporate"],
+  .dark[data-theme="corporate"] {
+    /* Corporate Theme (Blue/Slate) - Trustworthy (Forced Light) */
+    --background: 220 30% 96%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 45 93% 47%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221 83% 53%;
+
+    /* Sidebar - Corporate Light */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96.1%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  [data-theme="modern"],
+  .dark[data-theme="modern"] {
+    /* Modern Theme (Emerald/Zinc) - Fresh (Forced Light) */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 355.7 100% 97.3%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 142.1 76.2% 36.3%;
+    --accent-foreground: 355.7 100% 97.3%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142.1 76.2% 36.3%;
+
+    /* Sidebar - Modern Light */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 240 10% 3.9%;
+    --sidebar-primary: 142.1 76.2% 36.3%;
+    --sidebar-primary-foreground: 355.7 100% 97.3%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 142.1 76.2% 36.3%;
   }
 }
 
@@ -162,13 +232,9 @@
   body {
     @apply bg-background text-foreground min-h-screen;
     background-image:
-      radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.4) 0%, transparent 50%),
-      /* Purple */
-      radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.15) 0%, transparent 50%),
-      /* Gold */
-      radial-gradient(circle at 50% 80%, rgba(30, 64, 175, 0.4) 0%, transparent 50%);
-    /* Blue */
-    background-color: #020617;
+      radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 80%, rgba(30, 64, 175, 0.2) 0%, transparent 50%);
     background-attachment: fixed;
     background-size: cover;
   }
@@ -176,11 +242,19 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
+    @apply bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm;
   }
 
   .glass-card {
-    /* Very transparent dark glass */
-    @apply bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl;
+    @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01];
+  }
+
+  .neo-brutal {
+    @apply border-2 border-slate-200 dark:border-slate-800;
+    box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  }
+
+  :is(.dark .neo-brutal) {
+    box-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.1);
   }
 }

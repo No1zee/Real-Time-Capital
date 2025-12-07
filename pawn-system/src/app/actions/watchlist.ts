@@ -74,8 +74,15 @@ export async function getWatchlist() {
                             orderBy: {
                                 amount: 'desc'
                             },
-                            take: 1
-                        }
+                            take: 1,
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true
+                                    }
+                                }
+                            }
+                        },
                     },
                 },
             },
@@ -84,7 +91,43 @@ export async function getWatchlist() {
             }
         })
 
-        return watchlist.map((w: any) => w.auction)
+        // Fetch user's bids for these auctions to determine status
+        const auctionIds = watchlist.map((w) => w.auctionId)
+        const userBids = await prisma.bid.findMany({
+            where: {
+                userId,
+                auctionId: {
+                    in: auctionIds
+                }
+            },
+            select: {
+                auctionId: true,
+                amount: true
+            }
+        })
+
+        return watchlist.map((w: any) => {
+            const auction = w.auction
+            const highestBid = auction.bids[0]
+            const myBids = userBids.filter((b) => b.auctionId === auction.id)
+            const myHighestBid = myBids.sort((a, b) => Number(b.amount) - Number(a.amount))[0]
+
+            let userStatus = "NO_BID"
+            if (myHighestBid) {
+                if (highestBid && highestBid.user.id === userId) {
+                    userStatus = "WINNING"
+                } else {
+                    userStatus = "OUTBID"
+                }
+            }
+
+            if (auction.status === "COMPLETED" || auction.status === "SOLD") {
+                if (userStatus === "WINNING") userStatus = "WON"
+                else if (userStatus === "OUTBID") userStatus = "LOST"
+            }
+
+            return { ...auction, userStatus }
+        })
     } catch (error) {
         console.error("Failed to get watchlist:", error)
         return []

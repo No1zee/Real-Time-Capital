@@ -1,4 +1,3 @@
-
 import { getWatchlist } from "@/app/actions/watchlist"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +8,7 @@ import { Gavel, Heart } from "lucide-react"
 import { Countdown } from "@/components/countdown"
 import { WatchlistButton } from "@/components/watchlist-button"
 import { auth } from "@/auth"
+import { AuctionUpdates } from "@/components/auction-updates"
 
 export default async function WatchlistPage() {
     const session = await auth()
@@ -16,6 +16,7 @@ export default async function WatchlistPage() {
 
     return (
         <div className="space-y-6">
+            {watchlist.length > 0 && <AuctionUpdates auctionId={watchlist[0].id} />}
             <div>
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">My Watchlist</h2>
                 <p className="text-slate-500 dark:text-slate-400">Items you are tracking.</p>
@@ -44,12 +45,18 @@ export default async function WatchlistPage() {
                     return (
                         <Card key={auction.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 truncate pr-4">
                                     {auction.item.name}
                                 </CardTitle>
-                                <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"}>
-                                    {auction.status}
-                                </Badge>
+                                <div className="flex gap-2">
+                                    {auction.userStatus === "WINNING" && <Badge className="bg-green-500 hover:bg-green-600">Winning</Badge>}
+                                    {auction.userStatus === "OUTBID" && <Badge variant="destructive">Outbid</Badge>}
+                                    {auction.userStatus === "WON" && <Badge className="bg-green-600 hover:bg-green-700">Won</Badge>}
+                                    {auction.userStatus === "LOST" && <Badge variant="secondary">Lost</Badge>}
+                                    <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"}>
+                                        {auction.status}
+                                    </Badge>
+                                </div>
                             </CardHeader>
                             <CardContent className="p-0">
                                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
@@ -90,7 +97,7 @@ export default async function WatchlistPage() {
 
                                     <Link href={`/portal/auctions/${auction.id}`}>
                                         <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
-                                            View Auction
+                                            {auction.status === "ACTIVE" ? "Bid Now" : "View Auction"}
                                         </Button>
                                     </Link>
                                 </div>

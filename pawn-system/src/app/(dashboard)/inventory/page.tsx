@@ -1,6 +1,7 @@
 import { db } from "@/lib/db"
 import { Package, Tag, DollarSign, Calendar } from "lucide-react"
 import { InventoryActions } from "@/components/InventoryActions"
+import { BarcodeLabel } from "@/components/barcode-label"
 
 export default async function InventoryPage() {
     const items = await db.item.findMany({
@@ -94,8 +95,8 @@ export default async function InventoryPage() {
                                             <td className="p-2 align-middle">${Number(item.valuation).toFixed(2)}</td>
                                             <td className="p-2 align-middle">
                                                 <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${item.status === "FOR_SALE"
-                                                        ? "border-blue-200 bg-blue-50 text-blue-700"
-                                                        : "border-green-200 bg-green-50 text-green-700"
+                                                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                                                    : "border-green-200 bg-green-50 text-green-700"
                                                     }`}>
                                                     {item.status.replace("_", " ")}
                                                 </span>
@@ -104,14 +105,17 @@ export default async function InventoryPage() {
                                                 {item.salePrice ? `$${Number(item.salePrice).toFixed(2)}` : "-"}
                                             </td>
                                             <td className="p-2 align-middle text-right">
-                                                <InventoryActions
-                                                    item={{
-                                                        id: item.id,
-                                                        name: item.name,
-                                                        valuation: Number(item.valuation),
-                                                        status: item.status
-                                                    }}
-                                                />
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <BarcodeLabel item={item} />
+                                                    <InventoryActions
+                                                        item={{
+                                                            id: item.id,
+                                                            name: item.name,
+                                                            valuation: Number(item.valuation),
+                                                            status: item.status
+                                                        }}
+                                                    />
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

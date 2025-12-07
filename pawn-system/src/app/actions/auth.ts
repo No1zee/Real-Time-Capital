@@ -69,10 +69,14 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
         })
 
         // Auto-login after registration
+        // Auto-login after registration
+        const callbackUrl = formData.get("callbackUrl") as string || "/portal/auctions"
+        const welcomeUrl = `/portal/welcome?next=${encodeURIComponent(callbackUrl)}`
+
         await signIn("credentials", {
             email,
             password,
-            redirectTo: "/portal/welcome",
+            redirectTo: welcomeUrl,
         })
 
         return { message: "User registered successfully!" }
@@ -109,7 +113,8 @@ export async function authenticate(
     formData: FormData,
 ) {
     try {
-        await signIn("credentials", formData, { redirectTo: "/" })
+        const callbackUrl = formData.get("callbackUrl") as string || "/"
+        await signIn("credentials", formData, { redirectTo: callbackUrl })
     } catch (error) {
         if (error instanceof AuthError) {
             switch (error.type) {

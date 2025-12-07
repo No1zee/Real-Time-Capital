@@ -6,8 +6,80 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// Enums
+enum UserRole {
+  CUSTOMER
+  STAFF
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  HOLD
+  PAYMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REJECTED
+}
+
+enum TransactionMethod {
+  CASH
+  ECOCASH
+  ZIPIT
+  SYSTEM
+}
+
+enum LoanStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+}
+
+enum ItemStatus {
+  PENDING_VALUATION
+  VALUED
+  PAWNED
+  IN_AUCTION
+  SOLD
+  REDEEMED
+}
+
+enum AuctionStatus {
+  SCHEDULED
+  ACTIVE
+  ENDED
+  CANCELLED
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationType {
+  OUTBID
+  AUCTION_WON
+  AUCTION_LOST
+  SYSTEM
 }
 
 model User {
@@ -17,15 +89,19 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          String    @default("CUSTOMER") // SUPER_ADMIN, ADMIN, STAFF, CUSTOMER
-  verificationStatus String    @default("UNVERIFIED") // UNVERIFIED, PENDING, VERIFIED
+  role          UserRole    @default(CUSTOMER)
+  verificationStatus VerificationStatus    @default(UNVERIFIED)
   idImage       String?
+  verificationNote String?
+  isActive      Boolean   @default(true)
   accounts      Account[]
   sessions      Session[]
   bids          Bid[]
   watchlist     Watchlist[]
   autoBids      AutoBid[]
   notifications Notification[]
+  ratings       Rating[]
+  disputes      Dispute[]
   walletBalance   Decimal       @default(0)
   practiceBalance Decimal       @default(50000)
   transactions    Transaction[]
@@ -34,18 +110,22 @@ model User {
 }
 
 model Transaction {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  amount    Decimal
-  type      String   // DEPOSIT, WITHDRAWAL, HOLD, PAYMENT
-  reference String?
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  amount         Decimal
+  type           TransactionType
+  status         TransactionStatus   @default(PENDING)
+  method         TransactionMethod
+  reference      String?
+  proofOfPayment String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Account {
   id                 String  @id @default(cuid())
-  userId             String
+  userId         String
   type               String
   provider           String
   providerAccountId  String
@@ -101,7 +181,7 @@ model Loan {
   durationDays    Int
   startDate       DateTime   @default(now())
   dueDate         DateTime
-  status          String     @default("PENDING") // SQLite: No Enum support
+  status          LoanStatus     @default(PENDING)
   items           Item[]
   payments        Payment[]
   createdAt       DateTime   @default(now())
@@ -119,9 +199,9 @@ model Item {
   description String
   serialNumber String?
   valuation   Decimal
-  status      String     @default("PENDING_VALUATION") // SQLite: No Enum support
+  status      ItemStatus     @default(PENDING_VALUATION)
   location    String?    // e.g., "Safe 1", "Warehouse A"
-  images      String     @default("[]") // SQLite: No List support, storing as JSON string
+  images      String     @default("[]") // Keeping as JSON String for now to minimize refactor risk
   salePrice   Decimal?
   soldAt      DateTime?
   createdAt   DateTime   @default(now())
@@ -135,7 +215,7 @@ model Payment {
   loan        Loan     @relation(fields: [loanId], references: [id])
   amount      Decimal
   date        DateTime @default(now())
-  method      String   // Cash, Transfer, EcoCash
+  method      String   // Keeping string for flexibility or switch to TransactionMethod
   reference   String?
   createdAt   DateTime @default(now())
 }
@@ -148,11 +228,13 @@ model Auction {
   currentBid  Decimal?
   startTime   DateTime
   endTime     DateTime
-  status      String   @default("SCHEDULED") // SCHEDULED, ACTIVE, ENDED, CANCELLED
+  status      AuctionStatus   @default(SCHEDULED)
   isPractice  Boolean  @default(false)
   bids        Bid[]
   watchlist   Watchlist[]
   autoBids    AutoBid[]
+  rating      Rating?
+  disputes    Dispute[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -195,9 +277,33 @@ model Notification {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  type      String   // OUTBID, AUCTION_WON, AUCTION_LOST, SYSTEM
+  type      NotificationType
   message   String
   isRead    Boolean  @default(false)
   auctionId String?
   createdAt DateTime @default(now())
+}
+
+model Rating {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  auctionId String   @unique // One rating per auction
+  auction   Auction  @relation(fields: [auctionId], references: [id])
+  score     Int      // 1-5
+  comment   String?
+  createdAt DateTime @default(now())
+}
+
+model Dispute {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  auctionId   String
+  auction     Auction  @relation(fields: [auctionId], references: [id])
+  reason      String
+  description String
+  status      DisputeStatus   @default(OPEN)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -44,9 +44,7 @@ export const authConfig = {
                 }
 
                 if (isLoggedIn) {
-                    if (userRole !== "CUSTOMER") {
-                        return NextResponse.redirect(new URL("/", nextUrl.nextUrl))
-                    }
+                    // Allow ALL logged in users (Customer, Staff, Admin) to access portal
                     return true
                 }
 

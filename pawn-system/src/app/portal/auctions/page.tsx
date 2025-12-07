@@ -7,14 +7,29 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Gavel } from "lucide-react"
 import { Countdown } from "@/components/countdown"
+import { SearchFilters } from "@/components/search-filters"
 
 import { auth } from "@/auth"
 import { getWatchlist } from "@/app/actions/watchlist"
 import { WatchlistButton } from "@/components/watchlist-button"
 
-export default async function CustomerAuctionsPage() {
+export default async function CustomerAuctionsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | undefined }>
+}) {
     const session = await auth()
-    const auctions = await getAuctions("CUSTOMER")
+    const params = await searchParams
+
+    const filters = {
+        query: params.query,
+        category: params.category,
+        minPrice: params.minPrice ? Number(params.minPrice) : undefined,
+        maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
+        sort: params.sort,
+    }
+
+    const auctions = await getAuctions("CUSTOMER", filters)
     const watchlist = await getWatchlist()
     const watchedIds = new Set(watchlist.map((a: any) => a.id))
 
@@ -24,6 +39,8 @@ export default async function CustomerAuctionsPage() {
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
                 <p className="text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
             </div>
+
+            <SearchFilters />
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {auctions.map((auction: any) => {

@@ -3,6 +3,7 @@ import Link from "next/link"
 import { ArrowLeft, User, Package, CreditCard, Calendar, DollarSign, AlertCircle } from "lucide-react"
 import { db } from "@/lib/db"
 import { LoanDetailsClient } from "@/components/LoanDetailsClient"
+import { PawnTicket } from "@/components/pawn-ticket"
 
 interface LoanDetailsPageProps {
     params: Promise<{
@@ -65,11 +66,14 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
                         <p className="text-muted-foreground">Created on {new Date(loan.createdAt).toLocaleDateString()}</p>
                     </div>
                 </div>
-                <LoanDetailsClient
-                    loanId={loan.id}
-                    remainingBalance={remainingBalance}
-                    status={loan.status}
-                />
+                <div className="flex gap-2">
+                    <PawnTicket loan={loan} customer={loan.customer} items={loan.items} />
+                    <LoanDetailsClient
+                        loanId={loan.id}
+                        remainingBalance={remainingBalance}
+                        status={loan.status}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

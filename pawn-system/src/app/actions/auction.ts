@@ -8,7 +8,8 @@ import { redirect } from "next/navigation"
 
 export async function createAuction(formData: FormData) {
     const session = await auth()
-    if (session?.user?.role !== "STAFF" && session?.user?.role !== "ADMIN") {
+    const user = session?.user as any
+    if (user?.role !== "STAFF" && user?.role !== "ADMIN") {
         throw new Error("Unauthorized")
     }
 
@@ -49,11 +50,25 @@ export async function placeBid(auctionId: string, amount: number) {
     })
     if (!user) throw new Error("User not found")
 
+    if (user.role === "ADMIN" || user.role === "STAFF") {
+        throw new Error("Administrators and staff cannot participate in auctions")
+    }
+
     const auction = await prisma.auction.findUnique({
         where: { id: auctionId },
+        include: { item: true }
     })
 
     if (!auction) throw new Error("Auction not found")
+
+    // High Value Item Access Control
+    // Value > 1000 or Current Bid > 1000
+    const currentPriceCheck = Number(auction.currentBid || auction.startPrice)
+    const isHighValue = Number(auction.item.valuation) > 1000 || currentPriceCheck > 1000
+
+    if (isHighValue && user.verificationStatus !== "VERIFIED") {
+        throw new Error("Identity verification required for high-value items")
+    }
 
     // Simple status check, can be enhanced with time checks
     const now = new Date()
@@ -125,6 +140,10 @@ export async function setAutoBid(auctionId: string, maxAmount: number) {
         where: { email: session.user.email },
     })
     if (!user) throw new Error("User not found")
+
+    if (user.role === "ADMIN" || user.role === "STAFF") {
+        throw new Error("Administrators and staff cannot participate in auctions")
+    }
 
     await prisma.autoBid.upsert({
         where: {
@@ -243,7 +262,15 @@ async function placeSystemBid(auctionId: string, userId: string, amount: number)
     ])
 }
 
-export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER") {
+export interface AuctionFilters {
+    query?: string
+    category?: string
+    minPrice?: number
+    maxPrice?: number
+    sort?: string
+}
+
+export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filters?: AuctionFilters) {
     const now = new Date()
 
     if (role === "STAFF") {
@@ -253,16 +280,93 @@ export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER") {
         })
     }
 
-    // For customers, show Active and Scheduled (maybe)
-    return await prisma.auction.findMany({
-        where: {
+    // Build where clause for filters
+    const where: any = {
+        OR: [
+            { status: "ACTIVE" },
+            { status: "SCHEDULED" }
+        ]
+    }
+
+    if (filters?.query) {
+        where.item = {
             OR: [
-                { status: "ACTIVE" },
-                { status: "SCHEDULED" }
+                { name: { contains: filters.query } }, // SQLite is case-insensitive by default for contains? No, usually case-sensitive.
+                // Prisma with SQLite: contains is case-insensitive?
+                // Actually, for SQLite, Prisma maps contains to LIKE which is case-insensitive for ASCII characters.
+                { description: { contains: filters.query } }
             ]
-        },
+        }
+    }
+
+    if (filters?.category && filters.category !== "All") {
+        where.item = {
+            ...where.item,
+            category: filters.category
+        }
+    }
+
+    if (filters?.minPrice || filters?.maxPrice) {
+        where.currentBid = {
+            gte: filters.minPrice || 0,
+            lte: filters.maxPrice || 1000000 // Arbitrary high number
+        }
+        // Also check startPrice if no bids? 
+        // Complex with Prisma OR logic for price. 
+        // Let's simplify: Filter based on current price (which is currentBid or startPrice)
+        // Prisma doesn't support computed fields in where easily.
+        // For now, let's filter on startPrice if currentBid is null, or currentBid.
+        // Actually, let's just filter on startPrice for simplicity in this iteration, 
+        // or we can do post-filtering if dataset is small. 
+        // Given it's a prototype/MVP, let's try to do it in DB if possible.
+        // But `currentBid` is nullable.
+        // Let's stick to simple filtering on `startPrice` for now as a proxy, or just `currentBid` if it exists.
+        // A better approach for "Current Price" filter:
+        // We can't easily do (currentBid ?? startPrice) in Prisma where.
+        // Let's ignore price filter in DB for now and do it in memory if needed, or just filter strictly on startPrice.
+        // User request: "Powerful search and filtering".
+        // Let's try to be accurate.
+        // We can use OR:
+        // OR: [
+        //   { currentBid: { gte: min, lte: max } },
+        //   { currentBid: null, startPrice: { gte: min, lte: max } }
+        // ]
+        const min = filters.minPrice || 0
+        const max = filters.maxPrice || 1000000
+
+        where.AND = [
+            {
+                OR: [
+                    { currentBid: { gte: min, lte: max } },
+                    { currentBid: null, startPrice: { gte: min, lte: max } }
+                ]
+            }
+        ]
+    }
+
+    // Sort logic
+    let orderBy: any = { endTime: "asc" }
+    if (filters?.sort) {
+        switch (filters.sort) {
+            case "ending_soon":
+                orderBy = { endTime: "asc" }
+                break
+            case "newly_listed":
+                orderBy = { startTime: "desc" }
+                break
+            case "price_asc":
+                orderBy = { startPrice: "asc" } // Approximation
+                break
+            case "price_desc":
+                orderBy = { startPrice: "desc" } // Approximation
+                break
+        }
+    }
+
+    return await prisma.auction.findMany({
+        where,
         include: { item: true, _count: { select: { bids: true } } },
-        orderBy: { endTime: "asc" },
+        orderBy,
     })
 }
 

@@ -9,11 +9,11 @@ export function NotificationBell({ initialCount = 0 }: { initialCount?: number }
     const [count, setCount] = useState(initialCount)
 
     useEffect(() => {
-        // Poll for notifications every 30 seconds
+        // Poll for notifications every 5 seconds
         const interval = setInterval(async () => {
             const newCount = await getUnreadCount()
             setCount(newCount)
-        }, 30000)
+        }, 5000)
 
         return () => clearInterval(interval)
     }, [])

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, Banknote, Gavel, Package, Settings, LogOut, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/actions/auth"
+import { ThemeSwitcher } from "@/components/theme-switcher"
 
 const navigation = [
     { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -19,11 +20,11 @@ export function Sidebar() {
     const pathname = usePathname()
 
     return (
-        <div className="flex h-full w-64 flex-col bg-primary text-primary-foreground border-r border-primary-foreground/10">
-            <div className="flex h-16 items-center px-6 border-b border-primary-foreground/10">
+        <div className="flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+            <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
                 <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center">
-                        <span className="font-bold text-accent-foreground text-lg">R</span>
+                    <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                        <span className="font-bold text-primary-foreground text-lg">R</span>
                     </div>
                     <h1 className="text-lg font-bold tracking-tight">Real Time Capital</h1>
                 </div>
@@ -39,14 +40,14 @@ export function Sidebar() {
                                 className={cn(
                                     "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
                                     isActive
-                                        ? "bg-accent text-accent-foreground shadow-md"
-                                        : "text-primary-foreground/70 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                                        ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-md"
+                                        : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
                                 )}
                             >
                                 <item.icon
                                     className={cn(
                                         "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                                        isActive ? "text-accent-foreground" : "text-primary-foreground/50 group-hover:text-primary-foreground"
+                                        isActive ? "text-sidebar-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground"
                                     )}
                                     aria-hidden="true"
                                 />
@@ -56,10 +57,14 @@ export function Sidebar() {
                     })}
                 </nav>
             </div>
-            <div className="border-t border-primary-foreground/10 p-4">
+            <div className="border-t border-sidebar-border p-4 space-y-4">
+                <div className="flex items-center justify-between px-3">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">Theme</span>
+                    <ThemeSwitcher />
+                </div>
                 <form action={logout}>
-                    <button type="submit" className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-primary-foreground/70 hover:bg-destructive/20 hover:text-destructive-foreground transition-colors">
-                        <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-primary-foreground/50 group-hover:text-destructive-foreground" />
+                    <button type="submit" className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
+                        <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-destructive" />
                         Sign Out
                     </button>
                 </form>
