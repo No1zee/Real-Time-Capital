@@ -130,21 +130,22 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                         {/* Footer (User Profile) */}
                         <div className="p-6 border-t border-white/10 bg-black/20">
                             {user ? (
-                                <>
-                                    <div className="mb-4 px-4">
-                                        <p className="text-sm font-medium text-white">{user.name}</p>
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-white truncate">{user.name}</p>
                                         <p className="text-xs text-slate-400 truncate">{user.email}</p>
                                     </div>
                                     <form action="/api/auth/signout" method="POST">
-                                        <button
+                                        <Button
                                             type="submit"
-                                            className="flex items-center gap-3 px-4 py-2 w-full text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm font-medium"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-10 w-10 rounded-full"
                                         >
-                                            <LogOut className="w-4 h-4" />
-                                            Sign Out
-                                        </button>
+                                            <LogOut className="w-5 h-5" />
+                                        </Button>
                                     </form>
-                                </>
+                                </div>
                             ) : (
                                 <Link href="/login" onClick={() => setIsOpen(false)}>
                                     <Button className="w-full rounded-xl bg-amber-500 text-slate-900 hover:bg-amber-600 font-bold shadow-lg shadow-amber-500/20">
