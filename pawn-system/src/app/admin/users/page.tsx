@@ -1,5 +1,6 @@
 import { getAllUsers, updateUserRole, toggleUserStatus } from "@/app/actions/admin/users"
 import { Badge } from "@/components/ui/badge"
+import { TierBadge } from "@/components/tier-badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -64,9 +65,12 @@ export default async function AdminUsersPage() {
                                         </Link>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={user.role === "ADMIN" ? "destructive" : user.role === "STAFF" ? "default" : "secondary"}>
-                                            {user.role}
-                                        </Badge>
+                                        <div className="flex gap-2">
+                                            <Badge variant={user.role === "ADMIN" ? "destructive" : user.role === "STAFF" ? "default" : "secondary"}>
+                                                {user.role}
+                                            </Badge>
+                                            <TierBadge tier={user.tier} />
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant={user.isActive ? "outline" : "destructive"} className={user.isActive ? "text-green-600 border-green-200 bg-green-50" : ""}>

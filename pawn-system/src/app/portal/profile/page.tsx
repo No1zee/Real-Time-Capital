@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { KYCUploadForm } from "@/components/kyc-upload-form"
+import { TierBadge } from "@/components/tier-badge"
 import { redirect } from "next/navigation"
 import { getUserBids } from "@/app/actions/user"
 import { BiddingHistory } from "@/components/bidding-history"
@@ -36,6 +37,7 @@ export default async function ProfilePage() {
                     <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200">
                         {session.user.role}
                     </div>
+                    <TierBadge tier={(session.user as any).tier} className="ml-2" />
                 </div>
             </div>
 
