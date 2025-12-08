@@ -20,10 +20,11 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
             {isOpen && (
                 <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                     <div
-                        className="fixed inset-y-0 left-0 w-72 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 p-6 shadow-2xl transition-transform"
+                        className="fixed inset-y-0 left-0 w-72 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 shadow-2xl transition-transform flex flex-col"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex items-center justify-between mb-8">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-6 pb-2">
                             <Link href="/portal/auctions" onClick={() => setIsOpen(false)}>
                                 <h1 className="text-2xl font-bold text-white cursor-pointer">
                                     <span className="text-amber-500">Real Time</span> Capital
@@ -34,95 +35,100 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                             </Button>
                         </div>
 
-                        <nav className="space-y-2">
-                            {user && (
-                                <>
-                                    <Link
-                                        href="/portal"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                                    >
-                                        <LayoutDashboard className="w-5 h-5" />
-                                        Dashboard
-                                    </Link>
-                                    <Link
-                                        href="/portal/loans"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        My Loans
-                                    </Link>
-                                    <Link
-                                        href="/portal/items"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                                    >
-                                        <Package className="w-5 h-5" />
-                                        My Items
-                                    </Link>
-                                </>
-                            )}
-                            <Link
-                                href="/portal/auctions"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                            >
-                                <Gavel className="w-5 h-5" />
-                                Auctions
-                            </Link>
-                            {user && (
-                                <>
-                                    <Link
-                                        href="/portal/watchlist"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                                    >
-                                        <Heart className="w-5 h-5" />
-                                        My Watchlist
-                                    </Link>
-                                    <Link
-                                        href="/portal/notifications"
-                                        onClick={() => setIsOpen(false)}
-                                        className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                                    >
-                                        <div className="relative">
-                                            <Bell className="w-5 h-5" />
+                        {/* Scrollable Navigation */}
+                        <div className="flex-1 overflow-y-auto px-6 py-4">
+                            <nav className="space-y-1">
+                                {user && (
+                                    <>
+                                        <Link
+                                            href="/portal"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <LayoutDashboard className="w-5 h-5" />
+                                            Dashboard
+                                        </Link>
+                                        <Link
+                                            href="/portal/loans"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <FileText className="w-5 h-5" />
+                                            My Loans
+                                        </Link>
+                                        <Link
+                                            href="/portal/items"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <Package className="w-5 h-5" />
+                                            My Items
+                                        </Link>
+                                    </>
+                                )}
+                                <Link
+                                    href="/portal/auctions"
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                >
+                                    <Gavel className="w-5 h-5" />
+                                    Auctions
+                                </Link>
+                                {user && (
+                                    <>
+                                        <Link
+                                            href="/portal/watchlist"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <Heart className="w-5 h-5" />
+                                            My Watchlist
+                                        </Link>
+                                        <Link
+                                            href="/portal/notifications"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <div className="relative">
+                                                <Bell className="w-5 h-5" />
+                                                {unreadCount > 0 && (
+                                                    <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500" />
+                                                )}
+                                            </div>
+                                            Notifications
                                             {unreadCount > 0 && (
-                                                <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-red-500" />
+                                                <span className="ml-auto bg-red-500/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full">
+                                                    {unreadCount}
+                                                </span>
                                             )}
-                                        </div>
-                                        Notifications
-                                        {unreadCount > 0 && (
-                                            <span className="ml-auto bg-red-500/20 text-red-400 text-xs font-bold px-2 py-0.5 rounded-full">
-                                                {unreadCount}
-                                            </span>
-                                        )}
-                                    </Link>
-                                </>
-                            )}
-                            <div className="pt-4 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                Support
-                            </div>
-                            <Link
-                                href="/portal/about"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                            >
-                                <Info className="w-5 h-5" />
-                                About Us
-                            </Link>
-                            <Link
-                                href="/portal/contact"
-                                onClick={() => setIsOpen(false)}
-                                className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                            >
-                                <Mail className="w-5 h-5" />
-                                Contact Us
-                            </Link>
-                        </nav>
+                                        </Link>
+                                    </>
+                                )}
 
-                        <div className="absolute bottom-6 left-6 right-6">
+                                <div className="pt-6 pb-2 px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    Support
+                                </div>
+                                <Link
+                                    href="/portal/about"
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                >
+                                    <Info className="w-5 h-5" />
+                                    About Us
+                                </Link>
+                                <Link
+                                    href="/portal/contact"
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                >
+                                    <Mail className="w-5 h-5" />
+                                    Contact Us
+                                </Link>
+                            </nav>
+                        </div>
+
+                        {/* Footer (User Profile) */}
+                        <div className="p-6 border-t border-white/10 bg-black/20">
                             {user ? (
                                 <>
                                     <div className="mb-4 px-4">
