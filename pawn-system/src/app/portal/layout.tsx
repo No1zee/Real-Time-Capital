@@ -2,7 +2,7 @@
 import { auth } from "@/auth"
 import { logout } from "@/app/actions/auth"
 import Link from "next/link"
-import { LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Heart, Bell, Shield } from "lucide-react"
+import { LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Heart, Bell, Shield, Wallet } from "lucide-react"
 import { MobileNav } from "@/components/mobile-nav"
 import { Button } from "@/components/ui/button"
 import { NotificationBell } from "@/components/notification-bell"
@@ -101,6 +101,13 @@ export default async function PortalLayout({
                             >
                                 <Package className="w-5 h-5 group-hover:text-purple-400 transition-colors" />
                                 My Items
+                            </Link>
+                            <Link
+                                href="/portal/wallet"
+                                className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
+                            >
+                                <Wallet className="w-5 h-5 group-hover:text-amber-400 transition-colors" />
+                                My Wallet
                             </Link>
                             <Link
                                 href="/portal/watchlist"
