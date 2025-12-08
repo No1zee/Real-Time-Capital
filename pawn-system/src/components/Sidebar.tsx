@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Banknote, Gavel, Package, Settings, LogOut, Users } from "lucide-react"
+import { LayoutDashboard, Banknote, Gavel, Package, Settings, LogOut, Users, Wallet } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/actions/auth"
 import { ThemeSwitcher } from "@/components/theme-switcher"
@@ -13,6 +13,7 @@ const navigation = [
     { name: "Inventory", href: "/inventory", icon: Package },
     { name: "Auctions", href: "/auctions", icon: Gavel },
     { name: "Customers", href: "/customers", icon: Users },
+    { name: "My Wallet", href: "/portal/wallet", icon: Wallet },
     { name: "Settings", href: "/settings", icon: Settings },
 ]
 
