@@ -35,9 +35,16 @@ export default async function CustomerAuctionsPage({
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
-                <p className="text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
+                    <p className="text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
+                </div>
+                <Link href="/portal/auctions/archive">
+                    <Button variant="outline" className="gap-2">
+                        View Past Auctions
+                    </Button>
+                </Link>
             </div>
 
             <SearchFilters />

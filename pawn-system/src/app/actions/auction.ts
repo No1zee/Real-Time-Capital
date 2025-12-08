@@ -270,7 +270,7 @@ export interface AuctionFilters {
     sort?: string
 }
 
-export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filters?: AuctionFilters) {
+export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filters?: AuctionFilters, includeArchived: boolean = false) {
     const now = new Date()
 
     if (role === "STAFF") {
@@ -281,8 +281,15 @@ export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filte
     }
 
     // Build where clause for filters
-    const where: any = {
-        OR: [
+    // Default: Active/Scheduled. If archived, then Ended/Sold
+    const where: any = {}
+
+    if (includeArchived) {
+        where.status = {
+            in: ["ENDED", "SOLD", "COMPLETED"] // Catch-all for end states
+        }
+    } else {
+        where.OR = [
             { status: "ACTIVE" },
             { status: "SCHEDULED" }
         ]
@@ -361,6 +368,9 @@ export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filte
                 orderBy = { startPrice: "desc" } // Approximation
                 break
         }
+    } else if (includeArchived) {
+        // Default sort for archive: Most recently ended
+        orderBy = { endTime: "desc" }
     }
 
     return await prisma.auction.findMany({
