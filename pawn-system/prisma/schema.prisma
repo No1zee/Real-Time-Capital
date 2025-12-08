@@ -203,6 +203,7 @@ model Item {
   status      ItemStatus     @default(PENDING_VALUATION)
   location    String?    // e.g., "Safe 1", "Warehouse A"
   images      String     @default("[]") // Keeping as JSON String for now to minimize refactor risk
+  valuationDetails String? // JSON string for detailed attributes (Condition, Provenance, Artist, etc.)
   salePrice   Decimal?
   soldAt      DateTime?
   createdAt   DateTime   @default(now())

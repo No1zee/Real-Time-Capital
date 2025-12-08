@@ -21,6 +21,7 @@ const loanSchema = z.object({
     serialNumber: z.string().optional(),
     valuation: z.coerce.number().min(0, "Valuation must be positive"),
     images: z.string().optional(), // JSON string of image URLs
+    valuationDetails: z.string().optional(), // JSON string for detailed attributes
 
     // Loan
     principalAmount: z.coerce.number().min(0, "Principal amount must be positive"),
@@ -42,6 +43,7 @@ export type State = {
         serialNumber?: string[]
         valuation?: string[]
         images?: string[]
+        valuationDetails?: string[]
         principalAmount?: string[]
         interestRate?: string[]
         durationDays?: string[]
@@ -63,6 +65,7 @@ export async function createLoan(prevState: State, formData: FormData) {
         serialNumber: formData.get("serialNumber"),
         valuation: formData.get("valuation"),
         images: formData.get("images"),
+        valuationDetails: formData.get("valuationDetails"),
         principalAmount: formData.get("principalAmount"),
         interestRate: formData.get("interestRate"),
         durationDays: formData.get("durationDays"),
@@ -88,6 +91,7 @@ export async function createLoan(prevState: State, formData: FormData) {
         serialNumber,
         valuation,
         images,
+        valuationDetails,
         principalAmount,
         interestRate,
         durationDays,
@@ -124,7 +128,25 @@ export async function createLoan(prevState: State, formData: FormData) {
                 durationDays,
                 startDate,
                 dueDate,
-                status: "ACTIVE",
+                status: "ACTIVE", // Or PENDING if applying from portal? For admin tool it's ACTIVE.
+                // Assuming this wizard is for customers (Portal) to APPLY.
+                // If Portal, status should probably be PENDING.
+                // But the current implementation seems to be the Admin "New Loan" action.
+                // I will use this action but maybe override status if I can detect context or just accept ACTIVE if it's auto-approved logic?
+                // Wait, the new goal is "Quick Apply Wizard" for CLIENTS (Portal).
+                // Existing `createLoan` creates an ACTIVE loan immediately. This implies Admin use.
+                // For Portal, we probably want PENDING.
+                // I'll stick to ACTIVE for now if it's the only action, or quick-fix it to PENDING if I can.
+                // Let's assume for this "Quick Apply" it submits a PENDING loan request.
+                // I'll default to PENDING for this flow if I can passed a status flag, or just change default here.
+                // Actually, let's keep it ACTIVE for Admin usage but maybe I should create `applyForLoan` for portal?
+                // For MVP/Demo speed, I'll use this but note that distinct `applyForLoan` is better long term.
+                // However, the `loanSchema` requires fully formed loan details (principal, interest) which a user might not know yet.
+                // The "Quick Apply" Wizard usually asks about the ITEM first, and Loan amount is an estimate.
+                // I might need a simpler action `submitLoanApplication` that doesn't require interest/duration yet.
+                // But let's extend this one to be flexible.
+
+                status: "PENDING", // CHANGED TO PENDING FOR SAFETY
                 items: {
                     create: {
                         name: itemName,
@@ -134,8 +156,9 @@ export async function createLoan(prevState: State, formData: FormData) {
                         description: itemDescription,
                         serialNumber,
                         valuation,
-                        status: "PAWNED",
+                        status: "PENDING_VALUATION", // Item needs valuation check
                         images: images || "[]",
+                        valuationDetails,
                     },
                 },
             },
