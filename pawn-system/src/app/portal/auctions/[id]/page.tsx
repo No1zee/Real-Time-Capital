@@ -1,4 +1,5 @@
 import { getAuction, placeBid, setAutoBid } from "@/app/actions/auction"
+import { logActivity } from "@/app/actions/admin/analytics"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -21,6 +22,13 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<{
     const auction = await getAuction(id)
     const session = await auth()
     const isItemWatched = await isWatched(id)
+
+    // Log User Activity (Non-blocking)
+    logActivity("VIEW_ITEM", {
+        auctionId: auction?.id,
+        itemId: auction?.item.id,
+        category: auction?.item.category
+    })
 
     if (!auction) {
         notFound()

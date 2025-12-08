@@ -92,13 +92,7 @@ export default async function PortalLayout({
                                 <LayoutDashboard className="w-5 h-5 group-hover:text-blue-400 transition-colors" />
                                 Dashboard
                             </Link>
-                            <Link
-                                href="/portal/loans/apply"
-                                className="flex items-center gap-3 px-4 py-3 text-primary bg-primary/10 hover:bg-primary/20 rounded-lg transition-all group font-bold mb-2 border border-primary/20"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><circle cx="12" cy="12" r="10" /><path d="M8 12h8" /><path d="M12 8v8" /></svg>
-                                Apply for Loan
-                            </Link>
+
 
                             <Link
                                 href="/portal/loans"

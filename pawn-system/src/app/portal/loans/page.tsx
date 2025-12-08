@@ -11,9 +11,14 @@ export default async function PortalLoansPage() {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">My Loans</h2>
-                <p className="text-slate-500 dark:text-slate-400">View and manage your active and past loans.</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">My Loans</h2>
+                    <p className="text-slate-500 dark:text-slate-400">View and manage your active and past loans.</p>
+                </div>
+                <Link href="/portal/loans/apply" className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                    Apply for Loan
+                </Link>
             </div>
 
             {loans.length === 0 ? (

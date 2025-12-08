@@ -5,6 +5,7 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { createNotification } from "./notification"
 import { redirect } from "next/navigation"
+import { logActivity } from "@/app/actions/admin/analytics"
 
 export async function createAuction(formData: FormData) {
     const session = await auth()
@@ -272,6 +273,16 @@ export interface AuctionFilters {
 
 export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filters?: AuctionFilters, includeArchived: boolean = false) {
     const now = new Date()
+
+    // Log Search Activity
+    if (filters?.query || (filters?.category && filters.category !== "All")) {
+        // Non-blocking log
+        logActivity("SEARCH", {
+            query: filters.query,
+            category: filters.category,
+            priceRange: filters.minPrice ? `${filters.minPrice}-${filters.maxPrice}` : undefined
+        })
+    }
 
     if (role === "STAFF") {
         return await prisma.auction.findMany({

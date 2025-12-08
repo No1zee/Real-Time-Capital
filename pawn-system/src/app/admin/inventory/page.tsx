@@ -11,7 +11,7 @@ import {
     TableRow
 } from "@/components/ui/table"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { Search, Gavel, AlertTriangle, Package } from "lucide-react"
+import { Search, Gavel, AlertTriangle, Package, Printer } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -126,6 +126,10 @@ export default async function AdminInventoryPage() {
                                                     )}
                                                 </form>
                                             )}
+                                            {/* Action: Print Label (Placeholder) */}
+                                            <Button variant="ghost" size="icon" title="Print Barcode (Coming Soon)" disabled>
+                                                <Printer className="h-4 w-4 text-slate-400" />
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
