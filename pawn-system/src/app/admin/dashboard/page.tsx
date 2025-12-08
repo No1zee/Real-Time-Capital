@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
 import { Users, Gavel, DollarSign, AlertCircle, ArrowLeft } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+// New Imports
+import { getRevenueData, getUserGrowthData } from "@/app/actions/admin/analytics"
+import { AnalyticsWidgets } from "@/components/admin/analytics-widgets"
 
 export default async function AdminDashboardPage() {
     const session = await auth()
@@ -19,6 +22,8 @@ export default async function AdminDashboardPage() {
     }
 
     const pendingTransactions = await getPendingTransactions()
+    const revenueData = await getRevenueData()
+    const growthData = await getUserGrowthData()
 
     // Fetch some basic stats
     const totalUsers = await prisma.user.count()
@@ -75,6 +80,9 @@ export default async function AdminDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* Analytics Section */}
+            <AnalyticsWidgets revenueData={revenueData} growthData={growthData} />
 
             <div className="space-y-4">
                 <h2 className="text-xl font-bold">Pending Verifications</h2>

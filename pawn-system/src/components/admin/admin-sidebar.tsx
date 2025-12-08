@@ -10,7 +10,9 @@ import {
     Settings,
     LogOut,
     ArrowLeft,
-    Shield
+    Shield,
+    Package,
+    FileBarChart
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/actions/auth"
@@ -19,8 +21,10 @@ import { ThemeSwitcher } from "@/components/theme-switcher"
 const navigation = [
     { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
     { name: "User Management", href: "/admin/users", icon: Users },
+    { name: "Global Inventory", href: "/admin/inventory", icon: Package },
     { name: "Auctions", href: "/admin/auctions", icon: Gavel },
     { name: "Payments", href: "/admin/payments", icon: CreditCard },
+    { name: "Reports", href: "/admin/reports", icon: FileBarChart },
     { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
