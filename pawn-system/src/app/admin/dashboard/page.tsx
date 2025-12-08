@@ -87,7 +87,10 @@ export default async function AdminDashboardPage() {
             <div className="space-y-4">
                 <h2 className="text-xl font-bold">Pending Verifications</h2>
                 <AdminVerificationTable users={(await getPendingVerifications()).map(u => ({
-                    ...u,
+                    id: u.id,
+                    name: u.name,
+                    email: u.email,
+                    idImage: u.idImage,
                     createdAt: u.createdAt.toISOString()
                 }))} />
             </div>
@@ -95,10 +98,16 @@ export default async function AdminDashboardPage() {
             <div className="space-y-4">
                 <h2 className="text-xl font-bold">Pending Payments</h2>
                 <AdminPaymentTable initialTransactions={pendingTransactions.map(t => ({
-                    ...t,
+                    id: t.id,
                     amount: t.amount.toNumber(),
+                    method: t.method,
+                    reference: t.reference,
+                    status: t.status,
                     createdAt: t.createdAt.toISOString(),
-                    updatedAt: t.updatedAt.toISOString()
+                    user: {
+                        name: t.user.name,
+                        email: t.user.email
+                    }
                 }))} />
             </div>
         </div>
