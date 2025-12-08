@@ -7,6 +7,8 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Plus, Gavel } from "lucide-react"
 
+export const dynamic = "force-dynamic"
+
 export default async function AuctionsPage() {
     const auctions = await getAuctions("STAFF")
 
