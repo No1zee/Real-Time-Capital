@@ -163,3 +163,49 @@ export async function getUserCRMStats(userId: string) {
         recentPurchases: purchases.slice(0, 5)
     }
 }
+
+export async function getBusinessKPIs() {
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") {
+        throw new Error("Unauthorized")
+    }
+
+    // 1. Redemption Rate (Loan Health)
+    const totalLoans = await prisma.loan.count()
+    const completedLoans = await prisma.loan.count({ where: { status: "COMPLETED" } })
+    const redemptionRate = totalLoans > 0 ? (completedLoans / totalLoans) * 100 : 0
+
+    // 2. Sell-Through Rate (Auction Efficiency)
+    const endedAuctions = await prisma.auction.count({ where: { status: "ENDED", isPractice: false } })
+    const soldItems = await prisma.item.count({ where: { status: "SOLD" } })
+    // Proxy: Assuming sold items are mostly via auction in this context
+    const sellThroughRate = endedAuctions > 0 ? (soldItems / endedAuctions) * 100 : 0
+
+    // 3. Active Loan Book Value (Financial Exposure)
+    const activeLoans = await prisma.loan.findMany({
+        where: { status: "ACTIVE" },
+        select: { principalAmount: true, interestRate: true }
+    })
+    const loanBookValue = activeLoans.reduce((sum, loan) => sum + Number(loan.principalAmount), 0)
+
+    // 4. Yield (Approximate Annualized Return based on Active Loans interest based on principal)
+    // Actually simpler: Average Interest Rate of active portfolio
+    const avgInterest = activeLoans.length > 0
+        ? activeLoans.reduce((sum, loan) => sum + Number(loan.interestRate), 0) / activeLoans.length
+        : 0
+
+    // 5. Bid-to-View Ratio (Engagement)
+    const totalBids = await prisma.bid.count()
+    const totalViews = await prisma.userActivity.count({ where: { type: "VIEW_ITEM" } })
+    const bidToViewRatio = totalViews > 0 ? (totalBids / totalViews) : 0
+
+    return {
+        redemptionRate,
+        sellThroughRate,
+        loanBookValue,
+        avgInterest,
+        bidToViewRatio,
+        totalLoans,
+        activeLoansCount: activeLoans.length
+    }
+}

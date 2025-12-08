@@ -7,7 +7,7 @@ import { getPendingTransactions } from "@/app/actions/payments"
 import { getPendingVerifications } from "@/app/actions/kyc"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
-import { Users, Gavel, DollarSign, AlertCircle, ArrowLeft } from "lucide-react"
+import { Users, Gavel, DollarSign, AlertCircle, ArrowLeft, TrendingUp } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 // New Imports
 import { getRevenueData, getUserGrowthData } from "@/app/actions/admin/analytics"
@@ -43,9 +43,17 @@ export default async function AdminDashboardPage() {
                         Back to Portal
                     </Link>
                 </div>
-                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-sm font-medium border border-amber-500/20">
-                    <AlertCircle className="w-4 h-4" />
-                    {pendingTransactions.length} Pending Actions
+                <div className="flex items-center gap-3">
+                    <Link href="/admin/reports/kpi">
+                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-500 text-sm font-medium border border-blue-500/20 hover:bg-blue-500/20 transition-colors cursor-pointer">
+                            <TrendingUp className="w-4 h-4" />
+                            View Business Intelligence
+                        </div>
+                    </Link>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-sm font-medium border border-amber-500/20">
+                        <AlertCircle className="w-4 h-4" />
+                        {pendingTransactions.length} Pending Actions
+                    </div>
                 </div>
             </div>
 
