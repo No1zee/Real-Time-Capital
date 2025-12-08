@@ -58,7 +58,7 @@ export default function QuickApplyPage() {
     }
 
     // Server Action Binding
-    const initialState = { message: null, errors: {} }
+    const initialState = { message: "", errors: {} }
     // We need to wrap createLoan to inject our extra data which might not be in the form directly if we don't put hidden inputs
     // or we can just use hidden inputs.
     const [state, formAction] = useFormState(createLoan, initialState)
