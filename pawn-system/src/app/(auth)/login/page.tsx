@@ -8,7 +8,9 @@ import Link from "next/link"
 
 import { useSearchParams } from "next/navigation"
 
-export default function LoginPage() {
+import { Suspense } from "react"
+
+function LoginForm() {
     const [errorMessage, dispatch, isPending] = useActionState(authenticate, undefined)
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl") || "/portal"
@@ -79,5 +81,13 @@ export default function LoginPage() {
                 </Link>
             </div>
         </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
+            <LoginForm />
+        </Suspense>
     )
 }

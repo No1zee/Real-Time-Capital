@@ -16,7 +16,9 @@ const initialState: RegisterState = {
     errors: {},
 }
 
-export default function RegisterPage() {
+import { Suspense } from "react"
+
+function RegisterForm() {
     const [state, formAction, isPending] = useActionState(registerUser, initialState)
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -24,8 +26,6 @@ export default function RegisterPage() {
 
     useEffect(() => {
         if (state.message) {
-            // Note: If registration is successful, the server action redirects automatically.
-            // This fallback is only if auto-login fails but registration succeeds.
             if (state.message.includes("success")) {
                 toast.success(state.message)
                 router.push(callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login")
@@ -133,5 +133,13 @@ export default function RegisterPage() {
                 </Link>
             </div>
         </div>
+    )
+}
+
+export default function RegisterPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
+            <RegisterForm />
+        </Suspense>
     )
 }
