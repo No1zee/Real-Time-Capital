@@ -27,6 +27,38 @@ export async function initiateDeposit(amount: number, method: "CASH" | "ECOCASH"
     revalidatePath("/portal/wallet")
 }
 
+export async function simulateDeposit(amount: number, method: "ECOCASH", reference: string) {
+    const session = await auth()
+    if (!session?.user?.email) throw new Error("Unauthorized")
+
+    const user = await prisma.user.findUnique({
+        where: { email: session.user.email },
+    })
+    if (!user) throw new Error("User not found")
+
+    // Mock Simulation Delay handled in client or here? 
+    // Server action should just do the DB write. Client can show spinner.
+
+    await prisma.$transaction([
+        prisma.transaction.create({
+            data: {
+                userId: user.id,
+                amount,
+                type: "DEPOSIT",
+                status: "COMPLETED", // Instant success
+                method,
+                reference,
+            }
+        }),
+        prisma.user.update({
+            where: { id: user.id },
+            data: { walletBalance: { increment: amount } }
+        })
+    ])
+
+    revalidatePath("/portal/wallet")
+}
+
 export async function verifyTransaction(transactionId: string, action: "APPROVE" | "REJECT") {
     const session = await auth()
     const user = session?.user as any

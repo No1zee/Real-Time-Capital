@@ -36,12 +36,30 @@ export function DepositModal() {
 
         setIsSubmitting(true)
         try {
-            await initiateDeposit(Number(amount), method, reference)
+            if (method === "ECOCASH") {
+                // Determine if we should use the new simulation
+                // Yes, use simulation.
+
+                // 1. Simulate Network Delay
+                await new Promise(resolve => setTimeout(resolve, 2000))
+
+                // 2. Call server action
+                // Note: Need to import simulateDeposit
+                const { simulateDeposit } = await import("@/app/actions/payments")
+                await simulateDeposit(Number(amount), "ECOCASH", reference)
+
+                alert("Payment Successful! Funds added instantly.")
+            } else {
+                await initiateDeposit(Number(amount), method, reference)
+                if (method === "ZIPIT") alert("Payment Pending. Admin will verify shortly.")
+            }
+
             setOpen(false)
             setAmount("")
             setReference("")
         } catch (error) {
             console.error(error)
+            alert("Payment failed. Please try again.")
         } finally {
             setIsSubmitting(false)
         }
@@ -141,7 +159,11 @@ export function DepositModal() {
 
                     <DialogFooter>
                         <Button type="submit" disabled={isSubmitting} className="bg-amber-500 hover:bg-amber-600 text-white w-full">
-                            {isSubmitting ? "Submitting..." : "Submit Request"}
+                            {isSubmitting ? (
+                                <span className="flex items-center gap-2">
+                                    {method === "ECOCASH" ? "Simulating USSD..." : "Submitting..."}
+                                </span>
+                            ) : "Submit Request"}
                         </Button>
                     </DialogFooter>
                 </form>
