@@ -39,10 +39,12 @@ export default async function WelcomePage({ searchParams }: { searchParams: Para
                             </div>
                             <h3 className="font-bold text-2xl mb-3">Start Bidding</h3>
                             <p className="text-slate-500 dark:text-slate-400">
-                                {next ? "Return to the auction you were viewing and place your bid." : "Browse active auctions and find premium deals."}
+                                {next && next !== "/portal/auctions"
+                                    ? "Return to the auction you were viewing and place your bid."
+                                    : "Browse active auctions and find premium deals."}
                             </p>
                             <div className="mt-6 inline-flex items-center text-amber-600 dark:text-amber-500 font-bold">
-                                Continue <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                {next && next !== "/portal/auctions" ? "Return to Auction" : "Go to Auction Floor"} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </div>
                         </div>
                     </div>
