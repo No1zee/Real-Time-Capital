@@ -4,6 +4,8 @@ import { db } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { z } from "zod"
+import { auth } from "@/auth"
+import { logActivity } from "@/app/actions/admin/analytics"
 
 const loanSchema = z.object({
     // Customer
@@ -52,6 +54,8 @@ export type State = {
 }
 
 export async function createLoan(prevState: State, formData: FormData) {
+    const session = await auth()
+
     const validatedFields = loanSchema.safeParse({
         firstName: formData.get("firstName"),
         lastName: formData.get("lastName"),
@@ -120,7 +124,7 @@ export async function createLoan(prevState: State, formData: FormData) {
         dueDate.setDate(dueDate.getDate() + durationDays)
 
         // 3. Create Loan and Item
-        await db.loan.create({
+        const loan = await db.loan.create({
             data: {
                 customerId: customer.id,
                 principalAmount,
@@ -145,15 +149,25 @@ export async function createLoan(prevState: State, formData: FormData) {
                 },
             },
         })
+
+        // 4. Log Activity for Admin Visibility
+        if (session?.user?.id) {
+            await logActivity("APPLY_LOAN", {
+                loanId: loan.id,
+                amount: principalAmount,
+                item: itemName
+            })
+        }
+
     } catch (error) {
-        console.error("Database Error:", error)
+        console.error("Database Error createLoan:", error)
         return {
-            message: "Database Error: Failed to Create Loan.",
+            message: "Database Error: Failed to Submit Application.",
         }
     }
 
     revalidatePath("/loans")
-    redirect("/loans")
+    redirect("/loans") // Or redirect to a "Success" page
 }
 
 import { LoanStatus } from "@prisma/client"
@@ -176,6 +190,9 @@ export async function updateLoanStatus(loanId: string, newStatus: LoanStatus) {
                 })
             }
         }
+
+        // Log Status Change
+        await logActivity("UPDATE_LOAN_STATUS", { loanId, newStatus })
 
         revalidatePath(`/loans/${loanId}`)
         revalidatePath("/loans")
