@@ -17,10 +17,10 @@ export async function getLoanBookReport() {
 
     return loans.map(l => ({
         LoanID: l.id,
-        Customer: l.customer?.name || "Unknown",
+        Customer: l.customer ? `${l.customer.firstName} ${l.customer.lastName}` : "Unknown",
         Principal: l.principalAmount,
         InterestRate: l.interestRate,
-        AmountDue: l.totalAmountDue,
+        AmountDue: Number(l.principalAmount) * (1 + Number(l.interestRate) / 100),
         Status: l.status,
         DateIssued: fmt(l.createdAt),
         DueDate: fmt(l.dueDate),
