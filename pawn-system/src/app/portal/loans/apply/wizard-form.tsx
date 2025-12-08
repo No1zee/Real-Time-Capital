@@ -22,6 +22,12 @@ type ValuationAttributes = {
     condition?: string
     year?: string
     authenticity?: "Certificate" | "Receipt" | "None"
+    // Digital / IP
+    rotation?: string
+    type?: string
+    accessories?: string
+    platform?: string
+    revenue?: string
 }
 
 interface WizardFormProps {
@@ -92,7 +98,71 @@ export default function WizardForm({ user }: WizardFormProps) {
                             <Input placeholder="e.g. 1998" onChange={(e) => handleAttributeChange("year", e.target.value)} />
                         </div>
                     </div>
-                    // ... (rest of fields similar to before)
+                </div>
+            )
+        }
+        if (category === "Digital Media") {
+            return (
+                <div className="grid gap-4 mt-4 border-l-2 border-amber-500 pl-4">
+                    <h4 className="text-sm font-semibold text-amber-500">Equipment Details</h4>
+                    <div className="grid gap-4">
+                        <div className="grid gap-2">
+                            <Label>Type</Label>
+                            <Select onValueChange={(val) => handleAttributeChange("type", val)}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Camera">Camera / Lens</SelectItem>
+                                    <SelectItem value="Laptop">High-end Laptop</SelectItem>
+                                    <SelectItem value="Drone">Drone</SelectItem>
+                                    <SelectItem value="Studio Gear">Studio Gear</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label>Condition (Shutter Count/Cycle)</Label>
+                                <Input placeholder="e.g. < 10k clicks" onChange={(e) => handleAttributeChange("condition", e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>Accessories</Label>
+                                <Input placeholder="Charger, Bag, etc." onChange={(e) => handleAttributeChange("accessories", e.target.value)} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+        if (category === "IP / Rights") {
+            return (
+                <div className="grid gap-4 mt-4 border-l-2 border-amber-500 pl-4">
+                    <h4 className="text-sm font-semibold text-amber-500">Intellectual Property</h4>
+                    <div className="grid gap-4">
+                        <div className="grid gap-2">
+                            <Label>Platform / Source</Label>
+                            <Input placeholder="YouTube, Spotify, Patent, etc." onChange={(e) => handleAttributeChange("platform", e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label>Monthly Revenue ($)</Label>
+                                <Input type="number" placeholder="0.00" onChange={(e) => handleAttributeChange("revenue", e.target.value)} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>Ownership Proof</Label>
+                                <Select onValueChange={(val) => handleAttributeChange("authenticity", val as any)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Proof" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Certificate">Registration Cert</SelectItem>
+                                        <SelectItem value="Receipt">Dashboard Access</SelectItem>
+                                        <SelectItem value="None">None</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )
         }
@@ -134,7 +204,7 @@ export default function WizardForm({ user }: WizardFormProps) {
                 <CardContent className="space-y-6">
                     {step === 1 && (
                         <div className="grid grid-cols-2 gap-4">
-                            {["Electronics", "Jewelry", "Vehicle", "Artwork", "Equipment", "Other"].map((cat) => (
+                            {["Electronics", "Jewelry", "Vehicle", "Artwork", "Digital Media", "IP / Rights", "Equipment", "Other"].map((cat) => (
                                 <div
                                     key={cat}
                                     className={`cursor-pointer p-4 rounded-xl border-2 hover:border-amber-500 transition-all flex flex-col items-center gap-2 ${category === cat ? "border-amber-500 bg-amber-500/5" : "border-slate-200 dark:border-slate-800"}`}
@@ -146,7 +216,7 @@ export default function WizardForm({ user }: WizardFormProps) {
                                     <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
                                         <span className="text-xl font-bold text-slate-500">{cat[0]}</span>
                                     </div>
-                                    <span className="font-medium">{cat}</span>
+                                    <span className="font-medium text-center text-sm">{cat}</span>
                                 </div>
                             ))}
                             <input type="hidden" name="category" value={category} />
@@ -160,13 +230,8 @@ export default function WizardForm({ user }: WizardFormProps) {
                                 <Input name="itemName" value={formData.itemName} onChange={handleChange} required />
                             </div>
 
-                            {/* Simplified Attribute Render for demo brevity in this file write, assuming full logic is preserved */}
-                            {category === "Artwork" && (
-                                <div className="p-4 border border-amber-200 bg-amber-50 dark:bg-amber-900/10 rounded-lg">
-                                    <Label className="text-amber-700">Artist Name</Label>
-                                    <Input placeholder="e.g. Famous Artist" onChange={(e) => handleAttributeChange("artist", e.target.value)} />
-                                </div>
-                            )}
+                            {/* Dynamic Attributes based on Category */}
+                            {renderAttributeFields()}
 
                             <div className="grid gap-2">
                                 <Label>Description</Label>
