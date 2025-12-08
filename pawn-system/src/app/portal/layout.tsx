@@ -30,7 +30,11 @@ export default async function PortalLayout({
                             <span className="text-primary">Real Time</span> Capital
                         </h1>
                     </Link>
-                    <TrustScore />
+                    {(user?.role === "ADMIN" || user?.role === "STAFF") && (
+                        <div className="mt-2 text-xs">
+                            <TrustScore />
+                        </div>
+                    )}
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-hide">

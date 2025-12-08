@@ -74,3 +74,92 @@ export async function getUserGrowthData() {
 
     return Array.from(dataMap.entries()).map(([name, value]) => ({ name, value }))
 }
+
+// CRM & User Intelligence
+
+export async function logActivity(type: string, metadata?: any) {
+    const session = await auth()
+    if (!session?.user?.id) return // Silent fail if not logged in
+
+    try {
+        await prisma.userActivity.create({
+            data: {
+                userId: session.user.id,
+                type,
+                metadata: metadata ? JSON.stringify(metadata) : null
+            }
+        })
+    } catch (error) {
+        console.error("Failed to log activity:", error)
+    }
+}
+
+export async function getUserCRMStats(userId: string) {
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") {
+        throw new Error("Unauthorized")
+    }
+
+    // 1. Visit Frequency (Last 30 Days)
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const visits = await prisma.userActivity.count({
+        where: {
+            userId,
+            type: "LOGIN",
+            createdAt: { gte: thirtyDaysAgo }
+        }
+    })
+
+    const lastActive = await prisma.userActivity.findFirst({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        select: { createdAt: true }
+    })
+
+    // 2. Preferences (Interest Categories)
+    // Combine Watchlist + Bids
+    const watchlist = await prisma.watchlist.findMany({
+        where: { userId },
+        include: { auction: { include: { item: true } } }
+    })
+
+    const bids = await prisma.bid.findMany({
+        where: { userId },
+        include: { auction: { include: { item: true } } }
+    })
+
+    const categoryMap = new Map<string, number>()
+    const addToMap = (category: string) => {
+        categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
+    }
+
+    watchlist.forEach(w => addToMap(w.auction.item.category))
+    bids.forEach(b => addToMap(b.auction.item.category))
+
+    const interests = Array.from(categoryMap.entries())
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value) // Top interests first
+
+    // 3. Total Spend & Purchase History
+    const purchases = await prisma.transaction.findMany({
+        where: {
+            userId,
+            type: "PAYMENT",
+            status: "COMPLETED"
+        },
+        orderBy: { createdAt: "desc" }
+    })
+
+    const totalSpend = purchases.reduce((sum, p) => sum + Number(p.amount), 0)
+
+    return {
+        visitsLast30Days: visits,
+        lastActive: lastActive?.createdAt || null,
+        interests,
+        totalSpend,
+        purchaseCount: purchases.length,
+        recentPurchases: purchases.slice(0, 5)
+    }
+}

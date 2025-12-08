@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table"
 import { formatDate, formatCurrency } from "@/lib/utils"
 import { Search, Shield, Ban, CheckCircle } from "lucide-react"
+import Link from "next/link"
 
 export default async function AdminUsersPage() {
     const users = await getAllUsers()
@@ -55,10 +56,12 @@ export default async function AdminUsersPage() {
                             {users.map((user) => (
                                 <TableRow key={user.id}>
                                     <TableCell>
-                                        <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{user.name}</p>
-                                            <p className="text-sm text-slate-500">{user.email}</p>
-                                        </div>
+                                        <Link href={`/admin/users/${user.id}`} className="hover:opacity-80 transition-opacity block">
+                                            <div>
+                                                <p className="font-medium text-slate-900 dark:text-white underline decoration-slate-300 underline-offset-4">{user.name}</p>
+                                                <p className="text-sm text-slate-500">{user.email}</p>
+                                            </div>
+                                        </Link>
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant={user.role === "ADMIN" ? "destructive" : user.role === "STAFF" ? "default" : "secondary"}>

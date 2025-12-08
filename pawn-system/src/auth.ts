@@ -47,4 +47,20 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             },
         }),
     ],
+    events: {
+        async signIn({ user }) {
+            if (user.id) {
+                try {
+                    await prisma.userActivity.create({
+                        data: {
+                            userId: user.id,
+                            type: "LOGIN"
+                        }
+                    })
+                } catch (err) {
+                    console.error("Failed to log login activity", err)
+                }
+            }
+        }
+    }
 })

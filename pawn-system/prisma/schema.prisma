@@ -105,6 +105,7 @@ model User {
   walletBalance   Decimal       @default(0)
   practiceBalance Decimal       @default(50000)
   transactions    Transaction[]
+  activities      UserActivity[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -306,4 +307,13 @@ model Dispute {
   status      DisputeStatus   @default(OPEN)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // LOGIN, VIEW_ITEM, SEARCH
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
 }
