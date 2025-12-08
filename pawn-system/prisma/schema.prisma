@@ -48,6 +48,7 @@ enum TransactionMethod {
 
 enum LoanStatus {
   PENDING
+  APPROVED
   ACTIVE
   COMPLETED
   DEFAULTED
