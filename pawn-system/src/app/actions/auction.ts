@@ -286,7 +286,7 @@ export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filte
 
     if (includeArchived) {
         where.status = {
-            in: ["ENDED", "SOLD", "COMPLETED"] // Catch-all for end states
+            in: ["ENDED"] // Only valid Enum value for past auctions
         }
     } else {
         where.OR = [
