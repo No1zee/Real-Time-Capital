@@ -27,7 +27,7 @@ export default async function KPIDashboardPage() {
                             {kpis.totalLoans} Total Loans
                         </p>
                         <div className="mt-3 text-xs p-2 bg-blue-500/10 text-blue-400 rounded">
-                            Target: > 85% for healthy lending.
+                            Target: &gt; 85% for healthy lending.
                         </div>
                     </CardContent>
                 </Card>
