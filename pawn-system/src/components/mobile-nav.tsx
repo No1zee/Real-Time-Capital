@@ -85,7 +85,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/loans/apply"
                                             className="flex items-center gap-3 px-4 py-3 text-primary bg-primary/10 rounded-lg font-bold"
-                                            onClick={() => setOpen(false)}
+                                            onClick={() => setIsOpen(false)}
                                         >
                                             <PlusCircle className="w-5 h-5" />
                                             Apply for Loan
