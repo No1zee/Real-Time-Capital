@@ -10,27 +10,45 @@ import { ArrowLeft, Calendar, DollarSign, Package } from "lucide-react"
 
 export default async function LoanDetailsPage({ params }: { params: { loanId: string } }) {
     const session = await auth()
-    if (!session?.user) redirect("/login")
+    if (!session?.user?.email) redirect("/login")
 
+    // Fetch Loan with Customer and Items
     const loan = await prisma.loan.findUnique({
         where: { id: params.loanId },
         include: {
             items: true,
-            user: true
+            customer: true // Correct relation
         }
     })
 
     if (!loan) notFound()
 
-    // Security check: Customer can only view their own loans
-    if (loan.userId !== session.user.id && (session.user as any).role === "USER") {
+    // Security Check: Ensure logged-in user owns this loan (via email match)
+    // Or allow if user is ADMIN/STAFF
+    const userRole = (session.user as any).role
+    const isOwner = loan.customer.email === session.user.email
+    const isAdmin = userRole === "ADMIN" || userRole === "STAFF"
+
+    if (!isOwner && !isAdmin) {
         return <div className="p-8 text-center text-red-500">Unauthorized access</div>
     }
 
-    const customer = {
-        name: loan.user.name,
-        email: loan.user.email,
-        verificationStatus: (loan.user as any).verificationStatus
+    // Fetch Linked System User (for Verification Status)
+    // We assume the Customer's email links to a User account
+    const linkedUser = await prisma.user.findUnique({
+        where: { email: loan.customer.email || "" }
+    })
+
+    // Prepare Customer Data for Ticket
+    const customerForTicket = {
+        name: `${loan.customer.firstName} ${loan.customer.lastName}`,
+        email: loan.customer.email,
+        firstName: loan.customer.firstName,
+        lastName: loan.customer.lastName,
+        nationalId: loan.customer.nationalId,
+        address: loan.customer.address,
+        idNumber: loan.customer.nationalId,
+        verificationStatus: linkedUser?.verificationStatus || "UNVERIFIED"
     }
 
     return (
@@ -46,7 +64,7 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <PawnTicket loan={loan} customer={customer} items={loan.items} />
+                    <PawnTicket loan={loan} customer={customerForTicket} items={loan.items} />
                 </div>
             </div>
 
@@ -77,8 +95,9 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
                             </div>
                             <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
                                 <p className="text-sm text-slate-500 mb-1">Repayment Amount</p>
+                                {/* Calculate repayment manually since it's not in DB yet or optional */}
                                 <p className="text-2xl font-bold text-amber-600">
-                                    {formatCurrency(Number(loan.repaymentAmount))}
+                                    {formatCurrency(Number(loan.principalAmount) * (1 + Number(loan.interestRate) / 100))}
                                 </p>
                             </div>
                         </div>
