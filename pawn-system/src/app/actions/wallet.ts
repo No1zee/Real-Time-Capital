@@ -34,6 +34,7 @@ export async function depositFunds(amount: number) {
                 userId: session.user.id,
                 amount,
                 type: "DEPOSIT",
+                method: "SYSTEM",
                 reference: "Manual Deposit"
             }
         })
