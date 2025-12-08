@@ -6,7 +6,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <ThemeProvider
             attribute="data-theme"
-            defaultTheme="luxury"
+            defaultTheme="corporate"
             enableSystem={false}
             themes={["luxury", "corporate", "modern"]}
         >
