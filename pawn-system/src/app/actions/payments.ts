@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 
-export async function initiateDeposit(amount: number, method: "CASH" | "ECOCASH" | "ZIPIT", reference: string) {
+export async function initiateDeposit(amount: number, method: "CASH" | "ECOCASH" | "ZIPIT", reference: string, proofOfPayment?: string) {
     const session = await auth()
     if (!session?.user?.email) throw new Error("Unauthorized")
 
@@ -21,13 +21,14 @@ export async function initiateDeposit(amount: number, method: "CASH" | "ECOCASH"
             status: "PENDING",
             method,
             reference,
+            proofOfPayment
         }
     })
 
     revalidatePath("/portal/wallet")
 }
 
-export async function simulateDeposit(amount: number, method: "ECOCASH", reference: string) {
+export async function simulateDeposit(amount: number, method: "ECOCASH", reference: string, proofOfPayment?: string) {
     const session = await auth()
     if (!session?.user?.email) throw new Error("Unauthorized")
 
@@ -48,6 +49,7 @@ export async function simulateDeposit(amount: number, method: "ECOCASH", referen
                 status: "COMPLETED", // Instant success
                 method,
                 reference,
+                proofOfPayment
             }
         }),
         prisma.user.update({

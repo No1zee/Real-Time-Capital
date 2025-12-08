@@ -20,8 +20,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { initiateDeposit } from "@/app/actions/payments"
-import { Wallet, Smartphone, Banknote } from "lucide-react"
+import { initiateDeposit, simulateDeposit } from "@/app/actions/payments"
+import { Wallet, Smartphone, Banknote, ScanText, Loader2, Upload } from "lucide-react"
+import Tesseract from "tesseract.js"
 
 export function DepositModal() {
     const [open, setOpen] = useState(false)
@@ -29,6 +30,52 @@ export function DepositModal() {
     const [method, setMethod] = useState<"ECOCASH" | "ZIPIT" | "CASH">("ECOCASH")
     const [reference, setReference] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isScanning, setIsScanning] = useState(false)
+    const [ocrText, setOcrText] = useState("")
+
+    // OCR Handler
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsScanning(true)
+        try {
+            const result = await Tesseract.recognize(
+                file,
+                'eng'
+                // { logger: m => console.log(m) } // Optional logger
+            )
+            const text = result.data.text
+            setOcrText(text)
+            console.log("OCR Scanned Text:", text)
+
+            // Intelligent Parsing Logic for EcoCash/Bank SMS
+            // Common format: "Transfer Confirmation: $150.00 from..." or "Ref: MP123456"
+
+            // 1. Extract Amount ($XX.XX)
+            const amountMatch = text.match(/\$(\d+(\.\d{1,2})?)/)
+            if (amountMatch && amountMatch[1]) {
+                setAmount(amountMatch[1])
+            }
+
+            // 2. Extract Reference (Ref: XXXXX or just parsing capital letters/numbers if labeled)
+            // Strategy: Look for "Ref:" or typical ID patterns (e.g., MP2405...)
+            const refMatch = text.match(/(?:Ref:|Reference:|Txn ID:)\s*([A-Z0-9]+)/i) || text.match(/\b(MP\d{6,}[A-Z0-9]*)\b/) // EcoCash typical ID start
+
+            if (refMatch && refMatch[1]) {
+                setReference(refMatch[1])
+            } else {
+                // Fallback: If we found an amount but not a ref, maybe the ref is just a long alphanumeric string
+                // Ideally, user manually enters if regex fails.
+            }
+
+        } catch (err) {
+            console.error("OCR Failed:", err)
+            alert("Could not read image. Please enter details manually.")
+        } finally {
+            setIsScanning(false)
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -36,27 +83,23 @@ export function DepositModal() {
 
         setIsSubmitting(true)
         try {
+            // Construct a proof string (OCR Text excerpt or flag)
+            const proof = ocrText ? `OCR Verified: ${ocrText.substring(0, 100)}...` : "Manual Entry"
+
             if (method === "ECOCASH") {
-                // Determine if we should use the new simulation
-                // Yes, use simulation.
-
-                // 1. Simulate Network Delay
+                // For EcoCash, we simulate instant processing for the MVP/Demo
                 await new Promise(resolve => setTimeout(resolve, 2000))
-
-                // 2. Call server action
-                // Note: Need to import simulateDeposit
-                const { simulateDeposit } = await import("@/app/actions/payments")
-                await simulateDeposit(Number(amount), "ECOCASH", reference)
-
+                await simulateDeposit(Number(amount), "ECOCASH", reference, proof)
                 alert("Payment Successful! Funds added instantly.")
             } else {
-                await initiateDeposit(Number(amount), method, reference)
+                await initiateDeposit(Number(amount), method, reference, proof)
                 if (method === "ZIPIT") alert("Payment Pending. Admin will verify shortly.")
             }
 
             setOpen(false)
             setAmount("")
             setReference("")
+            setOcrText("")
         } catch (error) {
             console.error(error)
             alert("Payment failed. Please try again.")
@@ -78,7 +121,6 @@ export function DepositModal() {
                     <DialogTitle>Top Up Wallet</DialogTitle>
                     <DialogDescription className="text-slate-400">
                         Select a payment method and enter the transaction details.
-                        Funds will be credited after admin verification.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -92,7 +134,7 @@ export function DepositModal() {
                                 <SelectItem value="ECOCASH">
                                     <div className="flex items-center gap-2">
                                         <Smartphone className="w-4 h-4 text-blue-400" />
-                                        EcoCash
+                                        EcoCash (Instant)
                                     </div>
                                 </SelectItem>
                                 <SelectItem value="ZIPIT">
@@ -111,20 +153,43 @@ export function DepositModal() {
                         </Select>
                     </div>
 
+                    {/* OCR Upload Section */}
                     {method === "ECOCASH" && (
-                        <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-sm text-blue-200">
-                            <p className="font-bold mb-1">Instructions:</p>
-                            <p>1. Dial *151*...</p>
-                            <p>2. Send to Merchant Code: <span className="font-mono font-bold">123456</span></p>
-                            <p>3. Enter Amount and Reference below.</p>
-                        </div>
-                    )}
-
-                    {method === "ZIPIT" && (
-                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-sm text-green-200">
-                            <p className="font-bold mb-1">Bank Details:</p>
-                            <p>Bank: <span className="font-bold">CABS</span></p>
-                            <p>Account: <span className="font-mono font-bold">1001234567</span></p>
+                        <div className="p-4 border border-dashed border-slate-700 rounded-lg bg-slate-950/50 space-y-3">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <ScanText className="w-4 h-4 text-amber-500" />
+                                    Auto-Fill from Screenshot
+                                </span>
+                                {isScanning && <Loader2 className="w-4 h-4 animate-spin text-amber-500" />}
+                            </div>
+                            <div className="relative">
+                                <Input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    id="ocr-upload"
+                                    onChange={handleImageUpload}
+                                    disabled={isScanning}
+                                />
+                                <Label
+                                    htmlFor="ocr-upload"
+                                    className={`flex items-center justify-center gap-2 w-full p-2 rounded cursor-pointer transition-colors border text-sm ${isScanning
+                                        ? "bg-slate-800 border-slate-700 text-slate-500 cursor-wait"
+                                        : "bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20"
+                                        }`}
+                                >
+                                    {isScanning ? "Scanning Receipt..." : (
+                                        <>
+                                            <Upload className="w-4 h-4" />
+                                            Upload Proof of Payment
+                                        </>
+                                    )}
+                                </Label>
+                            </div>
+                            <p className="text-[10px] text-slate-500">
+                                Upload a screenshot of your EcoCash SMS or App confirmation. We will try to read the details automatically.
+                            </p>
                         </div>
                     )}
 
@@ -135,7 +200,7 @@ export function DepositModal() {
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            className="bg-slate-950 border-slate-800 text-white"
+                            className="bg-slate-950 border-slate-800 text-white font-mono text-lg" // Larger font for money
                             placeholder="0.00"
                             min="1"
                             step="0.01"
@@ -145,25 +210,26 @@ export function DepositModal() {
 
                     <div className="grid gap-2">
                         <Label htmlFor="reference">
-                            {method === "CASH" ? "Receipt Number / Note" : "Transaction Reference"}
+                            {method === "CASH" ? "Receipt Number" : "Transaction Reference"}
                         </Label>
                         <Input
                             id="reference"
                             value={reference}
                             onChange={(e) => setReference(e.target.value)}
-                            className="bg-slate-950 border-slate-800 text-white"
-                            placeholder={method === "ECOCASH" ? "e.g. MP2105..." : "Enter reference"}
+                            className="bg-slate-950 border-slate-800 text-white font-mono"
+                            placeholder={method === "ECOCASH" ? "e.g. MP2405..." : "Enter reference"}
                             required
                         />
                     </div>
 
                     <DialogFooter>
-                        <Button type="submit" disabled={isSubmitting} className="bg-amber-500 hover:bg-amber-600 text-white w-full">
+                        <Button type="submit" disabled={isSubmitting || isScanning} className="bg-amber-500 hover:bg-amber-600 text-white w-full">
                             {isSubmitting ? (
                                 <span className="flex items-center gap-2">
-                                    {method === "ECOCASH" ? "Simulating USSD..." : "Submitting..."}
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Processing...
                                 </span>
-                            ) : "Submit Request"}
+                            ) : "Confirm Payment"}
                         </Button>
                     </DialogFooter>
                 </form>
