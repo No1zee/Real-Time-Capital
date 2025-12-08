@@ -55,8 +55,9 @@ export async function moveItemToAuction(itemId: string) {
 
     // Check if valid transition
     const item = await prisma.item.findUnique({ where: { id: itemId } })
-    if (item?.status === "SOLD") throw new Error("Cannot auction sold item")
-    if (item?.status === "IN_AUCTION") throw new Error("Already in auction")
+    if (!item) throw new Error("Item not found")
+    if (item.status === "SOLD") throw new Error("Cannot auction sold item")
+    if (item.status === "IN_AUCTION") throw new Error("Already in auction")
 
     // Create a draft auction? Or just change status?
     // Changing status to IN_AUCTION requires an Auction record usually.
