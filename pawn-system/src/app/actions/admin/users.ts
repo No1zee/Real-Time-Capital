@@ -67,12 +67,9 @@ export async function toggleUserStatus(userId: string) {
     if (!user) throw new Error("User not found")
 
     await prisma.user.update({
-        // Update User
-        await prisma.user.update({
-            where: { id: userId },
-            data: { tier: newTier }
-        })
-    
+        where: { id: userId },
+        data: { isActive: !user.isActive }
+    })
+
     revalidatePath("/admin/users")
-    revalidatePath(`/portal/profile`) // Update user's view too
-    }
+}
