@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Code, Heart, Bell } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Code, Heart, Bell, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: number }) {
@@ -35,9 +35,43 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                             </Button>
                         </div>
 
-                        {/* Scrollable Navigation */}
                         <div className="flex-1 overflow-y-auto px-6 py-4">
                             <nav className="space-y-1">
+                                {(user?.role === "ADMIN" || user?.role === "STAFF") && (
+                                    <>
+                                        <div className="pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                            Admin Controls
+                                        </div>
+                                        <Link
+                                            href="/"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <LayoutDashboard className="w-5 h-5" />
+                                            Admin Dashboard
+                                        </Link>
+                                        <Link
+                                            href="/inventory"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <Package className="w-5 h-5" />
+                                            Inventory
+                                        </Link>
+                                        <Link
+                                            href="/customers"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                        >
+                                            <Users className="w-5 h-5" />
+                                            Customers
+                                        </Link>
+                                        <div className="my-4 border-t border-white/10" />
+                                    </>
+                                )}
+                                <div className="pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    client portal
+                                </div>
                                 {user && (
                                     <>
                                         <Link
