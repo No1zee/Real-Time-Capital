@@ -25,6 +25,13 @@ enum VerificationStatus {
   REJECTED
 }
 
+enum UserTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
 enum TransactionType {
   DEPOSIT
   WITHDRAWAL
@@ -91,6 +98,7 @@ model User {
   image         String?
   password      String?
   role          UserRole    @default(CUSTOMER)
+  tier          UserTier    @default(BRONZE)
   verificationStatus VerificationStatus    @default(UNVERIFIED)
   idImage       String?
   verificationNote String?
