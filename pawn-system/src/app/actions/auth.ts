@@ -59,6 +59,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
+        // Create the user
         await prisma.user.create({
             data: {
                 name,
@@ -68,37 +69,9 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
             },
         })
 
-        // Auto-login after registration
-        // Auto-login after registration
-        const callbackUrl = formData.get("callbackUrl") as string || "/portal/auctions"
-        const welcomeUrl = `/portal/welcome?next=${encodeURIComponent(callbackUrl)}`
+        return { message: "Registration successful! Please sign in." }
 
-        await signIn("credentials", {
-            email,
-            password,
-            redirectTo: welcomeUrl,
-        })
-
-        return { message: "User registered successfully!" }
     } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case "CredentialsSignin":
-                    return { message: "Registration successful, but failed to sign in." }
-                default:
-                    return { message: "Something went wrong during sign in." }
-            }
-        }
-        // Re-throw redirect error from signIn
-        if ((error as Error).message === "NEXT_REDIRECT") {
-            throw error
-        }
-
-        // Check if it's a redirect error (Next.js 14/15/16 specific)
-        if (isRedirectError(error)) {
-            throw error
-        }
-
         console.error("Registration error:", error)
         return { message: "Database Error: Failed to Register." }
     }
