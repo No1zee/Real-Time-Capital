@@ -7,11 +7,12 @@ import html2canvas from "html2canvas"
 import { Printer } from "lucide-react"
 
 interface PawnTicketProps {
-    loan: any // We'll type this properly or use 'any' for speed now
-    user: any
+    loan: any
+    customer: any
+    items: any[]
 }
 
-export function PawnTicket({ loan, user }: PawnTicketProps) {
+export function PawnTicket({ loan, customer, items }: PawnTicketProps) {
     const ticketRef = useRef<HTMLDivElement>(null)
 
     const handlePrint = async () => {
@@ -55,10 +56,10 @@ export function PawnTicket({ loan, user }: PawnTicketProps) {
                     <div className="grid grid-cols-2 gap-8 mb-8">
                         <div>
                             <h3 className="font-bold border-b border-black mb-2">Pledgor (Customer)</h3>
-                            <p><strong>Name:</strong> {user.name}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>ID Number:</strong> {user.idNumber || "N/A"}</p>
-                            <p><strong>Address:</strong> {user.address || "Harare, ZW"}</p>
+                            <p><strong>Name:</strong> {customer.name || customer.firstName + " " + customer.lastName}</p>
+                            <p><strong>Email:</strong> {customer.email}</p>
+                            <p><strong>ID Number:</strong> {customer.idNumber || customer.nationalId || "N/A"}</p>
+                            <p><strong>Address:</strong> {customer.address || "Harare, ZW"}</p>
                         </div>
                         <div>
                             <h3 className="font-bold border-b border-black mb-2">Transaction Details</h3>
@@ -81,11 +82,13 @@ export function PawnTicket({ loan, user }: PawnTicketProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className="border-b border-gray-300">
-                                    <td className="py-2 font-bold">{loan.item.title}</td>
-                                    <td className="py-2">{loan.item.description}</td>
-                                    <td className="py-2">${loan.principal.toLocaleString()}</td>
-                                </tr>
+                                {items && items.map((item, i) => (
+                                    <tr key={i} className="border-b border-gray-300">
+                                        <td className="py-2 font-bold">{item.title || item.name}</td>
+                                        <td className="py-2">{item.description}</td>
+                                        <td className="py-2">${Number(loan.principalAmount || loan.principal).toLocaleString()}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
                     </div>
@@ -95,11 +98,11 @@ export function PawnTicket({ loan, user }: PawnTicketProps) {
                         <h3 className="font-bold border-b border-black mb-2">Financial Terms</h3>
                         <div className="flex justify-between text-lg">
                             <span>Principal Amount:</span>
-                            <span className="font-bold">${loan.principal.toLocaleString()}</span>
+                            <span className="font-bold">${Number(loan.principalAmount || loan.principal).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between text-lg">
                             <span>Interest Rate:</span>
-                            <span>{loan.interestRate}% / {loan.duration} Days</span>
+                            <span>{Number(loan.interestRate)}% / {loan.duration || 30} Days</span>
                         </div>
                         <div className="flex justify-between text-lg">
                             <span>Storage/Admin Fees:</span>
@@ -107,7 +110,7 @@ export function PawnTicket({ loan, user }: PawnTicketProps) {
                         </div>
                         <div className="flex justify-between text-xl font-bold mt-4 pt-2 border-t border-black">
                             <span>Total Amount Due:</span>
-                            <span>${(loan.principal * (1 + loan.interestRate / 100)).toFixed(2)}</span>
+                            <span>${(Number(loan.principalAmount || loan.principal) * (1 + Number(loan.interestRate) / 100)).toFixed(2)}</span>
                         </div>
                     </div>
 
