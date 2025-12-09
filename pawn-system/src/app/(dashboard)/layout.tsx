@@ -1,4 +1,4 @@
-import { Sidebar } from "@/components/Sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
@@ -13,12 +13,18 @@ export default async function DashboardLayout({
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { role: true }
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true
+        }
     })
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <Sidebar userRole={user?.role || "CUSTOMER"} />
+            <AppSidebar user={user} variant="default" />
             <main className="flex-1 overflow-y-auto bg-muted/10 p-8">
                 {children}
             </main>

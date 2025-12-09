@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 
 export default async function AdminLayout({
     children,
@@ -19,7 +19,7 @@ export default async function AdminLayout({
 
     return (
         <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
-            <AdminSidebar />
+            <AppSidebar user={user} variant="admin" />
             <main className="flex-1 overflow-y-auto">
                 <div className="h-full bg-slate-50 dark:bg-slate-950">
                     {children}
