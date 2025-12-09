@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -29,6 +30,7 @@ async function main() {
     await prisma.$transaction([
         prisma.bid.create({
             data: {
+                id: crypto.randomUUID(),
                 amount: myBid,
                 userId: user.id,
                 auctionId: auction.id

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client"
+import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -56,7 +57,8 @@ async function main() {
                 lastName: "Seeder",
                 nationalId: "BULK-SEED-001",
                 phoneNumber: "+263770000000",
-                address: "Bulk Address"
+                address: "Bulk Address",
+                updatedAt: new Date()
             }
         })
     }
@@ -69,7 +71,8 @@ async function main() {
                 principalAmount: 10000,
                 interestRate: 10,
                 durationDays: 365,
-                dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+                dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+                updatedAt: new Date()
             }
         })
     }
@@ -87,6 +90,8 @@ async function main() {
 
         const item = await prisma.item.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 loanId: loan.id,
                 name: name,
                 description: `A ${adj.toLowerCase()} ${noun.name} in excellent condition. Great opportunity for collectors and users alike.`,
@@ -102,6 +107,8 @@ async function main() {
 
         await prisma.auction.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 itemId: item.id,
                 startPrice: Math.floor(startPrice),
                 startTime: new Date(),

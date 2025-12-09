@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole, ItemStatus, AuctionStatus } from "@prisma/client"
 import bcrypt from "bcryptjs"
+import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -80,6 +81,8 @@ async function main() {
         // Create Item
         const item = await prisma.item.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 name: i.name,
                 description: i.description,
                 category: i.category,
@@ -94,6 +97,8 @@ async function main() {
         const dayOffset = Math.floor(Math.random() * 5) + 1 // Ends in 1-5 days
         await prisma.auction.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 itemId: item.id,
                 startPrice: i.startPrice,
                 currentBid: i.startPrice, // Start at base price

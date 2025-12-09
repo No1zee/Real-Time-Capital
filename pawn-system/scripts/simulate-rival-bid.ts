@@ -4,7 +4,42 @@ import * as crypto from 'crypto'
 const prisma = new PrismaClient()
 
 async function main() {
-    // ... existing code ...
+    console.log("😈 Rival Bidder Entering the Chat...")
+
+    // 1. Find the most recent active auction
+    const auction = await prisma.auction.findFirst({
+        where: { status: "ACTIVE" },
+        orderBy: { updatedAt: "desc" },
+        include: { bids: { orderBy: { amount: "desc" }, take: 1 } }
+    })
+
+    if (!auction) {
+        console.error("❌ No active auction found! Please start an auction and place a bid first.")
+        return
+    }
+
+    console.log(`🎯 Targeting Auction: ${auction.id}`)
+    const currentBid = Number(auction.bids[0]?.amount || auction.startPrice)
+    const nextBid = currentBid + 50
+
+    // 2. Create or find Rival User
+    const rivalEmail = "rival@example.com"
+    let rival = await prisma.user.findUnique({ where: { email: rivalEmail } })
+
+    if (!rival) {
+        rival = await prisma.user.create({
+            data: {
+                name: "Rival Bidder",
+                email: rivalEmail,
+                password: "password123", // hash doesn't matter for script
+                role: "CUSTOMER"
+            }
+        })
+        console.log("👤 Created Rival User")
+    }
+
+    console.log(`💰 Placing bid of $${nextBid}...`)
+
     await prisma.$transaction(async (tx) => {
         // Create Bid
         await tx.bid.create({
@@ -22,10 +57,9 @@ async function main() {
             data: { currentBid: nextBid }
         })
 
-        // Create Notification for the previous bidder (if exists)
-        if (auction.Bid.length > 0) {
-            const previousBidderId = auction.Bid[0].userId
-            // Don't notify if the rival is outbidding themselves (unlikely but possible)
+        // Create Notification
+        if (auction.bids.length > 0) {
+            const previousBidderId = auction.bids[0].userId
             if (previousBidderId !== rival.id) {
                 await tx.notification.create({
                     data: {

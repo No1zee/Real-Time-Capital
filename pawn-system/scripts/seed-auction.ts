@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client"
+import * as crypto from 'crypto'
 import { PrismaClientValidationError } from "@prisma/client/runtime/library"
 
 const prisma = new PrismaClient()
@@ -10,6 +11,8 @@ async function main() {
     // 1. Create an Item
     const item = await prisma.item.create({
         data: {
+            id: crypto.randomUUID(),
+            updatedAt: new Date(),
             name: "Test Notification Item " + Date.now(),
             description: "A perfect item for testing notifications.",
             category: "Electronics",
@@ -25,6 +28,8 @@ async function main() {
 
     const auction = await prisma.auction.create({
         data: {
+            id: crypto.randomUUID(),
+            updatedAt: new Date(),
             itemId: item.id,
             startPrice: 100,
             startTime,

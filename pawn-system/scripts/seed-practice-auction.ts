@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client"
+import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -27,6 +28,8 @@ async function main() {
     try {
         const item = await prisma.item.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 name: "Practice Rolex Submariner",
                 description: "Practice Item",
                 valuation: "15000"
@@ -39,6 +42,8 @@ async function main() {
 
         const auction = await prisma.auction.create({
             data: {
+                id: crypto.randomUUID(),
+                updatedAt: new Date(),
                 itemId: item.id,
                 startPrice: 5000,
                 startTime,
