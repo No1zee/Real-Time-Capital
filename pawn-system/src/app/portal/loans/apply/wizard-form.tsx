@@ -12,6 +12,7 @@ import { createLoan } from "@/app/actions/loans"
 import { CheckCircle2, ChevronRight, Camera, AlertTriangle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import Link from "next/link"
+import { DigitalSignaturePad } from "@/components/compliance/digital-signature-pad"
 
 // Types for detailed valuation
 type ValuationAttributes = {
@@ -37,6 +38,7 @@ interface WizardFormProps {
 export default function WizardForm({ user }: WizardFormProps) {
     const [step, setStep] = useState(1)
     const [category, setCategory] = useState("")
+    const [signature, setSignature] = useState<string | null>(null)
 
     // Auto-fill personal details if user exists
     const [formData, setFormData] = useState({
@@ -304,7 +306,7 @@ export default function WizardForm({ user }: WizardFormProps) {
                     )}
 
                     {step === 4 && (
-                        <div className="space-y-4 text-sm">
+                        <div className="space-y-6 text-sm">
                             <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-lg border border-amber-100 dark:border-amber-900">
                                 <h4 className="font-bold text-amber-800 dark:text-amber-500 mb-2">Summary</h4>
                                 <div className="grid grid-cols-2 gap-y-2">
@@ -314,7 +316,20 @@ export default function WizardForm({ user }: WizardFormProps) {
                                     <span className="font-medium">${formData.valuation}</span>
                                 </div>
                             </div>
-                            <p className="text-center text-slate-500">
+
+                            <div className="space-y-4">
+                                <Label>Digital Signature</Label>
+                                <div className="border rounded-md p-4 bg-slate-50 dark:bg-slate-900">
+                                    <p className="text-xs text-slate-500 mb-2">
+                                        By signing below, you agree to the Terms of Service and acknowledge that this is a binding loan application.
+                                    </p>
+                                    <DigitalSignaturePad onSave={(data) => setSignature(data)} />
+                                    {signature && <p className="text-xs text-green-600 mt-2">Signature captured!</p>}
+                                    <input type="hidden" name="signatureUrl" value={signature || ""} />
+                                </div>
+                            </div>
+
+                            <p className="text-center text-slate-500 text-xs">
                                 By clicking submit, you apply for a loan.
                             </p>
                         </div>
@@ -331,8 +346,8 @@ export default function WizardForm({ user }: WizardFormProps) {
                             Next <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
                     ) : (
-                        <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white w-full md:w-auto">
-                            Submit Application
+                        <Button type="submit" className="bg-green-600 hover:bg-green-700 text-white w-full md:w-auto" disabled={!signature}>
+                            {signature ? "Submit Application" : "Sign to Submit"}
                         </Button>
                     )}
                 </CardFooter>

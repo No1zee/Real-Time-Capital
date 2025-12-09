@@ -1,3 +1,5 @@
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 import { getAllAuctionsAdmin, cancelAuction, forceEndAuction } from "@/app/actions/admin/auctions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +17,14 @@ import { Search, Gavel, XCircle, StopCircle, Eye } from "lucide-react"
 import Link from "next/link"
 
 export default async function AdminAuctionsPage() {
+    const session = await auth()
+    // @ts-ignore
+    const userRole = session?.user?.role
+
+    if (userRole !== "ADMIN" && userRole !== "STAFF") {
+        redirect("/portal")
+    }
+
     const auctions = await getAllAuctionsAdmin()
 
     return (

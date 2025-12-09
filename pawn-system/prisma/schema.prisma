@@ -109,7 +109,7 @@ model Account {
 }
 
 model Auction {
-  id         String      @id
+  id         String      @id @default(cuid())
   itemId     String      @unique
   startPrice Decimal
   currentBid Decimal?
@@ -128,7 +128,7 @@ model Auction {
 }
 
 model AutoBid {
-  id        String   @id
+  id        String   @id @default(cuid())
   userId    String
   auctionId String
   maxAmount Decimal
@@ -141,7 +141,7 @@ model AutoBid {
 }
 
 model Bid {
-  id        String   @id
+  id        String   @id @default(cuid())
   auctionId String
   userId    String
   amount    Decimal
@@ -151,7 +151,7 @@ model Bid {
 }
 
 model Customer {
-  id          String   @id
+  id          String   @id @default(cuid())
   firstName   String
   lastName    String
   nationalId  String   @unique
@@ -165,7 +165,7 @@ model Customer {
 }
 
 model Dispute {
-  id          String   @id
+  id          String   @id @default(cuid())
   userId      String
   auctionId   String
   reason      String
@@ -178,7 +178,7 @@ model Dispute {
 }
 
 model Item {
-  id           String    @id
+  id           String    @id @default(cuid())
   loanId       String?
   name         String
   category     String    @default("Other")
@@ -282,6 +282,12 @@ model User {
   id                 String         @id @default(cuid())
   name               String?
   email              String?        @unique
+  phoneNumber        String?        @unique
+  nationalId         String?        @unique
+  address            String?
+  location           String?
+  dateOfBirth        DateTime?
+  termsAccepted      Boolean        @default(false)
   emailVerified      DateTime?
   image              String?
   password           String?

@@ -23,7 +23,7 @@ export default async function AdminReportsPage() {
     // Get analytics data for last 30 days
     const endDate = new Date()
     const startDate = new Date()
-    startDate.setDate(startDate.getDate() - 30)
+    startDate.setDate(startDate.getDate() - 90)
 
     const revenueReport = await getRevenueReport({ startDate, endDate })
     const loanMetrics = await getLoanPerformanceMetrics({ startDate, endDate })

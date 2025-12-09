@@ -48,3 +48,47 @@ export async function uploadId(formData: FormData) {
         throw new Error("Upload failed")
     }
 }
+
+export async function verifyEmail(token: string) {
+    try {
+        const verificationToken = await prisma.verificationToken.findUnique({
+            where: { token },
+        })
+
+        if (!verificationToken) {
+            return { error: "Invalid token" }
+        }
+
+        const hasExpired = new Date() > verificationToken.expires
+        if (hasExpired) {
+            await prisma.verificationToken.delete({ where: { token } }) // Cleanup
+            return { error: "Token expired" }
+        }
+
+        const existingUser = await prisma.user.findFirst({
+            where: { email: verificationToken.identifier },
+        })
+
+        if (!existingUser) {
+            return { error: "User not found" }
+        }
+
+        // Verify User
+        await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+                emailVerified: new Date(),
+                verificationStatus: "VERIFIED",
+            },
+        })
+
+        // Delete Token
+        await prisma.verificationToken.delete({ where: { token } })
+
+        return { success: "Email verified successfully! You can now login." }
+
+    } catch (error) {
+        console.error("Verification error:", error)
+        return { error: "Failed to verify email" }
+    }
+}
