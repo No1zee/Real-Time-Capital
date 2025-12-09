@@ -18,6 +18,7 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
         where: { id },
         include: {
             customer: true,
+            user: true, // Include Digital User
             items: true,
             payments: {
                 orderBy: {
@@ -30,6 +31,15 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
     if (!loan) {
         notFound()
     }
+
+    // Determine Borrower Info (Offline Customer vs. Digital User)
+    const borrowerName = loan.customer
+        ? `${loan.customer.firstName} ${loan.customer.lastName}`
+        : (loan.user?.name || "Unknown Borrower")
+
+    const borrowerId = loan.customer?.nationalId || "Digital ID"
+    const borrowerPhone = loan.customer?.phoneNumber || "N/A"
+    const borrowerEmail = loan.customer?.email || loan.user?.email || "N/A"
 
     const totalPaid = loan.payments.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0)
     const principal = Number(loan.principalAmount)
@@ -67,7 +77,7 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
                     </div>
                 </div>
                 <div className="flex gap-2">
-                    <PawnTicket loan={loan} customer={loan.customer} items={loan.items} />
+                    <PawnTicket loan={loan} customer={loan.customer || { firstName: borrowerName, lastName: "", nationalId: borrowerId, address: "Digital", phoneNumber: borrowerPhone }} items={loan.items} />
                     <LoanDetailsClient
                         loanId={loan.id}
                         remainingBalance={remainingBalance}
@@ -86,16 +96,16 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
                             <User className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <div className="p-6 pt-0">
-                            <div className="text-2xl font-bold">{loan.customer.firstName} {loan.customer.lastName}</div>
-                            <p className="text-xs text-muted-foreground mb-4">{loan.customer.nationalId}</p>
+                            <div className="text-2xl font-bold">{borrowerName}</div>
+                            <p className="text-xs text-muted-foreground mb-4">{borrowerId}</p>
                             <div className="space-y-1 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Phone:</span>
-                                    <span>{loan.customer.phoneNumber}</span>
+                                    <span>{borrowerPhone}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Email:</span>
-                                    <span>{loan.customer.email || "N/A"}</span>
+                                    <span>{borrowerEmail}</span>
                                 </div>
                             </div>
                         </div>
