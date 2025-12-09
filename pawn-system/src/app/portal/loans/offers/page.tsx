@@ -25,7 +25,7 @@ export default async function LoanOffersPage() {
             userId: session.user.id,
             status: "PENDING"
         },
-        include: { items: true },
+        include: { Item: true },
         orderBy: { createdAt: "desc" }
     })
 
@@ -56,7 +56,7 @@ export default async function LoanOffersPage() {
                                     {formatCurrency(Number(loan.principalAmount))}
                                 </CardTitle>
                                 <CardDescription className="font-medium">
-                                    {loan.items.map(i => i.name).join(", ")}
+                                    {loan.Item.map(i => i.name).join(", ")}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">

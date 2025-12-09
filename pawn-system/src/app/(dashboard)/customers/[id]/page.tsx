@@ -16,10 +16,10 @@ export default async function CustomerDetailsPage({ params }: PageProps) {
     const customer = await db.customer.findUnique({
         where: { id },
         include: {
-            loans: {
+            Loan: {
                 orderBy: { createdAt: "desc" },
                 include: {
-                    items: true,
+                    Item: true,
                 },
             },
         },
@@ -63,7 +63,7 @@ export default async function CustomerDetailsPage({ params }: PageProps) {
                             <FileText className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <div className="p-6">
-                            {customer.loans.length === 0 ? (
+                            {customer.Loan.length === 0 ? (
                                 <div className="text-center py-8 text-muted-foreground text-sm border border-dashed rounded-lg">
                                     No loans found for this customer.
                                 </div>
@@ -80,15 +80,15 @@ export default async function CustomerDetailsPage({ params }: PageProps) {
                                             </tr>
                                         </thead>
                                         <tbody className="[&_tr:last-child]:border-0">
-                                            {customer.loans.map((loan) => (
+                                            {customer.Loan.map((loan) => (
                                                 <tr key={loan.id} className="border-b transition-colors hover:bg-muted/50">
                                                     <td className="p-2 align-middle">{new Date(loan.createdAt).toLocaleDateString()}</td>
-                                                    <td className="p-2 align-middle">{loan.items[0]?.name || "Unknown Item"}</td>
+                                                    <td className="p-2 align-middle">{loan.Item[0]?.name || "Unknown Item"}</td>
                                                     <td className="p-2 align-middle">${Number(loan.principalAmount).toFixed(2)}</td>
                                                     <td className="p-2 align-middle">
                                                         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${loan.status === "ACTIVE" ? "border-green-200 bg-green-50 text-green-700" :
-                                                                loan.status === "DEFAULTED" ? "border-red-200 bg-red-50 text-red-700" :
-                                                                    "border-gray-200 bg-gray-50 text-gray-700"
+                                                            loan.status === "DEFAULTED" ? "border-red-200 bg-red-50 text-red-700" :
+                                                                "border-gray-200 bg-gray-50 text-gray-700"
                                                             }`}>
                                                             {loan.status}
                                                         </span>
