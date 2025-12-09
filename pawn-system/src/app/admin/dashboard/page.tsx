@@ -10,8 +10,9 @@ import Link from "next/link"
 import { Users, Gavel, DollarSign, AlertCircle, ArrowLeft, TrendingUp } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 // New Imports
-import { getRevenueData, getUserGrowthData } from "@/app/actions/admin/analytics"
+import { getRevenueData, getUserGrowthData, getBusinessKPIs } from "@/app/actions/admin/analytics"
 import { AnalyticsWidgets } from "@/components/admin/analytics-widgets"
+import { BusinessKPIGrid } from "@/components/admin/business-kpi-grid"
 
 export default async function AdminDashboardPage() {
     const session = await auth()
@@ -24,6 +25,7 @@ export default async function AdminDashboardPage() {
     const pendingTransactions = await getPendingTransactions()
     const revenueData = await getRevenueData()
     const growthData = await getUserGrowthData()
+    const businessKPIs = await getBusinessKPIs()
 
     // Fetch some basic stats
     const totalUsers = await prisma.user.count()
@@ -56,6 +58,9 @@ export default async function AdminDashboardPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Business Intelligence KPIs */}
+            <BusinessKPIGrid data={businessKPIs} />
 
             <div className="grid gap-4 md:grid-cols-3">
                 <Card className="glass-card">
