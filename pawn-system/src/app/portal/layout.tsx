@@ -93,35 +93,38 @@ export default async function PortalLayout({
                                 Dashboard
                             </Link>
 
-
-                            <Link
-                                href="/portal/loans"
-                                className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
-                            >
-                                <FileText className="w-5 h-5 group-hover:text-green-400 transition-colors" />
-                                My Loans
-                            </Link>
-                            <Link
-                                href="/portal/items"
-                                className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
-                            >
-                                <Package className="w-5 h-5 group-hover:text-purple-400 transition-colors" />
-                                My Items
-                            </Link>
-                            <Link
-                                href="/portal/wallet"
-                                className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
-                            >
-                                <Wallet className="w-5 h-5 group-hover:text-amber-400 transition-colors" />
-                                My Wallet
-                            </Link>
-                            <Link
-                                href="/portal/watchlist"
-                                className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
-                            >
-                                <Heart className="w-5 h-5 group-hover:text-red-400 transition-colors" />
-                                My Watchlist
-                            </Link>
+                            {user.role === "CUSTOMER" && (
+                                <>
+                                    <Link
+                                        href="/portal/loans"
+                                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
+                                    >
+                                        <FileText className="w-5 h-5 group-hover:text-green-400 transition-colors" />
+                                        My Loans
+                                    </Link>
+                                    <Link
+                                        href="/portal/items"
+                                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
+                                    >
+                                        <Package className="w-5 h-5 group-hover:text-purple-400 transition-colors" />
+                                        My Items
+                                    </Link>
+                                    <Link
+                                        href="/portal/wallet"
+                                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
+                                    >
+                                        <Wallet className="w-5 h-5 group-hover:text-amber-400 transition-colors" />
+                                        My Wallet
+                                    </Link>
+                                    <Link
+                                        href="/portal/watchlist"
+                                        className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
+                                    >
+                                        <Heart className="w-5 h-5 group-hover:text-red-400 transition-colors" />
+                                        My Watchlist
+                                    </Link>
+                                </>
+                            )}
                             <Link
                                 href="/portal/education"
                                 className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/50 rounded-lg transition-all group"
@@ -166,6 +169,9 @@ export default async function PortalLayout({
                             <div className="text-xs text-muted-foreground">
                                 Signed in as <br />
                                 <span className="text-sidebar-foreground font-medium">{user.email}</span>
+                            </div>
+                            <div className="px-3 text-xs text-muted-foreground">
+                                Role: <span className="font-mono font-bold text-primary">{user.role}</span>
                             </div>
                             <form action={logout}>
                                 <button className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all">
