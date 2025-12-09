@@ -72,7 +72,7 @@ export default async function CustomersPage({
                                 </thead>
                                 <tbody className="[&_tr:last-child]:border-0">
                                     {customers.map((customer) => {
-                                        const activeLoans = customer.loans.filter(l => l.status === "ACTIVE" || l.status === "PENDING").length
+                                        const activeLoans = customer.Loan.filter(l => l.status === "ACTIVE" || l.status === "PENDING").length
                                         return (
                                             <tr key={customer.id} className="border-b transition-colors hover:bg-muted/50">
                                                 <td className="p-2 align-middle font-medium">
@@ -80,7 +80,7 @@ export default async function CustomersPage({
                                                 </td>
                                                 <td className="p-2 align-middle">{customer.nationalId}</td>
                                                 <td className="p-2 align-middle">{customer.phoneNumber}</td>
-                                                <td className="p-2 align-middle text-center">{customer.loans.length}</td>
+                                                <td className="p-2 align-middle text-center">{customer.Loan.length}</td>
                                                 <td className="p-2 align-middle text-center">
                                                     {activeLoans > 0 ? (
                                                         <span className="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700">
