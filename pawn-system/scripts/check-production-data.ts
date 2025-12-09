@@ -16,7 +16,7 @@ async function main() {
 
     if (auctionCount > 0) {
         const firstAuction = await prisma.auction.findFirst({
-            include: { item: true }
+            include: { Item: true }
         })
         console.log(`✅ Sample Auction: ${firstAuction?.item.name} ($${firstAuction?.currentBid})`)
     } else {

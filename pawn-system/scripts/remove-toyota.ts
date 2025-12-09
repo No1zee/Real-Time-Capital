@@ -8,7 +8,7 @@ async function main() {
 
     const items = await prisma.item.findMany({
         where: { name: itemName },
-        include: { auction: true }
+        include: { Auction: true }
     })
 
     if (items.length === 0) {

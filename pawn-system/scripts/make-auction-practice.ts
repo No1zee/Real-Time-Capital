@@ -7,7 +7,7 @@ async function main() {
 
     const auction = await prisma.auction.findFirst({
         where: { status: "ACTIVE" },
-        include: { item: true }
+        include: { Item: true }
     })
 
     if (!auction) {

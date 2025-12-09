@@ -7,8 +7,8 @@ async function main() {
 
     const auction = await prisma.auction.findFirst({
         include: {
-            bids: { include: { user: true }, orderBy: { amount: "desc" } },
-            autoBids: { include: { user: true } }
+            Bid: { include: { User: true }, orderBy: { amount: "desc" } },
+            AutoBid: { include: { User: true } }
         }
     })
 

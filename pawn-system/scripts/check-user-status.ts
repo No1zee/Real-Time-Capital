@@ -13,10 +13,10 @@ async function main() {
             }
         },
         include: {
-            bids: {
+            Bid: {
                 take: 5,
                 orderBy: { createdAt: 'desc' },
-                include: { auction: { include: { item: true } } }
+                include: { Auction: { include: { Item: true } } }
             },
             transactions: {
                 take: 5,
@@ -34,12 +34,12 @@ async function main() {
             console.log(`Role: ${user.role}`)
             console.log(`Wallet Balance: ${user.walletBalance}`)
 
-            console.log(`\nRecent Bids (${user.bids.length}):`)
-            if (user.bids.length === 0) {
+            console.log(`\nRecent Bids (${user.Bid.length}):`)
+            if (user.Bid.length === 0) {
                 console.log("  No bids placed.")
             } else {
-                user.bids.forEach(b => {
-                    console.log(`  - $${b.amount} on ${b.auction.item.name} (${b.auction.status})`)
+                user.Bid.forEach(b => {
+                    console.log(`  - $${b.amount} on ${b.Auction.Item.name} (${b.Auction.status})`)
                 })
             }
 
@@ -53,11 +53,11 @@ async function main() {
     console.log("\n--- System Status ---")
     const activeAuctions = await prisma.auction.findMany({
         where: { status: "ACTIVE" },
-        include: { item: true }
+        include: { Item: true }
     })
     console.log(`Total Active Auctions in System: ${activeAuctions.length}`)
     activeAuctions.forEach(a => {
-        console.log(`  - [ACTIVE] ${a.item.name} (Current Bid: ${a.currentBid || a.startPrice})`)
+        console.log(`  - [ACTIVE] ${a.Item.name} (Current Bid: ${a.currentBid || a.startPrice})`)
     })
 }
 

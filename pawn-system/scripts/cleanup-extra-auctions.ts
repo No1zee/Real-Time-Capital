@@ -44,7 +44,7 @@ async function main() {
 
     console.log("Cleanup complete. Remaining auctions:")
     const remaining = await prisma.auction.findMany({
-        include: { item: true }
+        include: { Item: true }
     })
     remaining.forEach(a => console.log(`- ${a.item.name}`))
 }

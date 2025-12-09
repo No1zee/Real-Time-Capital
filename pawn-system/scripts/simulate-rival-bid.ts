@@ -9,7 +9,7 @@ async function main() {
     const auction = await prisma.auction.findFirst({
         where: { status: "ACTIVE" },
         orderBy: { updatedAt: "desc" },
-        include: { bids: { orderBy: { amount: "desc" }, take: 1 } }
+        include: { Bid: { orderBy: { amount: "desc" }, take: 1 } }
     })
 
     if (!auction) {
