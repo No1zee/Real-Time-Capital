@@ -19,7 +19,7 @@ export default async function CustomersPage({
             ] : undefined,
         },
         include: {
-            loans: true,
+            Loan: true,
         },
         orderBy: {
             createdAt: "desc",
