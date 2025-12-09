@@ -8,17 +8,25 @@ import { logout } from "@/app/actions/auth"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 
 const navigation = [
-    { name: "Dashboard", href: "/", icon: LayoutDashboard },
-    { name: "Loans", href: "/loans", icon: Banknote },
-    { name: "Inventory", href: "/inventory", icon: Package },
-    { name: "Auctions", href: "/auctions", icon: Gavel },
-    { name: "Customers", href: "/customers", icon: Users },
-    { name: "My Wallet", href: "/portal/wallet", icon: Wallet },
-    { name: "Settings", href: "/settings", icon: Settings },
+    { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["ADMIN", "STAFF", "CUSTOMER"] },
+    { name: "Loans", href: "/loans", icon: Banknote, roles: ["ADMIN", "STAFF"] },
+    { name: "My Loans", href: "/portal/loans", icon: Banknote, roles: ["CUSTOMER"] },
+    { name: "Inventory", href: "/inventory", icon: Package, roles: ["ADMIN", "STAFF"] },
+    { name: "My Inventory", href: "/portal/inventory", icon: Package, roles: ["CUSTOMER"] },
+    { name: "Auctions", href: "/auctions", icon: Gavel, roles: ["ADMIN", "STAFF", "CUSTOMER"] },
+    { name: "Customers", href: "/customers", icon: Users, roles: ["ADMIN", "STAFF"] },
+    { name: "My Wallet", href: "/portal/wallet", icon: Wallet, roles: ["CUSTOMER"] },
+    { name: "Settings", href: "/settings", icon: Settings, roles: ["ADMIN", "STAFF", "CUSTOMER"] },
 ]
 
-export function Sidebar() {
+interface SidebarProps {
+    userRole?: string
+}
+
+export function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
     const pathname = usePathname()
+
+    const filteredNavigation = navigation.filter(item => item.roles.includes(userRole))
 
     return (
         <div className="flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
@@ -32,7 +40,7 @@ export function Sidebar() {
             </div>
             <div className="flex-1 overflow-y-auto py-4">
                 <nav className="space-y-1 px-3">
-                    {navigation.map((item) => {
+                    {filteredNavigation.map((item) => {
                         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
                         return (
                             <Link
