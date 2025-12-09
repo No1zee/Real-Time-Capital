@@ -76,6 +76,7 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
             { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard, roles: ["ADMIN", "STAFF"] },
             { name: "User Management", href: "/admin/users", icon: Users, roles: ["ADMIN", "STAFF"] },
             { name: "Global Inventory", href: "/admin/inventory", icon: Package, roles: ["ADMIN", "STAFF"] },
+            { name: "Valuations", href: "/admin/valuations", icon: Banknote, roles: ["ADMIN", "STAFF"], className: "text-amber-500" },
             { name: "Auctions", href: "/admin/auctions", icon: Gavel, roles: ["ADMIN", "STAFF"] },
             { name: "Payments", href: "/admin/payments", icon: CreditCard, roles: ["ADMIN", "STAFF"] },
             { name: "Reports", href: "/admin/reports", icon: FileBarChart, roles: ["ADMIN", "STAFF"] },
@@ -94,6 +95,8 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
             { name: "My Items", href: "/portal/items", icon: Package, roles: ["CUSTOMER"] },
             { name: "My Wallet", href: "/portal/wallet", icon: Wallet, roles: ["CUSTOMER"] },
             { name: "My Watchlist", href: "/portal/watchlist", icon: Heart, roles: ["CUSTOMER"] },
+            // New Feature: Online Pawn
+            { name: "Get a Valuation", href: "/portal/pawn", icon: Banknote, roles: ["CUSTOMER"], className: "text-amber-500 hover:text-amber-600 bg-amber-500/10 hover:bg-amber-500/20 font-bold" },
 
             // Education & Support (Available to all)
             { name: "Education Hub", href: "/portal/education", icon: BookOpenIcon, roles: ["ADMIN", "STAFF", "CUSTOMER", "GUEST"] },
