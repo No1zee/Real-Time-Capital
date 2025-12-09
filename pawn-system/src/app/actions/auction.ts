@@ -120,9 +120,10 @@ export async function placeBid(auctionId: string, amount: number) {
     if (previousHighestBid && previousHighestBid.userId !== user.id) {
         await createNotification(
             previousHighestBid.userId,
-            "OUTBID",
+            "Outbid Alert",
             `You have been outbid! ${user.name || "Someone"} placed a bid of ${amount}.`,
-            auctionId
+            "OUTBID",
+            `/portal/auctions/${auctionId}`
         )
     }
 
