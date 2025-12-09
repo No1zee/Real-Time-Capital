@@ -8,11 +8,15 @@ async function main() {
 
     // 1. Credit Wallet
     console.log(`Crediting wallet for ${userEmail}...`)
-    const user = await prisma.user.update({
-        where: { email: userEmail },
-        data: { walletBalance: { increment: 5000 } }
-    })
-    console.log(`New Balance: ${user.walletBalance}`)
+    try {
+        const user = await prisma.user.update({
+            where: { email: userEmail },
+            data: { walletBalance: { increment: 5000 } }
+        })
+        console.log(`New Balance: ${user.walletBalance}`)
+    } catch (e) {
+        console.log(`User ${userEmail} not found, skipping wallet credit.`)
+    }
 
     // 2. Create Dummy Customer & Loan if needed
     let customer = await prisma.customer.findFirst()
@@ -20,6 +24,7 @@ async function main() {
         console.log("Creating dummy customer...")
         customer = await prisma.customer.create({
             data: {
+                id: crypto.randomUUID(),
                 firstName: "Jane",
                 lastName: "Doe",
                 nationalId: "12-345678-Z-12",
@@ -35,6 +40,7 @@ async function main() {
         console.log("Creating dummy loan...")
         loan = await prisma.loan.create({
             data: {
+                id: crypto.randomUUID(),
                 customerId: customer.id,
                 principalAmount: 500,
                 interestRate: 15,

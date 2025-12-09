@@ -53,6 +53,7 @@ async function main() {
     if (!customer) {
         customer = await prisma.customer.create({
             data: {
+                id: crypto.randomUUID(),
                 firstName: "Bulk",
                 lastName: "Seeder",
                 nationalId: "BULK-SEED-001",
@@ -67,6 +68,7 @@ async function main() {
     if (!loan) {
         loan = await prisma.loan.create({
             data: {
+                id: crypto.randomUUID(),
                 customerId: customer.id,
                 principalAmount: 10000,
                 interestRate: 10,

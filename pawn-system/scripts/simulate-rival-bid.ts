@@ -10,7 +10,7 @@ async function main() {
     const auction = await prisma.auction.findFirst({
         where: { status: "ACTIVE" },
         orderBy: { updatedAt: "desc" },
-        include: { bids: { orderBy: { amount: "desc" }, take: 1 } }
+        include: { Bid: { orderBy: { amount: "desc" }, take: 1 } }
     })
 
     if (!auction) {
@@ -19,7 +19,7 @@ async function main() {
     }
 
     console.log(`🎯 Targeting Auction: ${auction.id}`)
-    const currentBid = Number(auction.bids[0]?.amount || auction.startPrice)
+    const currentBid = Number(auction.Bid[0]?.amount || auction.startPrice)
     const nextBid = currentBid + 50
 
     // 2. Create or find Rival User
@@ -58,8 +58,8 @@ async function main() {
         })
 
         // Create Notification
-        if (auction.bids.length > 0) {
-            const previousBidderId = auction.bids[0].userId
+        if (auction.Bid.length > 0) {
+            const previousBidderId = auction.Bid[0].userId
             if (previousBidderId !== rival.id) {
                 await tx.notification.create({
                     data: {
