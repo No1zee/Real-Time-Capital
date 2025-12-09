@@ -9,6 +9,8 @@ export type AuditAction =
     | "DELETE"
     | "VIEW_SENSITIVE"
     | "PERMISSION_CHANGE"
+    | "CREATE_OFFER"
+    | "ACCEPT_LOAN"
 
 export type AuditEntity =
     | "USER"
