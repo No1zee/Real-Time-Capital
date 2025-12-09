@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
 import { ArrowLeft, Calendar, DollarSign, Eye, ShoppingBag, Clock } from "lucide-react"
 import Link from "next/link"
+import { PermissionsEditor } from "@/components/admin/permissions-editor"
 
 interface AdminUserDetailPageProps {
     params: Promise<{
@@ -58,6 +59,11 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left Column: Stats & Interests */}
                 <div className="space-y-6 lg:col-span-2">
+                    {/* Permissions Editor */}
+                    <div className="mb-6">
+                        <PermissionsEditor userId={user.id} initialPermissions={user.permissions} />
+                    </div>
+
                     {/* CRM Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <Card className="glass-card">

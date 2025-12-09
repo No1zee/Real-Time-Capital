@@ -111,6 +111,7 @@ model User {
   notifications Notification[]
   ratings       Rating[]
   disputes      Dispute[]
+  permissions   String[]      @default([]) // RBAC Permissions
   walletBalance   Decimal       @default(0)
   practiceBalance Decimal       @default(50000)
   transactions    Transaction[]
