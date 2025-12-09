@@ -8,6 +8,7 @@ export default async function LoansPage() {
     const loans = await db.loan.findMany({
         include: {
             customer: true,
+            user: true,
         },
         orderBy: {
             createdAt: "desc",
@@ -68,7 +69,12 @@ export default async function LoansPage() {
                                 loans.map((loan) => (
                                     <tr key={loan.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                                         <td className="p-4 align-middle font-medium">{loan.id.slice(-8).toUpperCase()}</td>
-                                        <td className="p-4 align-middle">{loan.customer.firstName} {loan.customer.lastName}</td>
+                                        <td className="p-4 align-middle">
+                                            {loan.customer
+                                                ? `${loan.customer.firstName} ${loan.customer.lastName}`
+                                                : (loan.user?.name || "Unknown")
+                                            }
+                                        </td>
                                         <td className="p-4 align-middle">${Number(loan.principalAmount).toFixed(2)}</td>
                                         <td className="p-4 align-middle">
                                             <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${loan.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20' :
