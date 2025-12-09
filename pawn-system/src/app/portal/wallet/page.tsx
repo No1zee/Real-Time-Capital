@@ -28,7 +28,7 @@ export default async function WalletPage() {
                     <h2 className="text-3xl font-bold tracking-tight">Wallet</h2>
                     <p className="text-muted-foreground">Manage your funds and view transaction history.</p>
                 </div>
-                <DepositModal userId={user.id} />
+                <DepositModal />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -61,9 +61,9 @@ export default async function WalletPage() {
                                 user.Transaction.slice(0, 5).map((tx) => (
                                     <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg border bg-card/50 hover:bg-muted/50 transition-colors">
                                         <div className="flex items-center space-x-3">
-                                            <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' || tx.type === 'REFUND' || tx.type === 'PAYMENT_RECEIVED' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                            <div className={`p-2 rounded-full ${tx.type === 'DEPOSIT' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
                                                 }`}>
-                                                {tx.type === 'DEPOSIT' || tx.type === 'REFUND' || tx.type === 'PAYMENT_RECEIVED' ?
+                                                {tx.type === 'DEPOSIT' ?
                                                     <ArrowDownLeft className="w-4 h-4" /> :
                                                     <ArrowUpRight className="w-4 h-4" />
                                                 }
@@ -74,9 +74,9 @@ export default async function WalletPage() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className={`font-bold text-sm ${tx.type === 'DEPOSIT' || tx.type === 'REFUND' || tx.type === 'PAYMENT_RECEIVED' ? 'text-green-600' : 'text-red-600'
+                                            <p className={`font-bold text-sm ${tx.type === 'DEPOSIT' ? 'text-green-600' : 'text-red-600'
                                                 }`}>
-                                                {tx.type === 'DEPOSIT' || tx.type === 'REFUND' || tx.type === 'PAYMENT_RECEIVED' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
+                                                {tx.type === 'DEPOSIT' ? '+' : '-'}{formatCurrency(Number(tx.amount))}
                                             </p>
                                             <div className="flex justify-end mt-1">
                                                 {tx.status === 'COMPLETED' && (

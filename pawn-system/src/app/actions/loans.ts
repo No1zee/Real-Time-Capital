@@ -110,10 +110,12 @@ export async function createLoan(prevState: State, formData: FormData) {
         if (!customer) {
             customer = await db.customer.create({
                 data: {
+                    id: crypto.randomUUID(),
                     firstName,
                     lastName,
                     nationalId,
                     phoneNumber,
+                    updatedAt: new Date(),
                 },
             })
         }
@@ -133,8 +135,10 @@ export async function createLoan(prevState: State, formData: FormData) {
                 startDate,
                 dueDate,
                 status: "PENDING",
+                updatedAt: new Date(),
                 Item: {
                     create: {
+                        id: crypto.randomUUID(),
                         name: itemName,
                         category,
                         brand,
@@ -145,6 +149,7 @@ export async function createLoan(prevState: State, formData: FormData) {
                         status: "PENDING_VALUATION", // Item needs valuation check
                         images: images || "[]",
                         valuationDetails,
+                        updatedAt: new Date(),
                     },
                 },
             },

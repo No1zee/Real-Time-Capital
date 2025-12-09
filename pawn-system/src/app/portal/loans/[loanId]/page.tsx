@@ -20,8 +20,8 @@ export default async function LoanDetailsPage({ params }: { params: Promise<{ lo
     const loan = await prisma.loan.findUnique({
         where: { id: loanId },
         include: {
-            items: true,
-            payments: true
+            Item: true,
+            Payment: true
         }
     })
 
@@ -46,7 +46,7 @@ export default async function LoanDetailsPage({ params }: { params: Promise<{ lo
     }
 
     // @ts-ignore
-    const totalPaid = loan.payments.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0)
+    const totalPaid = loan.Payment.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0)
     const totalDue = Number(loan.principalAmount) + (Number(loan.principalAmount) * Number(loan.interestRate) / 100)
     const remainingBalance = totalDue - totalPaid
 
@@ -99,7 +99,7 @@ export default async function LoanDetailsPage({ params }: { params: Promise<{ lo
                             </h4>
                             <div className="grid gap-3 sm:grid-cols-2">
                                 {/* @ts-ignore */}
-                                {loan.items.map((item: any) => (
+                                {loan.Item.map((item: any) => (
                                     <div key={item.id} className="border rounded-lg p-3 bg-slate-50 dark:bg-slate-900">
                                         <div className="flex justify-between items-start">
                                             <div>

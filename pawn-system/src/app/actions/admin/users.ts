@@ -44,7 +44,7 @@ export async function updateUserRole(userId: string, role: UserRole) {
 
     await prisma.user.update({
         where: { id: userId },
-        data: { role, permissions: [] }
+        data: { role, permissions: "" }
     })
 
     revalidatePath("/admin/users")

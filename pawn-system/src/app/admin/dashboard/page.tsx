@@ -118,8 +118,8 @@ export default async function AdminDashboardPage() {
                     status: t.status,
                     createdAt: t.createdAt.toISOString(),
                     user: {
-                        name: t.user.name,
-                        email: t.user.email
+                        name: t.User.name,
+                        email: t.User.email
                     }
                 }))} />
             </div>

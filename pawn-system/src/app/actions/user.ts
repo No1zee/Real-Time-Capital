@@ -16,9 +16,9 @@ export async function getUserBids() {
     return await prisma.bid.findMany({
         where: { userId: user.id },
         include: {
-            auction: {
+            Auction: {
                 include: {
-                    item: true,
+                    Item: true,
                 }
             }
         },

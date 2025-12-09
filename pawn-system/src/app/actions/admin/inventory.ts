@@ -12,8 +12,8 @@ export async function getAllItemsAdmin() {
 
     return await prisma.item.findMany({
         include: {
-            loan: true,
-            auction: true
+            Loan: true,
+            Auction: true
         },
         orderBy: { createdAt: "desc" }
     })
@@ -65,6 +65,7 @@ export async function moveItemToAuction(itemId: string) {
         }),
         prisma.auction.create({
             data: {
+                id: crypto.randomUUID(),
                 itemId,
                 startPrice: item.valuation, // Default start price
                 startTime,

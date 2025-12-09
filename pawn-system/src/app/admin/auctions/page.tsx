@@ -57,8 +57,8 @@ export default async function AdminAuctionsPage() {
                                 <TableRow key={auction.id}>
                                     <TableCell>
                                         <div>
-                                            <p className="font-medium text-slate-900 dark:text-white">{auction.item.name}</p>
-                                            <p className="text-sm text-slate-500">{auction.item.category}</p>
+                                            <p className="font-medium text-slate-900 dark:text-white">{auction.Item.name}</p>
+                                            <p className="text-sm text-slate-500">{auction.Item.category}</p>
                                         </div>
                                     </TableCell>
                                     <TableCell>
@@ -76,7 +76,7 @@ export default async function AdminAuctionsPage() {
                                     <TableCell>
                                         <div className="flex items-center gap-1">
                                             <Gavel className="h-3 w-3 text-slate-400" />
-                                            <span>{auction._count.bids}</span>
+                                            <span>{auction._count.Bid}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>

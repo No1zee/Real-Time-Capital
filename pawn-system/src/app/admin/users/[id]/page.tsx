@@ -24,7 +24,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
         where: { id },
         include: {
             _count: {
-                select: { bids: true, transactions: true, disputes: true }
+                select: { Bid: true, Transaction: true, Dispute: true }
             }
         }
     })
@@ -61,7 +61,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                 <div className="space-y-6 lg:col-span-2">
                     {/* Permissions Editor */}
                     <div className="mb-6">
-                        <PermissionsEditor userId={user.id} initialPermissions={user.permissions} />
+                        <PermissionsEditor userId={user.id} initialPermissions={user.permissions ? user.permissions.split(',').filter(p => p) : []} />
                     </div>
 
                     {/* CRM Stats Grid */}
@@ -124,12 +124,12 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                                 </div>
                                 <div className="flex justify-between items-center border-b border-border pb-2">
                                     <span className="text-sm text-muted-foreground">Total Bids</span>
-                                    <span className="font-mono">{user._count.bids}</span>
+                                    <span className="font-mono">{user._count.Bid}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-sm text-muted-foreground">Disputes</span>
-                                    <span className={`font-mono ${user._count.disputes > 0 ? "text-red-500 font-bold" : ""}`}>
-                                        {user._count.disputes}
+                                    <span className={`font-mono ${user._count.Dispute > 0 ? "text-red-500 font-bold" : ""}`}>
+                                        {user._count.Dispute}
                                     </span>
                                 </div>
                             </CardContent>

@@ -73,11 +73,11 @@ export default async function AdminInventoryPage() {
                                         <Badge variant="outline">{item.status}</Badge>
                                     </TableCell>
                                     <TableCell>
-                                        {item.loan ? (
+                                        {item.Loan ? (
                                             <div className="text-sm">
-                                                <p className="text-slate-900 dark:text-white">Loan #{item.loan.id.slice(0, 8)}</p>
-                                                <Badge variant={item.loan.status === "ACTIVE" ? "default" : "secondary"} className="mt-1">
-                                                    {item.loan.status}
+                                                <p className="text-slate-900 dark:text-white">Loan #{item.Loan.id.slice(0, 8)}</p>
+                                                <Badge variant={item.Loan.status === "ACTIVE" ? "default" : "secondary"} className="mt-1">
+                                                    {item.Loan.status}
                                                 </Badge>
                                             </div>
                                         ) : (
@@ -87,7 +87,7 @@ export default async function AdminInventoryPage() {
                                     <TableCell className="text-right">
                                         <div className="flex justify-end gap-2">
                                             {/* Action: Default Loan */}
-                                            {item.loan?.status === "ACTIVE" && (
+                                            {item.Loan?.status === "ACTIVE" && (
                                                 <form action={async () => {
                                                     "use server"
                                                     await markItemDefaulted(item.id)
@@ -105,7 +105,7 @@ export default async function AdminInventoryPage() {
                                                     await moveItemToAuction(item.id)
                                                 }}>
                                                     {/* Only allow if owned (no loan) OR loan defaulted */}
-                                                    {(!item.loanId || item.loan?.status === "DEFAULTED") && (
+                                                    {(!item.loanId || item.Loan?.status === "DEFAULTED") && (
                                                         <Button variant="ghost" size="icon" title="Move to Auction">
                                                             <Gavel className="h-4 w-4 text-amber-500" />
                                                         </Button>

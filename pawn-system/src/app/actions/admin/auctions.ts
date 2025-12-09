@@ -15,9 +15,9 @@ export async function getAllAuctionsAdmin() {
     return await prisma.auction.findMany({
         orderBy: { startTime: "desc" },
         include: {
-            item: true,
+            Item: true,
             _count: {
-                select: { bids: true }
+                select: { Bid: true }
             }
         }
     })
