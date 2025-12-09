@@ -117,6 +117,7 @@ model User {
   transactions    Transaction[]
   auditLogs       AuditLog[]
   items           Item[]
+  loans           Loan[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -186,8 +187,10 @@ model Customer {
 
 model Loan {
   id              String     @id @default(cuid())
-  customerId      String
-  customer        Customer   @relation(fields: [customerId], references: [id])
+  userId          String?    // Link to digital user
+  user            User?      @relation(fields: [userId], references: [id])
+  customerId      String?    // Optional: Link to offline customer record
+  customer        Customer?  @relation(fields: [customerId], references: [id])
   principalAmount Decimal
   interestRate    Decimal
   durationDays    Int

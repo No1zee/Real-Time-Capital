@@ -92,6 +92,7 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
             // Customer Specific
             { name: "Dashboard", href: "/portal", icon: LayoutDashboard, roles: ["CUSTOMER"], header: "Menu" },
             { name: "My Loans", href: "/portal/loans", icon: FileText, roles: ["CUSTOMER"] },
+            { name: "My Offers", href: "/portal/loans/offers", icon: Banknote, roles: ["CUSTOMER"], className: "text-green-600 font-semibold" },
             { name: "My Items", href: "/portal/items", icon: Package, roles: ["CUSTOMER"] },
             { name: "My Wallet", href: "/portal/wallet", icon: Wallet, roles: ["CUSTOMER"] },
             { name: "My Watchlist", href: "/portal/watchlist", icon: Heart, roles: ["CUSTOMER"] },

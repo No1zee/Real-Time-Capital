@@ -7,7 +7,8 @@ import { ArrowLeft, Package } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 
-export default async function ValuationDetailPage({ params }: { params: { itemId: string } }) {
+export default async function ValuationDetailPage({ params }: { params: Promise<{ itemId: string }> }) {
+    const { itemId } = await params
     const session = await auth()
     // @ts-ignore
     const userRole = session?.user?.role
@@ -17,7 +18,7 @@ export default async function ValuationDetailPage({ params }: { params: { itemId
     }
 
     const item = await prisma.item.findUnique({
-        where: { id: params.itemId },
+        where: { id: itemId },
         include: { user: true }
     })
 
