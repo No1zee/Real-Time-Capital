@@ -3,6 +3,37 @@ const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
 
+// Manual .env loading fallback
+try {
+    const envPath = path.join(__dirname, '..', '.env');
+    if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        console.log('Found .env file. Content length:', envContent.length);
+        const match = envContent.match(/DATABASE_URL="?([^"\n]+)"?/);
+        if (match && match[1]) {
+            console.log('Found DATABASE_URL in .env, setting process.env manually.');
+            process.env.DATABASE_URL = match[1];
+        }
+    } else {
+        console.log('No .env file found at:', envPath);
+    }
+
+    // ... previous manual load code ...
+} catch (error) {
+    console.error('Error reading .env manually:', error);
+}
+
+require('dotenv').config();
+
+
+console.log('Final Check - DATABASE_URL present:', !!process.env.DATABASE_URL);
+
+if (!process.env.DATABASE_URL) {
+    console.error('FATAL: DATABASE_URL is missing. Please ensure your .env file contains a valid DATABASE_URL variable.');
+    process.exit(1);
+}
+
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -17,22 +48,41 @@ async function main() {
 
     // 1. Users
     console.log('Seeding Users...');
-    for (const user of data.users) {
-        await prisma.user.upsert({
-            where: { id: user.id },
-            update: {},
-            create: user,
-        });
+    if (data.users && Array.isArray(data.users)) {
+        console.log(`Found ${data.users.length} users.`);
+        for (const user of data.users) {
+            try {
+                await prisma.user.upsert({
+                    where: { id: user.id },
+                    update: {},
+                    create: user,
+                });
+            } catch (err) {
+                console.error('Error seeding user ID:', user ? user.id : 'unknown');
+                console.error('User data:', JSON.stringify(user));
+                console.error('Error details:', err);
+            }
+        }
+    } else {
+        console.error('ERROR: data.users is missing or not an array');
     }
 
     // 2. Customers
     console.log('Seeding Customers...');
-    for (const customer of data.customers) {
-        await prisma.customer.upsert({
-            where: { id: customer.id },
-            update: {},
-            create: customer,
-        });
+    if (data.customers && Array.isArray(data.customers)) {
+        for (const customer of data.customers) {
+            try {
+                await prisma.customer.upsert({
+                    where: { id: customer.id },
+                    update: {},
+                    create: customer,
+                });
+            } catch (err) {
+                console.error('Error seeding customer ID:', customer ? customer.id : 'unknown');
+                console.error('Customer data:', JSON.stringify(customer));
+                console.error('Error details:', err);
+            }
+        }
     }
 
     // 3. Loans (depend on User and Customer)
