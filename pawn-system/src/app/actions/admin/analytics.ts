@@ -77,21 +77,18 @@ export async function getUserGrowthData() {
 
 // CRM & User Intelligence
 
+import { logAudit } from "@/lib/logger"
+
 export async function logActivity(type: string, metadata?: any) {
     const session = await auth()
-    if (!session?.user?.id) return // Silent fail if not logged in
+    if (!session?.user?.id) return
 
-    try {
-        await prisma.userActivity.create({
-            data: {
-                userId: session.user.id,
-                type,
-                metadata: metadata ? JSON.stringify(metadata) : null
-            }
-        })
-    } catch (error) {
-        console.error("Failed to log activity:", error)
-    }
+    await logAudit({
+        userId: session.user.id,
+        action: type as any, // Temporary cast until strict typing propagates
+        entityType: "SYSTEM",
+        details: metadata
+    })
 }
 
 export async function getUserCRMStats(userId: string) {
@@ -104,15 +101,15 @@ export async function getUserCRMStats(userId: string) {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const visits = await prisma.userActivity.count({
+    const visits = await prisma.auditLog.count({
         where: {
             userId,
-            type: "LOGIN",
+            action: "LOGIN",
             createdAt: { gte: thirtyDaysAgo }
         }
     })
 
-    const lastActive = await prisma.userActivity.findFirst({
+    const lastActive = await prisma.auditLog.findFirst({
         where: { userId },
         orderBy: { createdAt: "desc" },
         select: { createdAt: true }
@@ -196,7 +193,9 @@ export async function getBusinessKPIs() {
 
     // 5. Bid-to-View Ratio (Engagement)
     const totalBids = await prisma.bid.count()
-    const totalViews = await prisma.userActivity.count({ where: { type: "VIEW_ITEM" } })
+    // Approximation: Count "VIEW_SENSITIVE" or "VIEW_ITEM" if we were logging it. 
+    // Since we just started logging, this might be 0.
+    const totalViews = await prisma.auditLog.count({ where: { action: "VIEW_ITEM" } })
     const bidToViewRatio = totalViews > 0 ? (totalBids / totalViews) : 0
 
     return {
