@@ -110,9 +110,9 @@ export async function getNotifications() {
     }
 }
 
-export async function markAllAsRead() {
+export async function markAllAsRead(_formData?: FormData) {
     const session = await auth()
-    if (!session?.user?.id) return { success: false }
+    if (!session?.user?.id) return
 
     try {
         await prisma.notification.updateMany({
@@ -125,8 +125,7 @@ export async function markAllAsRead() {
             }
         })
         revalidatePath("/portal")
-        return { success: true }
     } catch (error) {
-        return { success: false }
+        console.error("Failed to mark all as read:", error)
     }
 }
