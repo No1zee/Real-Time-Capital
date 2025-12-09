@@ -71,6 +71,9 @@ export function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
                     <span className="text-xs font-semibold text-muted-foreground uppercase">Theme</span>
                     <ThemeSwitcher />
                 </div>
+                <div className="px-3 text-xs text-muted-foreground">
+                    Role: <span className="font-mono font-bold text-primary">{userRole}</span>
+                </div>
                 <form action={logout}>
                     <button type="submit" className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
                         <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-destructive" />
