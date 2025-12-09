@@ -13,7 +13,7 @@ export async function getAllItemsAdmin() {
     return await prisma.item.findMany({
         include: {
             loan: {
-                include: { customer: true }
+                include: { customer: true, user: true }
             },
             auction: true
         },
