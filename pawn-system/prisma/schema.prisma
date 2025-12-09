@@ -88,6 +88,9 @@ enum NotificationType {
   AUCTION_WON
   AUCTION_LOST
   SYSTEM
+  LOAN_OFFER
+  LOAN_UPDATE
+  PAYMENT_REMINDER
 }
 
 model User {
@@ -292,14 +295,18 @@ model AutoBid {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  type      NotificationType
+  user      User             @relation(fields: [userId], references: [id])
+  type      NotificationType @default(SYSTEM)
+  title     String           @default("Notification")
   message   String
-  isRead    Boolean  @default(false)
+  link      String?          // URL to redirect to
+  isRead    Boolean          @default(false)
   auctionId String?
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
 }
 
 model Rating {

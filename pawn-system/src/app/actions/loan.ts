@@ -5,6 +5,7 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { logAudit } from "@/lib/logger"
 import { redirect } from "next/navigation"
+import { createNotification } from "./notification"
 
 export async function createLoanOffer(itemId: string, principal: number, rate: number, days: number) {
     const session = await auth()
@@ -40,6 +41,15 @@ export async function createLoanOffer(itemId: string, principal: number, rate: n
             entityId: loan.id,
             details: { principal, rate, days, itemId }
         })
+
+        // Notify User
+        await createNotification(
+            item.userId,
+            "Loan Offer Ready",
+            `A loan offer of $${principal} is ready for regular review.`,
+            "LOAN_OFFER",
+            "/portal/loans/offers"
+        )
 
         revalidatePath("/admin/valuations")
         return { success: true, loanId: loan.id }

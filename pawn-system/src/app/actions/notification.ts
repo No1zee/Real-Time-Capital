@@ -1,31 +1,35 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
+import { NotificationType } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-import { NotificationType } from "@prisma/client"
-
-export async function createNotification(userId: string, type: string, message: string, auctionId?: string) {
-    // ...
-    // Actually simpler to just change the arg type to NotificationType?
-    // But callers might be passing strings.
-    // Let's cast inside the create.
+export async function createNotification(
+    userId: string,
+    title: string,
+    message: string,
+    type: NotificationType = "SYSTEM",
+    link?: string
+) {
     try {
         await prisma.notification.create({
             data: {
                 userId,
-                type: type as NotificationType,
+                title,
                 message,
-                auctionId,
-            },
+                type,
+                link
+            }
         })
+        return { success: true }
     } catch (error) {
         console.error("Failed to create notification:", error)
+        return { success: false, error: "Failed to create notification" }
     }
 }
 
-export async function getNotifications() {
+export async function getUnreadNotifications() {
     const session = await auth()
     if (!session?.user?.id) return []
 
@@ -33,11 +37,12 @@ export async function getNotifications() {
         const notifications = await prisma.notification.findMany({
             where: {
                 userId: session.user.id,
+                isRead: false
             },
             orderBy: {
-                createdAt: "desc",
+                createdAt: "desc"
             },
-            take: 20,
+            take: 10 // Limit checking for last 10 unread
         })
         return notifications
     } catch (error) {
@@ -46,58 +51,24 @@ export async function getNotifications() {
     }
 }
 
-export async function markAsRead(notificationId: string) {
+export async function markNotificationAsRead(notificationId: string) {
     const session = await auth()
-    if (!session?.user?.id) return
+    if (!session?.user?.id) return { success: false }
 
     try {
         await prisma.notification.update({
             where: {
                 id: notificationId,
-                userId: session.user.id,
+                userId: session.user.id
             },
             data: {
-                isRead: true,
-            },
+                isRead: true
+            }
         })
         revalidatePath("/portal")
+        return { success: true }
     } catch (error) {
-        console.error("Failed to mark notification as read:", error)
-    }
-}
-
-export async function markAllAsRead() {
-    const session = await auth()
-    if (!session?.user?.id) return
-
-    try {
-        await prisma.notification.updateMany({
-            where: {
-                userId: session.user.id,
-                isRead: false,
-            },
-            data: {
-                isRead: true,
-            },
-        })
-        revalidatePath("/portal")
-    } catch (error) {
-        console.error("Failed to mark all notifications as read:", error)
-    }
-}
-
-export async function getUnreadCount() {
-    const session = await auth()
-    if (!session?.user?.id) return 0
-
-    try {
-        return await prisma.notification.count({
-            where: {
-                userId: session.user.id,
-                isRead: false,
-            },
-        })
-    } catch (error) {
-        return 0
+        console.error("Failed to mark notification read:", error)
+        return { success: false }
     }
 }
