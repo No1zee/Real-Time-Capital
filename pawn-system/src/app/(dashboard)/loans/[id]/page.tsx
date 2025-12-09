@@ -93,7 +93,7 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
                                 </div>
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Identity ID</p>
-                                    <p>{customer.identityId || "N/A"}</p>
+                                    <p>{customer.nationalId || "N/A"}</p>
                                 </div>
                             </div>
                         ) : (
