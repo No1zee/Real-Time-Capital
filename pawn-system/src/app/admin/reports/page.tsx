@@ -10,7 +10,7 @@ import { FileBarChart, Users, DollarSign, BookOpen, TrendingUp, Package, AlertTr
 import { RevenueChart } from "@/components/admin/charts/RevenueChart"
 import { CustomPieChart } from "@/components/admin/charts/CustomPieChart"
 import { MetricCard } from "@/components/admin/charts/MetricCard"
-import { ReportExportButtons } from "../analytics/ReportExportButtons"
+import { ReportExportButtons } from "./report-export-buttons"
 
 export default async function AdminReportsPage() {
     const session = await auth()
@@ -49,7 +49,7 @@ export default async function AdminReportsPage() {
                     title="Total Revenue"
                     value={`$${revenueReport.totalRevenue.toFixed(2)}`}
                     subtitle="Last 30 days"
-                    icon={DollarSign}
+                    icon={<DollarSign className="h-4 w-4 text-slate-500" />}
                     trend={{
                         value: revenueReport.growth.percentage,
                         direction: revenueReport.growth.trend === "stable" ? "neutral" : revenueReport.growth.trend
@@ -59,19 +59,19 @@ export default async function AdminReportsPage() {
                     title="Active Loans"
                     value={loanMetrics.activeLoans}
                     subtitle={`$${loanMetrics.averageLoanSize.toFixed(0)} avg size`}
-                    icon={TrendingUp}
+                    icon={<TrendingUp className="h-4 w-4 text-slate-500" />}
                 />
                 <MetricCard
                     title="Inventory Turnover"
                     value={`${inventoryMetrics.turnoverRate.toFixed(1)}%`}
                     subtitle={`${inventoryMetrics.averageDaysToSell.toFixed(0)} days to sell`}
-                    icon={Package}
+                    icon={<Package className="h-4 w-4 text-slate-500" />}
                 />
                 <MetricCard
                     title="Default Rate"
                     value={`${loanMetrics.defaultRate.toFixed(1)}%`}
                     subtitle={`${loanMetrics.defaultedLoans} defaulted`}
-                    icon={AlertTriangle}
+                    icon={<AlertTriangle className="h-4 w-4 text-slate-500" />}
                     className={loanMetrics.defaultRate > 10 ? "border-red-500/50" : ""}
                 />
             </div>
