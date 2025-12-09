@@ -46,6 +46,14 @@ export async function getAuctionRating(auctionId: string) {
     })
 }
 
+export async function getAverageRating() {
+    const ratings = await prisma.rating.findMany()
+    if (ratings.length === 0) return 0
+
+    const total = ratings.reduce((sum, r) => sum + r.score, 0)
+    return (total / ratings.length).toFixed(1)
+}
+
 export async function submitDispute(auctionId: string, reason: string, description: string) {
     const session = await auth()
     if (!session?.user?.email) throw new Error("Unauthorized")
