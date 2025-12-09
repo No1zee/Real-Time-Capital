@@ -75,9 +75,9 @@ export default async function LoansPage() {
                                         </td>
                                         <td className="p-4 align-middle">{formatCurrency(Number(loan.principalAmount))}</td>
                                         <td className="p-4 align-middle">
-                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${loan.status === 'active' ? 'bg-green-100 text-green-800' :
-                                                    loan.status === 'defaulted' ? 'bg-red-100 text-red-800' :
-                                                        'bg-yellow-100 text-yellow-800'
+                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${loan.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                                                loan.status === 'DEFAULTED' ? 'bg-red-100 text-red-800' :
+                                                    'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {loan.status}
                                             </span>
