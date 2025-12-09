@@ -6,6 +6,7 @@ import { authConfig } from "./auth.config"
 import Credentials from "next-auth/providers/credentials"
 import { z } from "zod"
 import bcrypt from "bcryptjs"
+import { logAudit } from "@/lib/logger"
 
 async function getUser(email: string) {
     try {
@@ -51,11 +52,12 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         async signIn({ user }) {
             if (user.id) {
                 try {
-                    await prisma.userActivity.create({
-                        data: {
-                            userId: user.id,
-                            type: "LOGIN"
-                        }
+                    await logAudit({
+                        userId: user.id,
+                        action: "LOGIN",
+                        entityType: "USER",
+                        entityId: user.id,
+                        details: { method: "credentials" }
                     })
                 } catch (err) {
                     console.error("Failed to log login activity", err)

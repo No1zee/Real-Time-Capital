@@ -115,7 +115,7 @@ model User {
   walletBalance   Decimal       @default(0)
   practiceBalance Decimal       @default(50000)
   transactions    Transaction[]
-  activities      UserActivity[]
+  auditLogs       AuditLog[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -320,11 +320,15 @@ model Dispute {
   updatedAt   DateTime @updatedAt
 }
 
-model UserActivity {
+model AuditLog {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  type      String   // LOGIN, VIEW_ITEM, SEARCH
-  metadata  String?  // JSON string
+  action    String   // e.g. LOGIN, CREATE, UPDATE, DELETE
+  entityType String  // e.g. LOAN, USER, AUCTION
+  entityId   String? // ID of the entity being acted upon
+  details   String?  // JSON string for diffs or extra info
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
 }
