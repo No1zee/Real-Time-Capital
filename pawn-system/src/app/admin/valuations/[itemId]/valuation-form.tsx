@@ -1,113 +1,62 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { useActionState } from "react"
+import { updateValuation } from "@/app/actions/valuation"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { submitValuation } from "@/app/actions/admin/valuation"
-import { Loader2, CheckCircle2 } from "lucide-react"
+import { Loader2, DollarSign } from "lucide-react"
+import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner" // Assuming we have sonner or just use alert
-// Note: If sonner not installed, fallback to alert or simple logic. 
-// I'll use simple logic for now.
 
 interface ValuationFormProps {
     itemId: string
-    clientEstimate: number
 }
 
-export default function ValuationForm({ itemId, clientEstimate }: ValuationFormProps) {
+export function ValuationForm({ itemId }: ValuationFormProps) {
     const router = useRouter()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [officialValuation, setOfficialValuation] = useState<string>("")
-    const [loanOffer, setLoanOffer] = useState<string>("")
+    const [isPending, startTransition] = useState(false) // Using simple transition for now as action returns object not redirect
 
-    const handleAutoCalculate = () => {
-        const val = Number(officialValuation)
-        if (!isNaN(val)) {
-            setLoanOffer((val * 0.5).toFixed(2)) // 50% LTV Default
+    const handleSubmit = async (formData: FormData) => {
+        const amount = Number(formData.get("amount"))
+        if (!amount || amount <= 0) {
+            toast.error("Please enter a valid amount")
+            return
         }
-    }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsSubmitting(true)
-
-        try {
-            const result = await submitValuation(itemId, Number(officialValuation), Number(loanOffer))
-            if (result.success) {
-                // Show success
-                router.push("/admin/valuations")
-                router.refresh()
-            } else {
-                alert("Error: " + result.message)
-            }
-        } catch (error) {
-            console.error(error)
-            alert("Something went wrong")
-        } finally {
-            setIsSubmitting(false)
+        const result = await updateValuation(itemId, amount)
+        if (result.success) {
+            toast.success("Valuation submitted successfully")
+            router.push("/admin/valuations")
+        } else {
+            toast.error(result.error || "Failed to submit")
         }
     }
 
     return (
-        <Card className="border-amber-200 dark:border-amber-900 shadow-lg">
-            <CardHeader className="bg-amber-50 dark:bg-amber-950/30 pb-4">
-                <CardTitle className="text-amber-800 dark:text-amber-500">Official Appraisal</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 space-y-4">
-                <div className="p-3 bg-slate-100 dark:bg-slate-900 rounded-lg text-sm mb-4">
-                    <span className="text-muted-foreground mr-2">Client's Estimate:</span>
-                    <span className="font-bold">${clientEstimate.toLocaleString()}</span>
+        <form action={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="amount">Assessed Value ($)</Label>
+                <div className="relative">
+                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        id="amount"
+                        name="amount"
+                        type="number"
+                        className="pl-9 text-lg font-bold"
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        required
+                    />
                 </div>
+            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label>Assessed Value ($)</Label>
-                        <Input
-                            type="number"
-                            placeholder="0.00"
-                            value={officialValuation}
-                            onChange={(e) => setOfficialValuation(e.target.value)}
-                            onBlur={handleAutoCalculate} // Auto-calc offer on blur
-                            required
-                            className="text-lg font-medium"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Max Loan Offer ($)</Label>
-                        <div className="relative">
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                value={loanOffer}
-                                onChange={(e) => setLoanOffer(e.target.value)}
-                                required
-                                className="text-lg font-bold text-green-600"
-                            />
-                            <div className="absolute right-3 top-2.5 text-xs text-muted-foreground">
-                                {officialValuation && loanOffer ? `${((Number(loanOffer) / Number(officialValuation)) * 100).toFixed(0)}% LTV` : ""}
-                            </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            Recommended LTV is 50-60% for Art/Jewelry.
-                        </p>
-                    </div>
-
-                    <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
-                    >
-                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Approve & Send Offer"}
-                    </Button>
-                </form>
-            </CardContent>
-            <CardFooter className="bg-slate-50 dark:bg-slate-900/50 text-xs text-muted-foreground p-4">
-                Submitting this will update the loan status to APPROVED and notify the client (mock).
-            </CardFooter>
-        </Card>
+            <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white">
+                Approve Valuation
+            </Button>
+        </form>
     )
 }
+
+import { useState } from "react"

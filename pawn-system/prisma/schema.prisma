@@ -116,6 +116,7 @@ model User {
   practiceBalance Decimal       @default(50000)
   transactions    Transaction[]
   auditLogs       AuditLog[]
+  items           Item[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -201,6 +202,8 @@ model Loan {
 
 model Item {
   id          String     @id @default(cuid())
+  userId      String?    // Owner of the item (if not yet pawned, or even if pawned for tracking)
+  user        User?      @relation(fields: [userId], references: [id])
   loanId      String?
   loan        Loan?      @relation(fields: [loanId], references: [id])
   name        String
