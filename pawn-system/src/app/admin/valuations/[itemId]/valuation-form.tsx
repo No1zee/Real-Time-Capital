@@ -107,7 +107,7 @@ export function ValuationForm({ itemId }: ValuationFormProps) {
                                     <Input
                                         name="loanAmount"
                                         type="number"
-                                        className="pl-7"
+                                        className="pl-7 bg-background"
                                         defaultValue={(valuation * 0.5).toFixed(2)}
                                     />
                                 </div>
@@ -119,7 +119,7 @@ export function ValuationForm({ itemId }: ValuationFormProps) {
                                     <Input
                                         name="rate"
                                         type="number"
-                                        className="pl-7"
+                                        className="pl-7 bg-background"
                                         defaultValue="10"
                                     />
                                 </div>
@@ -132,7 +132,7 @@ export function ValuationForm({ itemId }: ValuationFormProps) {
                                 <Input
                                     name="duration"
                                     type="number"
-                                    className="pl-7"
+                                    className="pl-7 bg-background"
                                     defaultValue="30"
                                 />
                             </div>
