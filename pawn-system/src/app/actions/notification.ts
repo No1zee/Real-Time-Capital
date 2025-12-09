@@ -73,7 +73,6 @@ export async function markNotificationAsRead(notificationId: string) {
     }
 }
 
-
 export async function getUnreadCount() {
     const session = await auth()
     if (!session?.user?.id) return 0

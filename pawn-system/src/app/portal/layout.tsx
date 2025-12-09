@@ -1,16 +1,12 @@
-
+import { AppSidebar } from "@/components/app-sidebar"
 import { auth } from "@/auth"
 import Link from "next/link"
 import { MobileNav } from "@/components/mobile-nav"
 import { NotificationBell } from "@/components/notification-bell"
 import { TrustScore } from "@/components/trust-score"
-
 import { getUnreadCount } from "@/app/actions/notification"
 import { PageAnimation } from "@/components/page-animation"
-import { AppSidebar } from "@/components/app-sidebar"
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { NotificationListener } from "@/components/notification-listener"
-
 
 export default async function PortalLayout({
     children,
@@ -21,7 +17,7 @@ export default async function PortalLayout({
     const user = session?.user
 
     return (
-        <SidebarProvider>
+        <div className="flex h-screen overflow-hidden bg-background">
             <AppSidebar user={user} variant="portal" trustScore={<TrustScore />} />
             <NotificationListener />
 
@@ -40,15 +36,11 @@ export default async function PortalLayout({
                 </div>
 
                 <div className="p-4 md:p-8 max-w-[1600px] mx-auto w-full">
-                    <div className="md:hidden mb-4">
-                        <SidebarTrigger />
-                    </div>
-
                     <PageAnimation>
                         {children}
                     </PageAnimation>
                 </div>
             </main>
-        </SidebarProvider>
+        </div>
     )
 }
