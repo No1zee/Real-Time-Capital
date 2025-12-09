@@ -11,6 +11,10 @@ export type AuditAction =
     | "PERMISSION_CHANGE"
     | "CREATE_OFFER"
     | "ACCEPT_LOAN"
+    | "EXPORT_DATA"
+    | "ANONYMIZE_USER"
+    | "PRINT_TICKET"
+    | "VERIFY_IDENTITY"
 
 export type AuditEntity =
     | "USER"
