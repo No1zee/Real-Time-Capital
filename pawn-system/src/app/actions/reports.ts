@@ -87,12 +87,12 @@ export async function getRecentActivity() {
         prisma.loan.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { customer: true }
+            include: { customer: true, user: true }
         }),
         prisma.payment.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { loan: { include: { customer: true } } }
+            include: { loan: { include: { customer: true, user: true } } }
         }),
         prisma.auction.findMany({
             take: 5,
@@ -106,14 +106,14 @@ export async function getRecentActivity() {
         ...loans.map(l => ({
             type: 'LOAN_CREATED',
             date: l.createdAt,
-            description: `Loan created for ${l.customer.firstName} ${l.customer.lastName}`,
+            description: `Loan created for ${l.customer ? (l.customer.firstName + ' ' + l.customer.lastName) : (l.user?.name || 'Unknown User')}`,
             amount: Number(l.principalAmount),
             id: l.id
         })),
         ...payments.map(p => ({
             type: 'PAYMENT_RECEIVED',
             date: p.createdAt,
-            description: `Payment from ${p.loan.customer.firstName} ${p.loan.customer.lastName}`,
+            description: `Payment from ${p.loan.customer ? (p.loan.customer.firstName + ' ' + p.loan.customer.lastName) : (p.loan.user?.name || 'Unknown User')}`,
             amount: Number(p.amount),
             id: p.id
         })),

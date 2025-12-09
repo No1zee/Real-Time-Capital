@@ -19,7 +19,8 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
         where: { id: params.loanId },
         include: {
             items: true,
-            customer: true
+            customer: true,
+            user: true
         }
     })
 
@@ -28,27 +29,39 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
     // Security Check
     // @ts-ignore
     const userRole = session.user.role
-    const isOwner = loan.customer.email === session.user.email
+    // Check ownership via User ID (Digital) OR Email (Legacy/Offline linked)
+    const isOwner = (loan.userId === session.user.id) || (loan.customer?.email === session.user.email)
     const isAdmin = userRole === "ADMIN" || userRole === "STAFF"
 
     if (!isOwner && !isAdmin) {
         return <div className="p-8 text-center text-red-500">Unauthorized access</div>
     }
 
+    // Determine Borrower Data for Ticket
+    const borrowerName = loan.customer
+        ? `${loan.customer.firstName} ${loan.customer.lastName}`
+        : (loan.user?.name || "Digital User")
+
+    const borrowerEmail = loan.customer?.email || loan.user?.email || ""
+    const borrowerId = loan.customer?.nationalId || "DIGITAL-ID"
+    const borrowerAddress = loan.customer?.address || "Digital Account"
+    const borrowerPhone = loan.customer?.phoneNumber || "N/A"
+
     // Fetch Linked System User (for Verification Status)
     const linkedUser = await prisma.user.findUnique({
-        where: { email: loan.customer.email || "" }
+        where: { email: borrowerEmail || "placeholder@example.com" }
     })
 
     // Prepare Customer Data for Ticket
     const customerForTicket = {
-        name: `${loan.customer.firstName} ${loan.customer.lastName}`,
-        email: loan.customer.email,
-        firstName: loan.customer.firstName,
-        lastName: loan.customer.lastName,
-        nationalId: loan.customer.nationalId,
-        address: loan.customer.address,
-        idNumber: loan.customer.nationalId,
+        name: borrowerName,
+        email: borrowerEmail,
+        firstName: loan.customer?.firstName || loan.user?.name?.split(" ")[0] || "User",
+        lastName: loan.customer?.lastName || loan.user?.name?.split(" ").slice(1).join(" ") || "",
+        nationalId: borrowerId,
+        address: borrowerAddress,
+        idNumber: borrowerId,
+        phoneNumber: borrowerPhone,
         verificationStatus: linkedUser?.verificationStatus || "UNVERIFIED"
     }
 

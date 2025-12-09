@@ -91,7 +91,10 @@ export default async function AdminInventoryPage() {
                                                     </span>
                                                 </div>
                                                 <p className="text-xs text-slate-500">
-                                                    {item.loan.customer?.firstName} {item.loan.customer?.lastName}
+                                                    {item.loan.customer
+                                                        ? `${item.loan.customer.firstName} ${item.loan.customer.lastName}`
+                                                        : (item.loan.user?.name || "Unknown")
+                                                    }
                                                 </p>
                                             </div>
                                         ) : (
