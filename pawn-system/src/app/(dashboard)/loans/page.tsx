@@ -1,14 +1,15 @@
 import Link from "next/link"
 import { Plus, Search, Filter } from "lucide-react"
 import { db } from "@/lib/db"
+import { formatCurrency } from "@/lib/utils"
 
 export const dynamic = "force-dynamic"
 
 export default async function LoansPage() {
     const loans = await db.loan.findMany({
         include: {
-            customer: true,
-            user: true,
+            Customer: true,
+            User: true,
         },
         orderBy: {
             createdAt: "desc",
@@ -68,19 +69,15 @@ export default async function LoansPage() {
                             ) : (
                                 loans.map((loan) => (
                                     <tr key={loan.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                        <td className="p-4 align-middle font-medium">{loan.id.slice(-8).toUpperCase()}</td>
+                                        <td className="p-4 align-middle font-medium">{loan.id.substring(0, 8)}...</td>
                                         <td className="p-4 align-middle">
-                                            {loan.customer
-                                                ? `${loan.customer.firstName} ${loan.customer.lastName}`
-                                                : (loan.user?.name || "Unknown")
-                                            }
+                                            {loan.Customer ? `${loan.Customer.firstName} ${loan.Customer.lastName}` : "Unknown"}
                                         </td>
-                                        <td className="p-4 align-middle">${Number(loan.principalAmount).toFixed(2)}</td>
+                                        <td className="p-4 align-middle">{formatCurrency(Number(loan.principalAmount))}</td>
                                         <td className="p-4 align-middle">
-                                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${loan.status === 'ACTIVE' ? 'bg-green-500/10 text-green-600 hover:bg-green-500/20' :
-                                                loan.status === 'PENDING' ? 'bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20' :
-                                                    loan.status === 'DEFAULTED' ? 'bg-red-500/10 text-red-600 hover:bg-red-500/20' :
-                                                        'bg-gray-500/10 text-gray-600 hover:bg-gray-500/20'
+                                            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ${loan.status === 'active' ? 'bg-green-100 text-green-800' :
+                                                    loan.status === 'defaulted' ? 'bg-red-100 text-red-800' :
+                                                        'bg-yellow-100 text-yellow-800'
                                                 }`}>
                                                 {loan.status}
                                             </span>

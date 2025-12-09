@@ -11,20 +11,20 @@ export async function getLoanBookReport() {
     if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") throw new Error("Unauthorized")
 
     const loans = await prisma.loan.findMany({
-        include: { customer: true, items: true },
+        include: { Customer: true, Item: true },
         orderBy: { createdAt: "desc" }
     })
 
     return loans.map(l => ({
         LoanID: l.id,
-        Customer: l.customer ? `${l.customer.firstName} ${l.customer.lastName}` : "Unknown",
+        Customer: l.Customer ? `${l.Customer.firstName} ${l.Customer.lastName}` : "Unknown",
         Principal: l.principalAmount,
         InterestRate: l.interestRate,
         AmountDue: Number(l.principalAmount) * (1 + Number(l.interestRate) / 100),
         Status: l.status,
         DateIssued: fmt(l.createdAt),
         DueDate: fmt(l.dueDate),
-        Collateral: l.items.map(i => i.name).join("; ")
+        Collateral: l.Item.map(i => i.name).join("; ")
     }))
 }
 
@@ -33,17 +33,11 @@ export async function getAuctionSalesReport() {
     if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") throw new Error("Unauthorized")
 
     // Completed auctions (Items with status SOLD)
-    // Actually, Auction table has statusENDED but doesn't store "SoldPrice". Item stores SalePrice.
-    // Let's query Items that are SOLD.
-
     const items = await prisma.item.findMany({
         where: { status: "SOLD" },
-        include: { auction: true },
+        include: { Auction: true },
         orderBy: { updatedAt: "desc" }
     })
-
-    // Also get auctions that ENDED but item might not be marked SOLD if we missed a step.
-    // But Sold Report should strictly be SOLD items.
 
     return items.map(i => ({
         ItemID: i.id,
@@ -52,7 +46,7 @@ export async function getAuctionSalesReport() {
         Valuation: i.valuation,
         SalePrice: i.salePrice,
         SoldDate: fmt(i.updatedAt),
-        AuctionID: i.auction?.id || "Direct Sale"
+        AuctionID: i.Auction?.id || "Direct Sale"
     }))
 }
 

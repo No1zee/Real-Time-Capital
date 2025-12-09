@@ -13,22 +13,12 @@ export async function getCustomerLoans() {
 
     if (!user) return []
 
-    // Assuming we will link Loans to Users via a Customer record or directly.
-    // For now, let's assume we find the Customer record by email matching the User email
-    // or we need to add a userId to the Customer model.
-    // Let's check the schema first.
-
-    // Wait, I need to verify the schema relation between User and Customer.
-    // If it doesn't exist, I might need to rely on email matching for now or update schema.
-    // Let's assume email matching for this step as per previous context, 
-    // or I'll fetch based on the Customer model having an email field.
-
     const customer = await prisma.customer.findFirst({
         where: { email: user.email },
         include: {
-            loans: {
+            Loan: {
                 include: {
-                    items: true
+                    Item: true
                 },
                 orderBy: {
                     createdAt: 'desc'
@@ -37,7 +27,7 @@ export async function getCustomerLoans() {
         }
     })
 
-    return customer?.loans || []
+    return customer?.Loan || []
 }
 
 export async function getCustomerItems() {
@@ -53,9 +43,9 @@ export async function getCustomerItems() {
     const customer = await prisma.customer.findFirst({
         where: { email: user.email },
         include: {
-            loans: {
+            Loan: {
                 include: {
-                    items: true
+                    Item: true
                 }
             }
         }
@@ -64,6 +54,6 @@ export async function getCustomerItems() {
     if (!customer) return []
 
     // Extract all items from all loans
-    const items = customer.loans.flatMap(loan => loan.items)
+    const items = customer.Loan.flatMap(loan => loan.Item)
     return items
 }

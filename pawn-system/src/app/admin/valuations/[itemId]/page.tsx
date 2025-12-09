@@ -19,7 +19,7 @@ export default async function ValuationDetailPage({ params }: { params: Promise<
 
     const item = await prisma.item.findUnique({
         where: { id: itemId },
-        include: { user: true }
+        include: { User: true }
     })
 
     if (!item) notFound()
@@ -51,8 +51,8 @@ export default async function ValuationDetailPage({ params }: { params: Promise<
                         </div>
                         <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
                             <p className="text-sm font-medium text-muted-foreground mb-1">Customer</p>
-                            <p className="text-sm font-semibold">{item.user?.name || "Unknown User"}</p>
-                            <p className="text-xs text-muted-foreground">{item.user?.email || "No email linked"}</p>
+                            <p className="text-sm font-semibold">{item.User?.name || "Unknown User"}</p>
+                            <p className="text-xs text-muted-foreground">{item.User?.email || "No email linked"}</p>
                         </div>
                     </CardContent>
                 </Card>

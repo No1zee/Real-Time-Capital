@@ -133,7 +133,7 @@ export async function createLoan(prevState: State, formData: FormData) {
                 startDate,
                 dueDate,
                 status: "PENDING",
-                items: {
+                Item: {
                     create: {
                         name: itemName,
                         category,

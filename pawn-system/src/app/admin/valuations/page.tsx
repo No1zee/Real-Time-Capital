@@ -19,7 +19,7 @@ export default async function AdminValuationsPage() {
 
     const pendingItems = await prisma.item.findMany({
         where: { status: "PENDING_VALUATION" },
-        include: { user: { select: { name: true, email: true } } },
+        include: { User: { select: { name: true, email: true } } },
         orderBy: { createdAt: "asc" }
     })
 
@@ -62,8 +62,8 @@ export default async function AdminValuationsPage() {
                                 <div className="space-y-4">
                                     <div className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md">
                                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer</p>
-                                        <p className="font-medium">{item.user?.name || "Unknown"}</p>
-                                        <p className="text-xs text-slate-500">{item.user?.email}</p>
+                                        <p className="font-medium">{item.User?.name || "Unknown"}</p>
+                                        <p className="text-xs text-slate-500">{item.User?.email}</p>
                                     </div>
 
                                     <Link href={`/admin/valuations/${item.id}`} className="block">

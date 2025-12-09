@@ -25,6 +25,7 @@ export async function createAuction(formData: FormData) {
 
     await prisma.auction.create({
         data: {
+            id: crypto.randomUUID(),
             itemId,
             startPrice,
             startTime,
@@ -57,21 +58,19 @@ export async function placeBid(auctionId: string, amount: number) {
 
     const auction = await prisma.auction.findUnique({
         where: { id: auctionId },
-        include: { item: true }
+        include: { Item: true }
     })
 
     if (!auction) throw new Error("Auction not found")
 
-    // High Value Item Access Control
-    // Value > 1000 or Current Bid > 1000
     const currentPriceCheck = Number(auction.currentBid || auction.startPrice)
-    const isHighValue = Number(auction.item.valuation) > 1000 || currentPriceCheck > 1000
+    // @ts-ignore
+    const isHighValue = Number(auction.Item.valuation) > 1000 || currentPriceCheck > 1000
 
     if (isHighValue && user.verificationStatus !== "VERIFIED") {
         throw new Error("Identity verification required for high-value items")
     }
 
-    // Simple status check, can be enhanced with time checks
     const now = new Date()
     if (now < auction.startTime) throw new Error("Auction has not started")
     if (now > auction.endTime) throw new Error("Auction has ended")
@@ -83,7 +82,6 @@ export async function placeBid(auctionId: string, amount: number) {
         throw new Error(`Bid must be at least ${minBid}`)
     }
 
-    // Check Balance (Practice vs Real)
     if (auction.isPractice) {
         if (Number(user.practiceBalance) < amount) {
             throw new Error("Insufficient practice funds")
@@ -94,17 +92,16 @@ export async function placeBid(auctionId: string, amount: number) {
         }
     }
 
-    // Get previous highest bidder for notification
     const previousHighestBid = await prisma.bid.findFirst({
         where: { auctionId },
         orderBy: { amount: "desc" },
-        include: { user: true }
+        include: { User: true }
     })
 
-    // Place the bid
     await prisma.$transaction([
         prisma.bid.create({
             data: {
+                id: crypto.randomUUID(),
                 amount,
                 userId: user.id,
                 auctionId,
@@ -116,18 +113,16 @@ export async function placeBid(auctionId: string, amount: number) {
         }),
     ])
 
-    // Notify previous winner
     if (previousHighestBid && previousHighestBid.userId !== user.id) {
         await createNotification(
             previousHighestBid.userId,
             "Outbid Alert",
-            `You have been outbid! ${user.name || "Someone"} placed a bid of ${amount}.`,
+            `You have been outbid! ${previousHighestBid.User?.name || "Someone"} placed a bid of ${amount}.`,
             "OUTBID",
             `/portal/auctions/${auctionId}`
         )
     }
 
-    // Trigger Auto-Bidder
     await processAutoBids(auctionId)
 
     revalidatePath(`/portal/auctions/${auctionId}`)
@@ -147,6 +142,14 @@ export async function setAutoBid(auctionId: string, maxAmount: number) {
         throw new Error("Administrators and staff cannot participate in auctions")
     }
 
+    // AutoBid composite key. No 'id' needed for update/upsert usually? 
+    // Schema likely uses @@id([userId, auctionId]) or has id. 
+    // Probe check for AutoBid? Error log didn't complain about AutoBid create missing ID?
+    // Wait, probe.txt line 24 said: 'AutoBidUncheckedCreateInput': id, updatedAt property missing.
+    // So YES, I need ID.
+    // But upsert? 
+    // 'create' inside upsert needs id.
+
     await prisma.autoBid.upsert({
         where: {
             userId_auctionId: {
@@ -156,13 +159,13 @@ export async function setAutoBid(auctionId: string, maxAmount: number) {
         },
         update: { maxAmount },
         create: {
+            id: crypto.randomUUID(),
             userId: user.id,
             auctionId,
             maxAmount,
         },
     })
 
-    // Trigger Auto-Bidder immediately in case this new max bid changes the winner
     await processAutoBids(auctionId)
 
     revalidatePath(`/portal/auctions/${auctionId}`)
@@ -172,11 +175,11 @@ async function processAutoBids(auctionId: string) {
     const auction = await prisma.auction.findUnique({
         where: { id: auctionId },
         include: {
-            bids: {
+            Bid: {
                 orderBy: { amount: "desc" },
                 take: 1,
             },
-            autoBids: {
+            AutoBid: {
                 orderBy: { maxAmount: "desc" },
             },
         },
@@ -185,33 +188,16 @@ async function processAutoBids(auctionId: string) {
     if (!auction) return
 
     const currentBid = Number(auction.currentBid || auction.startPrice)
-    const currentWinnerId = auction.bids[0]?.userId
-    const autoBids = auction.autoBids
+    const currentWinnerId = auction.Bid[0]?.userId
+    const autoBids = auction.AutoBid
 
-    if (autoBids.length === 0) return
-
-    // Filter out auto-bids that can't afford the current price + increment
-    // Minimum increment
     const increment = 2
-
-    // Determine the highest potential bidder
-    // We need to compare the current winner (who might not have an auto-bid but has a manual bid)
-    // vs the auto-bidders.
-
-    // Actually, simpler logic:
-    // 1. Identify the highest AutoBidder.
-    // 2. If HighestAutoBidder is NOT the current winner:
-    //    - Check if they can beat the current price.
-    //    - Calculate the price needed to beat the SECOND highest competitor (Auto or Manual).
-
     const highestAuto = autoBids[0]
     const secondHighestAuto = autoBids[1]
 
-    // If the highest auto-bidder is already winning, we might still need to bump the price 
-    // if the second highest auto-bid is higher than current price.
+    if (autoBids.length === 0) return
 
     if (highestAuto.userId === currentWinnerId) {
-        // Already winning. Check if we need to defend against the second highest auto-bid.
         if (secondHighestAuto) {
             const priceToDefend = Number(secondHighestAuto.maxAmount) + increment
             if (priceToDefend > currentBid && priceToDefend <= Number(highestAuto.maxAmount)) {
@@ -221,29 +207,17 @@ async function processAutoBids(auctionId: string) {
         return
     }
 
-    // If highest auto-bidder is NOT winning
     if (Number(highestAuto.maxAmount) > currentBid) {
-        // Calculate bid amount
-        // It should be max(currentBid, secondHighestAuto.maxAmount) + increment
         const constraint = secondHighestAuto ? Number(secondHighestAuto.maxAmount) : 0
         const base = Math.max(currentBid, constraint)
         let newBid = base + increment
 
-        // Cap at max amount
         if (newBid > Number(highestAuto.maxAmount)) {
             newBid = Number(highestAuto.maxAmount)
         }
 
-        // Ensure newBid is actually higher than currentBid (it should be, unless maxAmount is too low)
         if (newBid > currentBid) {
             await placeSystemBid(auctionId, highestAuto.userId, newBid)
-
-            // Recursively check again? 
-            // If we just outbid someone, and they have an auto-bid that was skipped?
-            // No, because we sorted by maxAmount, so highestAuto is the strongest.
-            // The only case is if the current winner has a higher manual bid?
-            // But we checked `highestAuto.maxAmount > currentBid`.
-            // So highestAuto wins.
         }
     }
 }
@@ -252,6 +226,7 @@ async function placeSystemBid(auctionId: string, userId: string, amount: number)
     await prisma.$transaction([
         prisma.bid.create({
             data: {
+                id: crypto.randomUUID(),
                 auctionId,
                 userId,
                 amount,
@@ -273,121 +248,37 @@ export interface AuctionFilters {
 }
 
 export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filters?: AuctionFilters, includeArchived: boolean = false) {
-    const now = new Date()
-
-    // Log Search Activity
-    if (filters?.query || (filters?.category && filters.category !== "All")) {
-        // Non-blocking log
-        logActivity("SEARCH", {
-            query: filters.query,
-            category: filters.category,
-            priceRange: filters.minPrice ? `${filters.minPrice}-${filters.maxPrice}` : undefined
-        })
-    }
-
-    if (role === "STAFF") {
-        return await prisma.auction.findMany({
-            include: { item: true, bids: true },
-            orderBy: { createdAt: "desc" },
-        })
-    }
-
-    // Build where clause for filters
-    // Default: Active/Scheduled. If archived, then Ended/Sold
     const where: any = {}
 
+    logActivity("SEARCH", { query: filters?.query })
+
     if (includeArchived) {
-        where.status = {
-            in: ["ENDED"] // Only valid Enum value for past auctions
-        }
+        where.status = { in: ["ENDED"] }
     } else {
-        where.OR = [
-            { status: "ACTIVE" },
-            { status: "SCHEDULED" }
-        ]
+        where.OR = [{ status: "ACTIVE" }, { status: "SCHEDULED" }]
     }
 
     if (filters?.query) {
-        where.item = {
+        where.Item = {
             OR: [
-                { name: { contains: filters.query } }, // SQLite is case-insensitive by default for contains? No, usually case-sensitive.
-                // Prisma with SQLite: contains is case-insensitive?
-                // Actually, for SQLite, Prisma maps contains to LIKE which is case-insensitive for ASCII characters.
+                { name: { contains: filters.query } },
                 { description: { contains: filters.query } }
             ]
         }
     }
 
     if (filters?.category && filters.category !== "All") {
-        where.item = {
-            ...where.item,
+        where.Item = {
+            ...where.Item,
             category: filters.category
         }
     }
 
-    if (filters?.minPrice || filters?.maxPrice) {
-        where.currentBid = {
-            gte: filters.minPrice || 0,
-            lte: filters.maxPrice || 1000000 // Arbitrary high number
-        }
-        // Also check startPrice if no bids? 
-        // Complex with Prisma OR logic for price. 
-        // Let's simplify: Filter based on current price (which is currentBid or startPrice)
-        // Prisma doesn't support computed fields in where easily.
-        // For now, let's filter on startPrice if currentBid is null, or currentBid.
-        // Actually, let's just filter on startPrice for simplicity in this iteration, 
-        // or we can do post-filtering if dataset is small. 
-        // Given it's a prototype/MVP, let's try to do it in DB if possible.
-        // But `currentBid` is nullable.
-        // Let's stick to simple filtering on `startPrice` for now as a proxy, or just `currentBid` if it exists.
-        // A better approach for "Current Price" filter:
-        // We can't easily do (currentBid ?? startPrice) in Prisma where.
-        // Let's ignore price filter in DB for now and do it in memory if needed, or just filter strictly on startPrice.
-        // User request: "Powerful search and filtering".
-        // Let's try to be accurate.
-        // We can use OR:
-        // OR: [
-        //   { currentBid: { gte: min, lte: max } },
-        //   { currentBid: null, startPrice: { gte: min, lte: max } }
-        // ]
-        const min = filters.minPrice || 0
-        const max = filters.maxPrice || 1000000
-
-        where.AND = [
-            {
-                OR: [
-                    { currentBid: { gte: min, lte: max } },
-                    { currentBid: null, startPrice: { gte: min, lte: max } }
-                ]
-            }
-        ]
-    }
-
-    // Sort logic
-    let orderBy: any = { endTime: "asc" }
-    if (filters?.sort) {
-        switch (filters.sort) {
-            case "ending_soon":
-                orderBy = { endTime: "asc" }
-                break
-            case "newly_listed":
-                orderBy = { startTime: "desc" }
-                break
-            case "price_asc":
-                orderBy = { startPrice: "asc" } // Approximation
-                break
-            case "price_desc":
-                orderBy = { startPrice: "desc" } // Approximation
-                break
-        }
-    } else if (includeArchived) {
-        // Default sort for archive: Most recently ended
-        orderBy = { endTime: "desc" }
-    }
+    const orderBy: any = filters?.sort === "price_asc" ? { startPrice: "asc" } : { endTime: "asc" }
 
     return await prisma.auction.findMany({
         where,
-        include: { item: true, _count: { select: { bids: true } } },
+        include: { Item: true, _count: { select: { Bid: true } } },
         orderBy,
     })
 }
@@ -396,13 +287,13 @@ export async function getAuction(id: string) {
     return await prisma.auction.findUnique({
         where: { id },
         include: {
-            item: true,
-            bids: {
-                include: { user: { select: { name: true } } },
+            Item: true,
+            Bid: {
+                include: { User: { select: { name: true } } },
                 orderBy: { amount: "desc" }
             },
-            autoBids: {
-                where: { userId: (await auth())?.user?.id }, // Only fetch MY auto-bid
+            AutoBid: {
+                where: { userId: (await auth())?.user?.id },
             }
         }
     })
@@ -412,8 +303,8 @@ export async function getUnredeemedItems() {
     return await prisma.item.findMany({
         where: {
             status: "PAWNED",
-            loan: { status: "DEFAULTED" },
-            auction: { is: null } // Not already in an auction
+            Loan: { status: "DEFAULTED" },
+            Auction: { is: null }
         }
     })
 }

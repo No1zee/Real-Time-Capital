@@ -119,12 +119,12 @@ export async function getUserCRMStats(userId: string) {
     // Combine Watchlist + Bids
     const watchlist = await prisma.watchlist.findMany({
         where: { userId },
-        include: { auction: { include: { item: true } } }
+        include: { Auction: { include: { Item: true } } }
     })
 
     const bids = await prisma.bid.findMany({
         where: { userId },
-        include: { auction: { include: { item: true } } }
+        include: { Auction: { include: { Item: true } } }
     })
 
     const categoryMap = new Map<string, number>()
@@ -132,8 +132,8 @@ export async function getUserCRMStats(userId: string) {
         categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
     }
 
-    watchlist.forEach(w => addToMap(w.auction.item.category))
-    bids.forEach(b => addToMap(b.auction.item.category))
+    watchlist.forEach(w => addToMap(w.Auction.Item.category))
+    bids.forEach(b => addToMap(b.Auction.Item.category))
 
     const interests = Array.from(categoryMap.entries())
         .map(([name, value]) => ({ name, value }))

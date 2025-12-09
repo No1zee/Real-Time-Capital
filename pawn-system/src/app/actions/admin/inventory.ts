@@ -12,9 +12,7 @@ export async function getAllItemsAdmin() {
 
     return await prisma.item.findMany({
         include: {
-            loan: {
-                include: { customer: true, user: true }
-            },
+            loan: true,
             auction: true
         },
         orderBy: { createdAt: "desc" }
@@ -29,11 +27,6 @@ export async function markItemDefaulted(itemId: string) {
 
     // When an item is defaulted, we move it to "PAWNED" (ready for auction) 
     // AND mark the loan as "DEFAULTED"
-    // Wait, if it's "PAWNED", it means it's held collateral.
-    // If it defaults, it should stay "PAWNED" but be flagged, OR move to "PENDING_AUCTION" (if that enum existed).
-    // Let's stick to: Map ItemStatus.PAWNED -> but update LoanStatus.DEFAULTED.
-    // Actually, usually "Defaulted" means the shop now fully owns it and can sell it.
-
     // We will update the LOAN status to DEFAULTED.
     const item = await prisma.item.findUnique({ where: { id: itemId } })
     if (!item?.loanId) throw new Error("Item is not associated with a loan")
@@ -59,16 +52,6 @@ export async function moveItemToAuction(itemId: string) {
     if (item.status === "SOLD") throw new Error("Cannot auction sold item")
     if (item.status === "IN_AUCTION") throw new Error("Already in auction")
 
-    // Create a draft auction? Or just change status?
-    // Changing status to IN_AUCTION requires an Auction record usually.
-    // For now, we'll just set the status so it appears in the "Create Auction" picker,
-    // OR creates a dummy scheduled auction.
-
-    // Simplest: Just set status to IN_AUCTION. 
-    // The "Create Auction" page filters by status.
-    // Actually, createAuction typically takes an item. 
-    // Let's just create a SCHEDULED auction for it automatically.
-
     // Default 7 day auction starting tomorrow
     const startTime = new Date()
     startTime.setDate(startTime.getDate() + 1)
@@ -86,7 +69,8 @@ export async function moveItemToAuction(itemId: string) {
                 startPrice: item.valuation, // Default start price
                 startTime,
                 endTime,
-                status: "SCHEDULED"
+                status: "SCHEDULED",
+                updatedAt: new Date()
             }
         })
     ])

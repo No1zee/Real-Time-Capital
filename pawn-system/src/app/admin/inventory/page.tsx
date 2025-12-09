@@ -62,8 +62,7 @@ export default async function AdminInventoryPage() {
                                             </div>
                                             <div>
                                                 <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
-                                                <p className="text-xs text-slate-500">{item.category}</p>
-                                                {item.serialNumber && <p className="text-xs text-slate-400 font-mono">SN: {item.serialNumber}</p>}
+                                                <p className="text-xs text-slate-500">{item.id.slice(0, 8)}</p>
                                             </div>
                                         </div>
                                     </TableCell>
@@ -71,34 +70,18 @@ export default async function AdminInventoryPage() {
                                         {formatCurrency(Number(item.valuation))}
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={
-                                            item.status === "IN_AUCTION" ? "default" :
-                                                item.status === "SOLD" ? "outline" :
-                                                    item.status === "PAWNED" ? "secondary" : "secondary"
-                                        }>
-                                            {item.status.replace("_", " ")}
-                                        </Badge>
+                                        <Badge variant="outline">{item.status}</Badge>
                                     </TableCell>
                                     <TableCell>
                                         {item.loan ? (
                                             <div className="text-sm">
-                                                <div className="flex items-center gap-1">
-                                                    <span className={
-                                                        item.loan.status === "DEFAULTED" ? "text-red-500 font-bold" :
-                                                            item.loan.status === "ACTIVE" ? "text-green-500" : "text-slate-500"
-                                                    }>
-                                                        {item.loan.status}
-                                                    </span>
-                                                </div>
-                                                <p className="text-xs text-slate-500">
-                                                    {item.loan.customer
-                                                        ? `${item.loan.customer.firstName} ${item.loan.customer.lastName}`
-                                                        : (item.loan.user?.name || "Unknown")
-                                                    }
-                                                </p>
+                                                <p className="text-slate-900 dark:text-white">Loan #{item.loan.id.slice(0, 8)}</p>
+                                                <Badge variant={item.loan.status === "ACTIVE" ? "default" : "secondary"} className="mt-1">
+                                                    {item.loan.status}
+                                                </Badge>
                                             </div>
                                         ) : (
-                                            <span className="text-xs text-slate-400">-</span>
+                                            <span className="text-slate-400 text-xs">No active loan</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-right">

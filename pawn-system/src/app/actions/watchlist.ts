@@ -67,16 +67,16 @@ export async function getWatchlist() {
                 userId,
             },
             include: {
-                auction: {
+                Auction: { // Casing for relation: Auction
                     include: {
-                        item: true,
-                        bids: {
+                        Item: true, // Casing for relation: Item
+                        Bid: {
                             orderBy: {
                                 amount: 'desc'
                             },
                             take: 1,
                             include: {
-                                user: {
+                                User: {
                                     select: {
                                         id: true
                                     }
@@ -107,14 +107,14 @@ export async function getWatchlist() {
         })
 
         return watchlist.map((w: any) => {
-            const auction = w.auction
-            const highestBid = auction.bids[0]
+            const auction = w.Auction // Access via PascalCase relation
+            const highestBid = auction.Bid?.[0]
             const myBids = userBids.filter((b) => b.auctionId === auction.id)
             const myHighestBid = myBids.sort((a, b) => Number(b.amount) - Number(a.amount))[0]
 
             let userStatus = "NO_BID"
             if (myHighestBid) {
-                if (highestBid && highestBid.user.id === userId) {
+                if (highestBid && highestBid.User.id === userId) {
                     userStatus = "WINNING"
                 } else {
                     userStatus = "OUTBID"

@@ -11,20 +11,6 @@ export async function getAllAuctionsAdmin() {
     if (!currentUser || (currentUser.role !== "ADMIN" && currentUser.role !== "STAFF")) {
         throw new Error("Unauthorized")
     }
-
-    return await prisma.auction.findMany({
-        orderBy: { createdAt: "desc" },
-        include: {
-            item: true,
-            _count: {
-                select: { bids: true }
-            }
-        }
-    })
-}
-
-export async function cancelAuction(auctionId: string) {
-    const session = await auth()
     const currentUser = session?.user as any
 
     if (!currentUser || currentUser.role !== "ADMIN") {

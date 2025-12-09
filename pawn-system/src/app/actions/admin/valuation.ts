@@ -20,9 +20,9 @@ export async function getPendingValuations() {
         },
         include: {
             // We need the Loan info to know who asked
-            loan: {
+            Loan: {
                 include: {
-                    customer: true
+                    Customer: true
                 }
             }
         },
@@ -41,7 +41,7 @@ export async function submitValuation(itemId: string, officialValuation: number,
     }
 
     try {
-        const item = await db.item.findUnique({ where: { id: itemId }, include: { loan: true } })
+        const item = await db.item.findUnique({ where: { id: itemId }, include: { Loan: true } })
         if (!item || !item.loanId) throw new Error("Item not found or no loan associated")
 
         // 1. Update Item

@@ -53,7 +53,7 @@ export default async function CustomerAuctionsPage({
                 {auctions.map((auction: any) => {
                     let imageUrl = "https://placehold.co/600x400?text=No+Image"
                     try {
-                        const rawImages = auction.item.images
+                        const rawImages = auction.Item.images
                         let images: string[] = []
 
                         if (typeof rawImages === 'string') {
@@ -66,14 +66,14 @@ export default async function CustomerAuctionsPage({
                             imageUrl = images[0]
                         }
                     } catch (e) {
-                        console.error("Error parsing images for item:", auction.item.name, e)
+                        console.error("Error parsing images for item:", auction.Item.name, e)
                     }
 
                     return (
                         <Card key={auction.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    {auction.item.name}
+                                    {auction.Item.name}
                                 </CardTitle>
                                 <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"}>
                                     {auction.status}
@@ -83,7 +83,7 @@ export default async function CustomerAuctionsPage({
                                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
                                     <img
                                         src={imageUrl}
-                                        alt={auction.item.name}
+                                        alt={auction.Item.name}
                                         className="h-full w-full object-cover transition-transform hover:scale-105"
                                     />
                                     <div className="absolute top-2 right-2 z-10">
@@ -112,7 +112,7 @@ export default async function CustomerAuctionsPage({
                                         </div>
                                         <div className="flex justify-between">
                                             <span>Bids:</span>
-                                            <span>{auction._count.bids}</span>
+                                            <span>{auction._count.Bid}</span>
                                         </div>
                                     </div>
 

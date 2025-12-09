@@ -3,7 +3,6 @@ import { getCustomerLoans } from "@/app/actions/portal"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { Calendar, DollarSign } from "lucide-react"
 import Link from "next/link"
 
 export default async function PortalLoansPage() {
@@ -38,27 +37,21 @@ export default async function PortalLoansPage() {
                                         {loan.status}
                                     </Badge>
                                 </CardHeader>
-                                <CardContent className="pt-4">
-                                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                                        {formatCurrency(Number(loan.principalAmount))}
-                                    </div>
-
-                                    <div className="space-y-3 text-sm">
-                                        <div className="flex items-center text-slate-500 dark:text-slate-400">
-                                            <Calendar className="mr-2 h-4 w-4" />
+                                <CardContent>
+                                    <div className="mt-2">
+                                        <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                            {formatCurrency(Number(loan.principalAmount))}
+                                        </p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                             Due: {formatDate(loan.dueDate)}
-                                        </div>
-                                        <div className="flex items-center text-slate-500 dark:text-slate-400">
-                                            <DollarSign className="mr-2 h-4 w-4" />
-                                            Rate: {Number(loan.interestRate)}%
-                                        </div>
+                                        </p>
                                     </div>
 
-                                    {loan.items && loan.items.length > 0 && (
+                                    {loan.Item && loan.Item.length > 0 && (
                                         <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-900">
                                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Collateral:</p>
                                             <div className="flex flex-wrap gap-2">
-                                                {loan.items.map((item) => (
+                                                {loan.Item.map((item) => (
                                                     <Badge key={item.id} variant="outline" className="text-xs">
                                                         {item.name}
                                                     </Badge>

@@ -14,9 +14,9 @@ export default async function InventoryPage() {
             updatedAt: "desc",
         },
         include: {
-            loan: {
+            Loan: {
                 include: {
-                    customer: true,
+                    Customer: true,
                 },
             },
         },

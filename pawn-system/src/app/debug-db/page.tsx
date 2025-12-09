@@ -7,7 +7,7 @@ export default async function DebugDB() {
         const count = await prisma.auction.count()
         const auctions = await prisma.auction.findMany({
             take: 5,
-            include: { item: true }
+            include: { Item: true }
         })
 
         return (

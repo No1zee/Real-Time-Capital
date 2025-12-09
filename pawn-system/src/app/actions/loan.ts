@@ -27,7 +27,7 @@ export async function createLoanOffer(itemId: string, principal: number, rate: n
                 durationDays: days,
                 status: "PENDING",
                 dueDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
-                items: {
+                Item: {
                     connect: { id: itemId }
                 }
             }
@@ -66,7 +66,7 @@ export async function acceptLoanOffer(loanId: string) {
     try {
         const loan = await prisma.loan.findUnique({
             where: { id: loanId },
-            include: { user: true } // to get wallet info later if needed
+            include: { User: true } // to get wallet info later if needed
         })
 
         if (!loan || loan.userId !== session.user.id) {

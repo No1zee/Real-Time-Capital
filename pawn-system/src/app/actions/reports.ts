@@ -87,17 +87,17 @@ export async function getRecentActivity() {
         prisma.loan.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { customer: true, user: true }
+            include: { Customer: true, User: true }
         }),
         prisma.payment.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { loan: { include: { customer: true, user: true } } }
+            include: { Loan: { include: { Customer: true, User: true } } }
         }),
         prisma.auction.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
-            include: { item: true }
+            include: { Item: true }
         })
     ])
 
@@ -106,21 +106,21 @@ export async function getRecentActivity() {
         ...loans.map(l => ({
             type: 'LOAN_CREATED',
             date: l.createdAt,
-            description: `Loan created for ${l.customer ? (l.customer.firstName + ' ' + l.customer.lastName) : (l.user?.name || 'Unknown User')}`,
+            description: `Loan created for ${l.Customer ? (l.Customer.firstName + ' ' + l.Customer.lastName) : (l.User?.name || 'Unknown User')}`,
             amount: Number(l.principalAmount),
             id: l.id
         })),
         ...payments.map(p => ({
             type: 'PAYMENT_RECEIVED',
             date: p.createdAt,
-            description: `Payment from ${p.loan.customer ? (p.loan.customer.firstName + ' ' + p.loan.customer.lastName) : (p.loan.user?.name || 'Unknown User')}`,
+            description: `Payment from ${p.Loan.Customer ? (p.Loan.Customer.firstName + ' ' + p.Loan.Customer.lastName) : (p.Loan.User?.name || 'Unknown User')}`,
             amount: Number(p.amount),
             id: p.id
         })),
         ...auctions.map(a => ({
             type: 'AUCTION_STARTED',
             date: a.createdAt,
-            description: `Auction started for ${a.item.name}`,
+            description: `Auction started for ${a.Item.name}`,
             amount: Number(a.startPrice),
             id: a.id
         }))

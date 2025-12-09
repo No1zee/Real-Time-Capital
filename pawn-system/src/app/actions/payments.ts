@@ -72,7 +72,7 @@ export async function verifyTransaction(transactionId: string, action: "APPROVE"
 
     const transaction = await prisma.transaction.findUnique({
         where: { id: transactionId },
-        include: { user: true }
+        include: { User: true }
     })
 
     if (!transaction) throw new Error("Transaction not found")
@@ -109,7 +109,7 @@ export async function getPendingTransactions() {
 
     return await prisma.transaction.findMany({
         where: { status: "PENDING" },
-        include: { user: { select: { name: true, email: true } } },
+        include: { User: { select: { name: true, email: true } } },
         orderBy: { createdAt: "desc" }
     })
 }
