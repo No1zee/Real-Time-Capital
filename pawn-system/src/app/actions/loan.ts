@@ -27,6 +27,7 @@ export async function createLoanOffer(itemId: string, principal: number, rate: n
                 durationDays: days,
                 status: "PENDING",
                 dueDate: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
+                updatedAt: new Date(),
                 Item: {
                     connect: { id: itemId }
                 }

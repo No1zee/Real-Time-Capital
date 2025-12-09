@@ -40,6 +40,7 @@ export async function submitValuationRequest(prevState: ValuationState, formData
     try {
         const item = await prisma.item.create({
             data: {
+                id: crypto.randomUUID(),
                 name,
                 description,
                 category,
@@ -47,7 +48,8 @@ export async function submitValuationRequest(prevState: ValuationState, formData
                 userId: session.user.id,
                 status: "PENDING_VALUATION",
                 images: JSON.stringify(mockImages),
-                location: "Digital Inventory"
+                location: "Digital Inventory",
+                updatedAt: new Date(),
             }
         })
 

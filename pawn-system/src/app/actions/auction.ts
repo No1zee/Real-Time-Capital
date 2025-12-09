@@ -31,6 +31,7 @@ export async function createAuction(formData: FormData) {
             startTime,
             endTime,
             status: "SCHEDULED",
+            updatedAt: new Date(),
         },
     })
 
@@ -163,6 +164,7 @@ export async function setAutoBid(auctionId: string, maxAmount: number) {
             userId: user.id,
             auctionId,
             maxAmount,
+            updatedAt: new Date(),
         },
     })
 
