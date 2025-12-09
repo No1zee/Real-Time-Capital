@@ -22,13 +22,13 @@ async function main() {
     console.log(`Status: ${auction.status}`)
 
     console.log("\n--- Bids ---")
-    auction.bids.forEach(bid => {
-        console.log(`$${bid.amount} - ${bid.user.name} (${bid.user.email})`)
+    auction.Bid.forEach(bid => {
+        console.log(`$${bid.amount} - ${bid.User.name} (${bid.User.email})`)
     })
 
     console.log("\n--- Auto Bids ---")
-    auction.autoBids.forEach(ab => {
-        console.log(`Max: $${ab.maxAmount} - ${ab.user.name}`)
+    auction.AutoBid.forEach(ab => {
+        console.log(`Max: $${ab.maxAmount} - ${ab.User.name}`)
     })
 }
 

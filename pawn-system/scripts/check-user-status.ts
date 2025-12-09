@@ -18,7 +18,7 @@ async function main() {
                 orderBy: { createdAt: 'desc' },
                 include: { Auction: { include: { Item: true } } }
             },
-            transactions: {
+            Transaction: {
                 take: 5,
                 orderBy: { createdAt: 'desc' }
             }
@@ -44,7 +44,7 @@ async function main() {
             }
 
             console.log(`\nRecent Transactions:`)
-            user.transactions.forEach(t => {
+            user.Transaction.forEach(t => {
                 console.log(`  - ${t.type}: ${t.amount} (${t.status})`)
             })
         }

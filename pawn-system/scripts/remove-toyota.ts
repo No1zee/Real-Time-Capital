@@ -22,10 +22,10 @@ async function main() {
     const itemToDelete = items[0]
     console.log(`Deleting item ID: ${itemToDelete.id}`)
 
-    if (itemToDelete.auction) {
-        console.log(`Deleting associated auction ID: ${itemToDelete.auction.id}`)
+    if (itemToDelete.Auction) {
+        console.log(`Deleting associated auction ID: ${itemToDelete.Auction.id}`)
         await prisma.auction.delete({
-            where: { id: itemToDelete.auction.id }
+            where: { id: itemToDelete.Auction.id }
         })
     }
 
