@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
-import { ArrowLeft, Calendar, DollarSign, Package } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Package, AlertCircle } from "lucide-react"
+import { TrustImpactCard } from "@/components/loan/trust-impact-card"
+import { LoanActions } from "@/components/loan/loan-actions"
 
 export default async function LoanDetailsPage({ params }: { params: { loanId: string } }) {
     const session = await auth()
@@ -17,15 +19,15 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
         where: { id: params.loanId },
         include: {
             items: true,
-            customer: true // Correct relation
+            customer: true
         }
     })
 
     if (!loan) notFound()
 
-    // Security Check: Ensure logged-in user owns this loan (via email match)
-    // Or allow if user is ADMIN/STAFF
-    const userRole = (session.user as any).role
+    // Security Check
+    // @ts-ignore
+    const userRole = session.user.role
     const isOwner = loan.customer.email === session.user.email
     const isAdmin = userRole === "ADMIN" || userRole === "STAFF"
 
@@ -34,7 +36,6 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
     }
 
     // Fetch Linked System User (for Verification Status)
-    // We assume the Customer's email links to a User account
     const linkedUser = await prisma.user.findUnique({
         where: { email: loan.customer.email || "" }
     })
@@ -51,16 +52,36 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
         verificationStatus: linkedUser?.verificationStatus || "UNVERIFIED"
     }
 
+    // Calculate financials
+    const principal = Number(loan.principalAmount)
+    const riskPremium = 0 // Future: dynamic based on TrustScore
+    const totalRepayment = principal * (1 + (Number(loan.interestRate) + riskPremium) / 100)
+
+    // For now, assuming no partial payments in DB, so remaining = total
+    // TODO: Fetch existing payments to calc real remaining balance
+    const remainingBalance = totalRepayment
+
     return (
-        <div className="space-y-6 max-w-4xl mx-auto">
-            <div className="flex items-center justify-between">
+        <div className="space-y-8 max-w-5xl mx-auto pb-20">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <Link href="/portal/loans" className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-slate-500" />
+                    <Link href="/portal/loans" className="p-2 -ml-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <ArrowLeft className="w-6 h-6 text-slate-500" />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Loan Details</h1>
-                        <p className="text-sm text-slate-500">Reference: {loan.id}</p>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">
+                                Loan Details
+                            </h1>
+                            <Badge className={
+                                loan.status === "ACTIVE" ? "bg-green-500/10 text-green-600 border-green-200" :
+                                    loan.status === "COMPLETED" ? "bg-blue-500/10 text-blue-600 border-blue-200" : "bg-slate-100 text-slate-600"
+                            }>
+                                {loan.status}
+                            </Badge>
+                        </div>
+                        <p className="text-sm text-slate-500 font-mono mt-1">REF: {loan.id}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -68,82 +89,93 @@ export default async function LoanDetailsPage({ params }: { params: { loanId: st
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
-                {/* Main Info */}
-                <Card className="md:col-span-2">
-                    <CardHeader>
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <CardTitle>Loan Status</CardTitle>
-                                <CardDescription>Current state of your agreement</CardDescription>
-                            </div>
-                            <Badge className={
-                                loan.status === "ACTIVE" ? "bg-green-500" :
-                                    loan.status === "COMPLETED" ? "bg-blue-500" : "bg-slate-500"
-                            }>
-                                {loan.status}
-                            </Badge>
-                        </div>
+            <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
+
+                {/* Main Financial Card */}
+                <Card className="md:col-span-2 lg:col-span-3 border-0 shadow-xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-md ring-1 ring-slate-200 dark:ring-slate-800">
+                    <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-4">
+                        <CardTitle className="text-lg">Financial Overview</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                                <p className="text-sm text-slate-500 mb-1">Principal Amount</p>
+                    <CardContent className="p-6 space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                <p className="text-sm text-slate-500 font-medium mb-1">Principal</p>
                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                    {formatCurrency(Number(loan.principalAmount))}
+                                    {formatCurrency(principal)}
                                 </p>
                             </div>
-                            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-                                <p className="text-sm text-slate-500 mb-1">Repayment Amount</p>
-                                {/* Calculate repayment manually since it's not in DB yet or optional */}
-                                <p className="text-2xl font-bold text-amber-600">
-                                    {formatCurrency(Number(loan.principalAmount) * (1 + Number(loan.interestRate) / 100))}
+                            <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                                <p className="text-sm text-slate-500 font-medium mb-1">Interest Rate</p>
+                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                                    {Number(loan.interestRate)}%
+                                </p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/20">
+                                <p className="text-sm text-amber-600/80 dark:text-amber-500 font-medium mb-1">Total Repayment</p>
+                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-500">
+                                    {formatCurrency(totalRepayment)}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <div className="flex justify-between">
-                                <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4" /> Start Date</span>
-                                <span className="font-medium">{formatDate(loan.startDate)}</span>
+                        {/* Actions */}
+                        {loan.status === "ACTIVE" && (
+                            <div className="pt-2">
+                                <LoanActions loanId={loan.id} remainingBalance={remainingBalance} status={loan.status} />
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-slate-500 flex items-center gap-2"><Calendar className="w-4 h-4" /> Due Date</span>
-                                <span className="font-medium">{formatDate(loan.dueDate)}</span>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                            <div className="flex items-center justify-between group">
+                                <span className="text-slate-500 flex items-center gap-2 group-hover:text-primary transition-colors">
+                                    <Calendar className="w-4 h-4" /> Start Date
+                                </span>
+                                <span className="font-medium font-mono">{formatDate(loan.startDate)}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-slate-500 flex items-center gap-2"><DollarSign className="w-4 h-4" /> Interest Rate</span>
-                                <span className="font-medium">{Number(loan.interestRate)}%</span>
+                            <div className="flex items-center justify-between group">
+                                <span className="text-slate-500 flex items-center gap-2 group-hover:text-red-500 transition-colors">
+                                    <AlertCircle className="w-4 h-4" /> Due Date
+                                </span>
+                                <span className="font-medium font-mono text-red-600 dark:text-red-400">
+                                    {formatDate(loan.dueDate)}
+                                </span>
                             </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Collateral Items */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Collateral</CardTitle>
-                        <CardDescription>{loan.items.length} Item(s) Pledged</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {loan.items.map((item) => (
-                                <div key={item.id} className="flex gap-3 items-start pb-4 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0">
-                                    <div className="p-2 bg-slate-100 dark:bg-slate-900 rounded-md">
-                                        <Package className="w-5 h-5 text-slate-500" />
+                {/* Sidebar Info */}
+                <div className="space-y-6 md:col-span-1">
+                    {/* Collateral */}
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base">Collateral Items</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <div className="max-h-[300px] overflow-y-auto">
+                                {loan.items.map((item, i) => (
+                                    <div key={item.id} className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${i !== loan.items.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''}`}>
+                                        <div className="flex gap-3">
+                                            <div className="p-2 h-fit bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                                <Package className="w-4 h-4 text-slate-500" />
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm text-slate-900 dark:text-white line-clamp-1">{item.name}</p>
+                                                <p className="text-xs text-slate-500 mt-1 line-clamp-2">{item.description}</p>
+                                                <p className="text-xs font-bold text-primary mt-2">
+                                                    Val: {formatCurrency(Number(item.valuation))}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="font-medium text-sm text-slate-900 dark:text-white">{item.name}</p>
-                                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{item.description}</p>
-                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-1">
-                                            Val: {formatCurrency(Number(item.valuation))}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Trust Impact */}
+                    <TrustImpactCard status={loan.status} dueDate={loan.dueDate} />
+                </div>
             </div>
         </div>
     )
