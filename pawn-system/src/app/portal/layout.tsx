@@ -12,6 +12,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher"
 import { getUnreadCount } from "@/app/actions/notification"
 import { PageAnimation } from "@/components/page-animation"
 import { AppSidebar } from "@/components/app-sidebar"
+import { TrustScore } from "@/components/trust-score"
 
 export default async function PortalLayout({
     children,
@@ -23,7 +24,7 @@ export default async function PortalLayout({
 
     return (
         <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans selection:bg-amber-500/30">
-            <AppSidebar user={user} variant="portal" />
+            <AppSidebar user={user} variant="portal" trustScore={<TrustScore />} />
 
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto flex flex-col relative z-0 bg-background">

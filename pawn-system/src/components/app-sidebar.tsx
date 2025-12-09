@@ -23,7 +23,6 @@ import {
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/actions/auth"
 import { ThemeSwitcher } from "@/components/theme-switcher"
-import { TrustScore } from "@/components/trust-score"
 import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
@@ -43,9 +42,10 @@ interface NavItem {
 interface AppSidebarProps {
     user: any // keeping loose for now to align with existing usage
     variant?: SidebarVariant
+    trustScore?: React.ReactNode
 }
 
-export function AppSidebar({ user, variant = "default" }: AppSidebarProps) {
+export function AppSidebar({ user, variant = "default", trustScore }: AppSidebarProps) {
     const pathname = usePathname()
     const [unreadCount, setUnreadCount] = useState(0)
 
@@ -148,9 +148,9 @@ export function AppSidebar({ user, variant = "default" }: AppSidebarProps) {
                         </div>
                     )}
                 </Link>
-                {variant === "portal" && (userRole === "ADMIN" || userRole === "STAFF") && (
+                {variant === "portal" && (userRole === "ADMIN" || userRole === "STAFF") && trustScore && (
                     <div className="mt-2 text-xs">
-                        <TrustScore />
+                        {trustScore}
                     </div>
                 )}
             </div>
