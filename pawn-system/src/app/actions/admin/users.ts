@@ -42,15 +42,29 @@ export async function updateUserRole(userId: string, role: UserRole) {
         throw new Error("Unauthorized: Only Admins can change roles")
     }
 
-    // Prevent changing own role for safety, though technically allowed if another admin exists.
-    // Ideally check if userId === currentUser.id
-
     await prisma.user.update({
         where: { id: userId },
-        data: { role, permissions: [] } // explicit permissions empty for now as it was complaining about missing permissions
+        data: { role, permissions: [] }
     })
 
     revalidatePath("/admin/users")
+}
+
+export async function updateUserPermissions(userId: string, permissions: string[]) {
+    const session = await auth()
+    const currentUser = session?.user as any
+
+    if (!currentUser || currentUser.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can update permissions")
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: { permissions: permissions.join(",") }
+    })
+
+    revalidatePath("/admin/users")
+    revalidatePath(`/admin/users/${userId}`)
 }
 
 export async function toggleUserStatus(userId: string) {
