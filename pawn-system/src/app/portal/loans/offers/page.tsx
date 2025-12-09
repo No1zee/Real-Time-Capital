@@ -25,7 +25,7 @@ export default async function LoanOffersPage() {
             userId: session.user.id,
             status: "PENDING"
         },
-        include: { items: true },
+        include: { Item: true },
         orderBy: { createdAt: "desc" }
     })
 

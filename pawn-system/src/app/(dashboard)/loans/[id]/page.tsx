@@ -19,8 +19,8 @@ export default async function LoanDetailsPage({ params }: LoanDetailsPageProps) 
     const loan = await db.loan.findUnique({
         where: { id },
         include: {
-            items: true,
-            payments: {
+            Item: true,
+            Payment: {
                 orderBy: {
                     createdAt: "desc"
                 }
