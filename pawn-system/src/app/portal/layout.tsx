@@ -12,7 +12,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher"
 import { getUnreadCount } from "@/app/actions/notification"
 import { PageAnimation } from "@/components/page-animation"
 import { AppSidebar } from "@/components/app-sidebar"
-import { TrustScore } from "@/components/trust-score"
+
 
 export default async function PortalLayout({
     children,
