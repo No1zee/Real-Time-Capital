@@ -44,30 +44,30 @@ export default async function AdminValuationsPage() {
                     </div>
                 ) : (
                     pendingItems.map((item) => (
-                        <Card key={item.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+                        <Card key={item.id} className="bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                             <CardHeader className="pb-3">
                                 <div className="flex justify-between items-start">
-                                    <Badge variant="outline">{item.category}</Badge>
-                                    <span className="text-xs text-muted-foreground flex items-center">
+                                    <Badge variant="outline" className="border-slate-400 text-slate-700 dark:text-slate-300 font-medium">{item.category}</Badge>
+                                    <span className="text-xs text-slate-600 dark:text-slate-400 flex items-center font-medium">
                                         <Clock className="w-3 h-3 mr-1" />
                                         {formatDate(item.createdAt)}
                                     </span>
                                 </div>
                                 <CardTitle className="text-lg mt-2 line-clamp-1">{item.name}</CardTitle>
-                                <CardDescription className="line-clamp-2 min-h-[40px]">
+                                <CardDescription className="line-clamp-2 min-h-[40px] text-slate-600 dark:text-slate-400">
                                     {item.description}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div className="text-sm bg-slate-50 dark:bg-slate-900 p-3 rounded-md">
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Customer</p>
-                                        <p className="font-medium">{item.User?.name || "Unknown"}</p>
-                                        <p className="text-xs text-slate-500">{item.User?.email}</p>
+                                    <div className="text-sm bg-slate-100 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-800">
+                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Customer</p>
+                                        <p className="font-semibold text-slate-900 dark:text-slate-100">{item.User?.name || "Unknown"}</p>
+                                        <p className="text-xs text-slate-700 dark:text-slate-400 font-medium">{item.User?.email}</p>
                                     </div>
 
                                     <Link href={`/admin/valuations/${item.id}`} className="block">
-                                        <Button className="w-full" variant="outline">
+                                        <Button className="w-full font-semibold" variant="outline">
                                             Assess Item
                                         </Button>
                                     </Link>
