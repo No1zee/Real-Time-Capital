@@ -1,0 +1,16 @@
+name: Auction Lifecycle Check
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # Run every 5 minutes
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Auction Lifecycle API
+        run: |
+          curl -X POST ${{ secrets.APP_URL }}/api/cron/auction-lifecycle \
+          -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+          -H "Content-Type: application/json"
