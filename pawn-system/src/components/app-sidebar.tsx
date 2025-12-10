@@ -215,9 +215,9 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
     return (
         <aside className={cn(
             "flex h-full flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border relative z-20 shadow-2xl transition-all duration-300",
-            // Base mobile behavior: Hidden by default, Flex on MD+
+            // Base mobile behavior: Hidden by default, Flex on LG+
             // Unless overridden by className (e.g. for mobile menu usage)
-            "hidden md:flex w-64",
+            "hidden lg:flex w-64",
             variant === "portal" && "bg-sidebar/80 backdrop-blur-xl",
             className // Allow className to override hidden (e.g. if we want to show it in a sheet)
         )}>

@@ -9,8 +9,8 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
     const [isOpen, setIsOpen] = useState(false)
 
     return (
-        <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="text-white hover:bg-white/10">
+        <div className="lg:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="bg-amber-500 text-slate-900 hover:bg-amber-400 hover:text-slate-900 shadow-lg shadow-amber-500/20 rounded-full h-10 w-10">
                 <Menu className="h-6 w-6" />
                 {unreadCount > 0 && (
                     <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-slate-900" />

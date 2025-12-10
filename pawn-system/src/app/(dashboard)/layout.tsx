@@ -25,10 +25,10 @@ export default async function DashboardLayout({
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <AppSidebar user={user} variant="default" className="hidden md:flex" />
+            <AppSidebar user={user} variant="default" className="hidden lg:flex" />
             <main className="flex-1 overflow-y-auto bg-muted/10 flex flex-col relative z-0">
                 {/* Mobile Header */}
-                <div className="md:hidden p-4 bg-sidebar/95 backdrop-blur-xl border-b border-sidebar-border flex items-center justify-between sticky top-0 z-50">
+                <div className="lg:hidden p-4 bg-sidebar/95 backdrop-blur-xl border-b border-sidebar-border flex items-center justify-between sticky top-0 z-50">
                     <h1 className="text-xl font-bold text-sidebar-foreground">
                         <span className="text-primary">Real Time</span> Capital
                     </h1>
