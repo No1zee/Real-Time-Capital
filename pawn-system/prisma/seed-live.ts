@@ -1,5 +1,5 @@
 
-import { PrismaClient, UserRole, LoanStatus, ItemStatus, TransactionStatus, TransactionType, TransactionMethod, AuctionStatus, VerificationStatus } from "@prisma/client"
+import { PrismaClient, UserRole, LoanStatus, ItemStatus, TransactionStatus, TransactionType, TransactionMethod, AuctionStatus, VerificationStatus, AssetType } from "@prisma/client"
 import { faker } from "@faker-js/faker"
 import bcrypt from "bcryptjs"
 
@@ -42,7 +42,7 @@ async function main() {
 
     // 2. Create Loans & Items & Transactions
     const loanStatuses = [LoanStatus.ACTIVE, LoanStatus.COMPLETED, LoanStatus.DEFAULTED, LoanStatus.PENDING, LoanStatus.APPROVED]
-    const itemCategories = ["Electronics", "Jewelry", "Tools", "Musical Instruments", "Collectibles"]
+    const itemCategories = [AssetType.ELECTRONICS, AssetType.JEWELRY, AssetType.VEHICLE, AssetType.COLLECTIBLE, AssetType.OTHER]
 
     for (const customer of customers) {
         // Each customer has 1-3 loans
