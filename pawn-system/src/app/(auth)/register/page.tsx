@@ -115,8 +115,8 @@ function RegisterWizard() {
                 </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-            <p className="text-slate-400 mb-6">Step {step} of {totalSteps}</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Create Account</h1>
+            <p className="text-sm md:text-base text-slate-400 mb-4 md:mb-6">Step {step} of {totalSteps}</p>
 
             {/* Error Display */}
             {state.message && !state.message.includes("success") && (
@@ -147,9 +147,9 @@ function RegisterWizard() {
                 {/* Actually, standard form behavior: hidden inputs don't sync with the visible inputs automatically if they are separate components. */}
                 {/* Strategy: Render ALL inputs always, but use CSS 'hidden' to toggle visibility. This ensures browser collects all data on submit. */}
 
-                {/* Step 1: Personal */}
+                {/* Step 1: Personal Info */}
                 <div className={step === 1 ? "step-visible" : "step-hidden"}>
-                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
+                    <div className="space-y-4 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-200">Full Name</label>
@@ -180,7 +180,7 @@ function RegisterWizard() {
 
                 {/* Step 2: Contact */}
                 <div className={step === 2 ? "step-visible" : "step-hidden"}>
-                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
+                    <div className="space-y-4 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Email</label>
                             <input className="input-field" name="email" type="email" value={formData.email} onChange={handleChange} required />
@@ -202,7 +202,7 @@ function RegisterWizard() {
 
                 {/* Step 3: Security */}
                 <div className={step === 3 ? "step-visible" : "step-hidden"}>
-                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
+                    <div className="space-y-4 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Password</label>
                             <input className="input-field" name="password" type="password" value={formData.password} onChange={handleChange} required title="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special" />

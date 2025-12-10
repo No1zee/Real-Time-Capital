@@ -36,14 +36,14 @@ export default async function CustomerAuctionsPage({
     const watchedIds = new Set(watchlist.map((a: any) => a.id))
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
-                    <p className="text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
+                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
                 </div>
                 <Link href="/portal/auctions/archive">
-                    <Button variant="outline" className="gap-2">
+                    <Button variant="outline" className="gap-2 text-sm md:text-base h-9 md:h-10">
                         View Past Auctions
                     </Button>
                 </Link>
@@ -51,7 +51,7 @@ export default async function CustomerAuctionsPage({
 
             <SearchFilters />
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {auctions.map((auction: any) => {
                     let imageUrl = "https://placehold.co/600x400?text=No+Image"
                     try {
@@ -82,7 +82,7 @@ export default async function CustomerAuctionsPage({
                                 </Badge>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
+                                <div className="relative h-40 md:h-48 w-full overflow-hidden rounded-t-lg">
                                     <img
                                         src={imageUrl}
                                         alt={auction.Item.name}
@@ -99,15 +99,15 @@ export default async function CustomerAuctionsPage({
                                         <Countdown targetDate={auction.endTime} />
                                     </div>
                                 </div>
-                                <div className="p-6 pt-4">
-                                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                                <div className="p-4 md:p-6 pt-3 md:pt-4">
+                                    <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-2">
                                         {formatCurrency(Number(auction.currentBid || auction.startPrice))}
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
                                         Current Price
                                     </p>
 
-                                    <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
+                                    <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
                                         <div className="flex justify-between">
                                             <span>Ends:</span>
                                             <span>{formatDate(auction.endTime)}</span>
@@ -119,7 +119,7 @@ export default async function CustomerAuctionsPage({
                                     </div>
 
                                     <Link href={`/portal/auctions/${auction.id}`}>
-                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white">
+                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white text-sm md:text-base h-9 md:h-10">
                                             View Auction
                                         </Button>
                                     </Link>
@@ -138,18 +138,18 @@ export default async function CustomerAuctionsPage({
             </div>
 
             {/* Recently Ended Section */}
-            <div className="pt-10 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-6">
+            <div className="pt-6 md:pt-10 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
                     <div>
-                        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Recently Ended</h2>
-                        <p className="text-slate-500 dark:text-slate-400">Auctions that have closed recently.</p>
+                        <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">Recently Ended</h2>
+                        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">Auctions that have closed recently.</p>
                     </div>
                     <Link href="/portal/auctions/archive">
                         <Button variant="ghost" className="hidden md:flex">View All Past Auctions</Button>
                     </Link>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
+                <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
                     {(await getAuctions("CUSTOMER", { ...filters, sort: "endTime_desc" }, true)).slice(0, 4).map((auction: any) => {
                         let imageUrl = "https://placehold.co/600x400?text=No+Image"
                         try {
