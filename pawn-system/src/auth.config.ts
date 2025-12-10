@@ -88,8 +88,13 @@ export const authConfig = {
                 if (isPublicPortal) return true
 
                 // Dashbaord /portal root needs login
-                if (pathname === "/portal" && !isLoggedIn) {
-                    return NextResponse.redirect(new URL("/portal/auctions", nextUrl.nextUrl))
+                if (pathname === "/portal") {
+                    if (!isLoggedIn) return NextResponse.redirect(new URL("/portal/auctions", nextUrl.nextUrl))
+
+                    // User Request: Admins/Staff should not land on Customer Dashboard
+                    if (userRole === "ADMIN" || userRole === "STAFF") {
+                        return NextResponse.redirect(new URL("/admin/dashboard", nextUrl.nextUrl))
+                    }
                 }
 
                 if (!isLoggedIn) return false
