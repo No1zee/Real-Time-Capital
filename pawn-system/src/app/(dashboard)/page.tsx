@@ -103,9 +103,9 @@ export default async function DashboardPage() {
                 })}
             </div>
 
-            <div className="grid gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-7">
+            <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-7">
                 {hasPermission(PERMISSIONS.LOANS_READ) && (
-                    <div className="col-span-4 rounded-xl border bg-card text-card-foreground shadow-sm">
+                    <div className="lg:col-span-4 rounded-xl border bg-card text-card-foreground shadow-sm">
                         <div className="p-4 md:p-6 flex flex-col space-y-1">
                             <h3 className="text-base md:text-lg font-semibold leading-none tracking-tight">Recent Loans</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">Latest transactions processed today.</p>
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
                 )}
 
                 {hasPermission(PERMISSIONS.VALUATIONS_READ) && (
-                    <div className="col-span-3 rounded-xl border bg-card text-card-foreground shadow-sm">
+                    <div className="lg:col-span-3 rounded-xl border bg-card text-card-foreground shadow-sm">
                         <div className="p-4 md:p-6 flex flex-col space-y-1">
                             <h3 className="text-base md:text-lg font-semibold leading-none tracking-tight">Pending Approvals</h3>
                             <p className="text-xs md:text-sm text-muted-foreground">Loans requiring manager review.</p>
