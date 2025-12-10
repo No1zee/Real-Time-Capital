@@ -104,7 +104,7 @@ export default async function PortalDashboard() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-bold text-white">{items.length}</div>
+                        <div className="text-3xl font-bold text-white">{items.pawnedItems.length}</div>
                         <p className="text-xs text-slate-500 mt-1">Collateral held</p>
                     </CardContent>
                 </Card>
