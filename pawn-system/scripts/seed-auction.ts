@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient, Prisma, AssetType } from "@prisma/client"
 import * as crypto from 'crypto'
 import { PrismaClientValidationError } from "@prisma/client/runtime/library"
 
@@ -15,7 +15,7 @@ async function main() {
             updatedAt: new Date(),
             name: "Test Notification Item " + Date.now(),
             description: "A perfect item for testing notifications.",
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             valuation: 500,
             images: "[]",
             status: "IN_AUCTION",

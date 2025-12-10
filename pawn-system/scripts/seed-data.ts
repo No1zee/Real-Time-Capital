@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, AssetType } from "@prisma/client"
 import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
@@ -59,7 +59,7 @@ async function main() {
             description: "Mint condition, 256GB, Deep Purple. Comes with box and charger.",
             valuation: 900,
             startPrice: 400,
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             images: JSON.stringify(["https://images.unsplash.com/photo-1678685888221-cda773a3dcdb?auto=format&fit=crop&w=800&q=80"])
         },
         {
@@ -67,7 +67,7 @@ async function main() {
             description: "Disc edition, comes with 2 controllers and God of War Ragnarok.",
             valuation: 600,
             startPrice: 250,
-            category: "Gaming",
+            category: AssetType.ELECTRONICS,
             images: JSON.stringify(["https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=800&q=80"])
         },
         {
@@ -75,7 +75,7 @@ async function main() {
             description: "Midnight Blue, 8GB RAM, 256GB SSD. Cycle count: 12.",
             valuation: 1100,
             startPrice: 500,
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             images: JSON.stringify(["https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=800&q=80"])
         }
     ]

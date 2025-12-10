@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole, ItemStatus, AuctionStatus } from "@prisma/client"
+import { PrismaClient, UserRole, ItemStatus, AuctionStatus, AssetType } from "@prisma/client"
 import bcrypt from "bcryptjs"
 import * as crypto from 'crypto'
 
@@ -38,7 +38,7 @@ async function main() {
         {
             name: "Rolex Submariner Date",
             description: "Classic diver's watch, excellent condition. Original box and papers included.",
-            category: "Watches",
+            category: AssetType.JEWELRY,
             valuation: 12000,
             startPrice: 8500,
             image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80"
@@ -46,7 +46,7 @@ async function main() {
         {
             name: "MacBook Pro M3 Max",
             description: "16-inch, Space Black, 1TB SSD, 36GB Unified Memory. Barely used.",
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             valuation: 3500,
             startPrice: 2000,
             image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=800&q=80"
@@ -54,7 +54,7 @@ async function main() {
         {
             name: "Gibson Les Paul Standard",
             description: "2020 Model, Heritage Cherry Sunburst. Includes hard shell case.",
-            category: "Musical Instruments",
+            category: AssetType.OTHER,
             valuation: 2800,
             startPrice: 1500,
             image: "https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?auto=format&fit=crop&w=800&q=80"
@@ -62,7 +62,7 @@ async function main() {
         {
             name: "Gold Diamond Ring (1.5ct)",
             description: "18k Gold band with a stunning 1.5 carat princess cut diamond.",
-            category: "Jewelry",
+            category: AssetType.JEWELRY,
             valuation: 5000,
             startPrice: 3200,
             image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80"
@@ -70,7 +70,7 @@ async function main() {
         {
             name: "Sony A7IV Camera Kit",
             description: "Includes 24-70mm GM lens. Perfect for professional photography.",
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             valuation: 4200,
             startPrice: 2800,
             image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80"

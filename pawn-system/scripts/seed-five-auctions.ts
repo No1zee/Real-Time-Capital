@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, AssetType } from "@prisma/client"
 import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
@@ -7,7 +7,7 @@ const NEW_ITEMS = [
     {
         name: "Rolex Submariner",
         description: "Classic diver's watch, stainless steel, black dial. Excellent condition with original box and papers.",
-        category: "Jewelry",
+        category: AssetType.JEWELRY,
         valuation: 8500,
         startPrice: 4000,
         image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80"
@@ -15,7 +15,7 @@ const NEW_ITEMS = [
     {
         name: "Toyota Corolla 2018",
         description: "Reliable sedan, silver, 45,000km. Full service history. Great fuel economy.",
-        category: "Vehicles",
+        category: AssetType.VEHICLE,
         valuation: 12000,
         startPrice: 6000,
         image: "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=800&q=80"
@@ -23,7 +23,7 @@ const NEW_ITEMS = [
     {
         name: "Fender Stratocaster",
         description: "American Professional II, Sunburst finish. Maple neck. Includes hard case.",
-        category: "Musical Instruments",
+        category: AssetType.OTHER,
         valuation: 1500,
         startPrice: 700,
         image: "https://images.unsplash.com/photo-1550985543-f47f38aee65d?auto=format&fit=crop&w=800&q=80"
@@ -31,7 +31,7 @@ const NEW_ITEMS = [
     {
         name: "Canon EOS R5 Body",
         description: "Professional mirrorless camera, 45MP full-frame sensor, 8K video. Like new.",
-        category: "Electronics",
+        category: AssetType.ELECTRONICS,
         valuation: 3200,
         startPrice: 1500,
         image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80"
@@ -39,7 +39,7 @@ const NEW_ITEMS = [
     {
         name: "Vintage Leather Jacket",
         description: "Genuine brown leather, size L. Distressed look, very stylish and durable.",
-        category: "Fashion",
+        category: AssetType.OTHER,
         valuation: 350,
         startPrice: 100,
         image: "https://images.unsplash.com/photo-1551028919-30164a7ed4af?auto=format&fit=crop&w=800&q=80"

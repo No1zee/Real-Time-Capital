@@ -1,35 +1,35 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, AssetType } from "@prisma/client"
 import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
 const ADJECTIVES = ["Vintage", "Brand New", "Gently Used", "Rare", "Antique", "Custom", "Luxury", "Professional", "Compact", "Heavy Duty", "Limited Edition", "Restored"]
 const NOUNS = [
-    { name: "iPhone 13", cat: "Electronics", val: 600 },
-    { name: "MacBook Pro", cat: "Electronics", val: 1200 },
-    { name: "Rolex Submariner", cat: "Jewelry", val: 8000 },
-    { name: "Diamond Ring", cat: "Jewelry", val: 2500 },
-    { name: "Toyota Corolla", cat: "Vehicles", val: 5000 },
-    { name: "Honda Civic", cat: "Vehicles", val: 4500 },
-    { name: "PS5 Console", cat: "Gaming", val: 500 },
-    { name: "Xbox Series X", cat: "Gaming", val: 450 },
-    { name: "Fender Stratocaster", cat: "Musical Instruments", val: 1000 },
-    { name: "Gibson Les Paul", cat: "Musical Instruments", val: 2000 },
-    { name: "Power Drill Set", cat: "Tools", val: 150 },
-    { name: "Designer Handbag", cat: "Fashion", val: 1200 },
-    { name: "Leather Jacket", cat: "Fashion", val: 300 },
-    { name: "Comic Book Collection", cat: "Collectibles", val: 500 },
-    { name: "Oil Painting", cat: "Art", val: 800 },
-    { name: "Oak Dining Table", cat: "Furniture", val: 600 },
-    { name: "Samsung Galaxy S23", cat: "Electronics", val: 700 },
-    { name: "Canon EOS R5", cat: "Electronics", val: 3500 },
-    { name: "Gold Necklace", cat: "Jewelry", val: 1200 },
-    { name: "Mountain Bike", cat: "Vehicles", val: 800 },
-    { name: "Drone with 4K Camera", cat: "Electronics", val: 900 },
-    { name: "Smart Watch", cat: "Electronics", val: 250 },
-    { name: "Gaming PC", cat: "Gaming", val: 1500 },
-    { name: "Leather Sofa", cat: "Furniture", val: 1000 },
-    { name: "Persian Rug", cat: "Furniture", val: 1500 },
+    { name: "iPhone 13", cat: AssetType.ELECTRONICS, val: 600 },
+    { name: "MacBook Pro", cat: AssetType.ELECTRONICS, val: 1200 },
+    { name: "Rolex Submariner", cat: AssetType.JEWELRY, val: 8000 },
+    { name: "Diamond Ring", cat: AssetType.JEWELRY, val: 2500 },
+    { name: "Toyota Corolla", cat: AssetType.VEHICLE, val: 5000 },
+    { name: "Honda Civic", cat: AssetType.VEHICLE, val: 4500 },
+    { name: "PS5 Console", cat: AssetType.ELECTRONICS, val: 500 },
+    { name: "Xbox Series X", cat: AssetType.ELECTRONICS, val: 450 },
+    { name: "Fender Stratocaster", cat: AssetType.OTHER, val: 1000 },
+    { name: "Gibson Les Paul", cat: AssetType.OTHER, val: 2000 },
+    { name: "Power Drill Set", cat: AssetType.OTHER, val: 150 },
+    { name: "Designer Handbag", cat: AssetType.OTHER, val: 1200 },
+    { name: "Leather Jacket", cat: AssetType.OTHER, val: 300 },
+    { name: "Comic Book Collection", cat: AssetType.COLLECTIBLE, val: 500 },
+    { name: "Oil Painting", cat: AssetType.COLLECTIBLE, val: 800 },
+    { name: "Oak Dining Table", cat: AssetType.FURNITURE, val: 600 },
+    { name: "Samsung Galaxy S23", cat: AssetType.ELECTRONICS, val: 700 },
+    { name: "Canon EOS R5", cat: AssetType.ELECTRONICS, val: 3500 },
+    { name: "Gold Necklace", cat: AssetType.JEWELRY, val: 1200 },
+    { name: "Mountain Bike", cat: AssetType.VEHICLE, val: 800 },
+    { name: "Drone with 4K Camera", cat: AssetType.ELECTRONICS, val: 900 },
+    { name: "Smart Watch", cat: AssetType.ELECTRONICS, val: 250 },
+    { name: "Gaming PC", cat: AssetType.ELECTRONICS, val: 1500 },
+    { name: "Leather Sofa", cat: AssetType.FURNITURE, val: 1000 },
+    { name: "Persian Rug", cat: AssetType.FURNITURE, val: 1500 },
 ]
 
 const IMAGES = [
