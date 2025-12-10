@@ -31,10 +31,10 @@ export default async function PortalDashboard() {
             </div>
 
             {/* Bento Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[180px]">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[180px]">
 
                 {/* Main Stat: Total Debt (Large Card) */}
-                <Card className="glass-card md:col-span-2 md:row-span-2 flex flex-col justify-between relative overflow-hidden group">
+                <Card className="glass-card col-span-2 md:col-span-2 md:row-span-2 flex flex-col justify-between relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <TrendingUp className="w-24 md:w-32 h-24 md:h-32 text-amber-500" />
                     </div>
@@ -59,7 +59,7 @@ export default async function PortalDashboard() {
                 </Card>
 
                 {/* Stat: Active Loans */}
-                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                <Card className="glass-card col-span-1 md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
                     <Link href="/portal/loans?status=ACTIVE" className="absolute inset-0 z-10">
                         <span className="sr-only">View Active Loans</span>
                     </Link>
@@ -76,7 +76,7 @@ export default async function PortalDashboard() {
                 </Card>
 
                 {/* Stat: Pending Loans */}
-                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                <Card className="glass-card col-span-1 md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
                     <Link href="/portal/loans" className="absolute inset-0 z-10">
                         <span className="sr-only">View Pending Loans</span>
                     </Link>
@@ -93,7 +93,7 @@ export default async function PortalDashboard() {
                 </Card>
 
                 {/* Stat: Items in Pawn */}
-                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                <Card className="glass-card col-span-1 md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
                     <Link href="/portal/loans" className="absolute inset-0 z-10">
                         <span className="sr-only">View Items</span>
                     </Link>
@@ -109,8 +109,22 @@ export default async function PortalDashboard() {
                     </CardContent>
                 </Card>
 
+                {/* Trust Signal (Moved up to fit grid) */}
+                <Card className="glass-card col-span-1 md:col-span-2 flex items-center justify-center bg-gradient-to-br from-slate-900/50 to-slate-800/50">
+                    <CardContent className="flex flex-col md:flex-row items-center text-center md:text-left gap-2 md:gap-4 p-3 md:p-6">
+                        <div className="p-2 md:p-3 rounded-full bg-green-500/10 text-green-500">
+                            <ShieldCheck className="w-5 h-5 md:w-8 md:h-8" />
+                        </div>
+                        <div>
+                            <h3 className="font-semibold text-xs md:text-base text-white">Secure & Trusted</h3>
+                            <p className="text-[10px] md:text-xs text-slate-400 hidden md:block">Your items are stored in our secure, insured facility.</p>
+                            <p className="text-[9px] text-slate-400 md:hidden">Fully Insured Storage</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 {/* Quick Action: Auctions */}
-                <Card className="glass-card md:col-span-2 flex flex-col justify-center relative overflow-hidden group">
+                <Card className="glass-card col-span-2 md:col-span-2 flex flex-col justify-center relative overflow-hidden group">
                     <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Clock className="w-16 md:w-24 h-16 md:h-24 text-white" />
                     </div>
@@ -126,19 +140,6 @@ export default async function PortalDashboard() {
                                 Browse Auctions
                             </Button>
                         </Link>
-                    </CardContent>
-                </Card>
-
-                {/* Trust Signal */}
-                <Card className="glass-card md:col-span-2 flex items-center justify-center bg-gradient-to-br from-slate-900/50 to-slate-800/50">
-                    <CardContent className="flex items-center gap-3 md:gap-4 p-4 md:p-6">
-                        <div className="p-2 md:p-3 rounded-full bg-green-500/10 text-green-500">
-                            <ShieldCheck className="w-6 h-6 md:w-8 md:h-8" />
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-sm md:text-base text-white">Secure & Trusted</h3>
-                            <p className="text-[10px] md:text-xs text-slate-400">Your items are stored in our secure, insured facility.</p>
-                        </div>
                     </CardContent>
                 </Card>
 
