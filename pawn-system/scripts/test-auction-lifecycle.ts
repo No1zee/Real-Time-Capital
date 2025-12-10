@@ -3,7 +3,7 @@
  * Run with: npx tsx scripts/test-auction-lifecycle.ts
  */
 
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient, AssetType, ItemStatus } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
@@ -26,9 +26,9 @@ async function createTestAuctions() {
             id: crypto.randomUUID(),
             name: "Test Auction Item - Ending Soon",
             description: "This auction will end in 2 minutes",
-            category: "Electronics",
+            category: AssetType.ELECTRONICS,
             valuation: 500,
-            status: "IN_AUCTION",
+            status: ItemStatus.IN_AUCTION,
             userId: testUser.id,
             updatedAt: new Date()
         }
@@ -39,9 +39,9 @@ async function createTestAuctions() {
             id: crypto.randomUUID(),
             name: "Test Auction Item - Starting Soon",
             description: "This auction will start in 2 minutes",
-            category: "Jewelry",
+            category: AssetType.JEWELRY,
             valuation: 1000,
-            status: "IN_AUCTION",
+            status: ItemStatus.IN_AUCTION,
             userId: testUser.id,
             updatedAt: new Date()
         }

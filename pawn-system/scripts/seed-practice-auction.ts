@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient, Prisma, AssetType, ItemStatus } from "@prisma/client"
 import * as crypto from 'crypto'
 
 const prisma = new PrismaClient()
@@ -32,7 +32,10 @@ async function main() {
                 updatedAt: new Date(),
                 name: "Practice Rolex Submariner",
                 description: "Practice Item",
-                valuation: "15000"
+                valuation: 15000,
+                category: AssetType.JEWELRY,
+                status: ItemStatus.IN_AUCTION,
+                images: "[]"
             }
         })
 
