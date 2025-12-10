@@ -177,24 +177,78 @@ model Dispute {
   User        User     @relation(fields: [userId], references: [id])
 }
 
+enum AssetType {
+  JEWELRY
+  ELECTRONICS
+  VEHICLE
+  COLLECTIBLE
+  FURNITURE
+  OTHER
+}
+
+enum ItemCondition {
+  NEW
+  LIKE_NEW
+  USED
+  DAMAGED
+}
+
+enum ValuationStatus {
+  PENDING
+  PENDING_MARKET_EVAL
+  MARKET_EVAL_COMPLETE
+  PENDING_FINAL_OFFER
+  OFFER_READY
+  OFFER_ACCEPTED
+  REJECTED
+}
+
 model Item {
   id           String    @id @default(cuid())
   loanId       String?
+  
+  // Core Details
   name         String
-  category     String    @default("Other")
+  category     AssetType    @default(OTHER)
+  type         String?      // Keeping for backward compatibility or subtype
   brand        String?
   model        String?
   description  String
   serialNumber String?
-  valuation    Decimal
+  condition    ItemCondition @default(USED)
+  yearOfPurchase Int?
+  
+  // Vehicle Specifics
+  vin                String?
+  engineNumber       String?
+  chassisNumber      String?
+  registrationNumber String?
+  mileage            Int?
+  color              String?
+  
+  // Jewelry/Other Specifics
+  purity             String? // Karat
+  weight             Decimal? // Grams/Carats
+  dimensions         String?
+  provenance         String? // For collectibles
+  
+  // Valuation Workflow
+  userEstimatedValue Decimal?
+  marketValue        Decimal?
+  finalValuation     Decimal? // The offer amount
+  valuationStatus    ValuationStatus @default(PENDING)
+  valuation          Decimal // Keeping original field for now, might migrate to finalValuation
+  
   status       ItemStatus    @default(PENDING_VALUATION)
   location     String?
   images       String    @default("[]")
   valuationDetails String?
+  
   salePrice    Decimal?
   soldAt       DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime
+  
   userId       String?
   User         User?     @relation(fields: [userId], references: [id])
   Auction      Auction?

@@ -18,7 +18,13 @@ export default async function AdminValuationsPage() {
     }
 
     const pendingItems = await prisma.item.findMany({
-        where: { status: "PENDING_VALUATION" },
+        where: {
+            OR: [
+                { status: "PENDING_VALUATION" },
+                { valuationStatus: "PENDING_MARKET_EVAL" },
+                { valuationStatus: "PENDING_FINAL_OFFER" }
+            ]
+        },
         include: { User: { select: { name: true, email: true } } },
         orderBy: { createdAt: "asc" }
     })
@@ -54,20 +60,20 @@ export default async function AdminValuationsPage() {
                                     </span>
                                 </div>
                                 <CardTitle className="text-lg mt-2 line-clamp-1">{item.name}</CardTitle>
-                                <CardDescription className="line-clamp-2 min-h-[40px] text-slate-600 dark:text-slate-400">
+                                <CardDescription className="line-clamp-2 min-h-[40px] text-slate-700 dark:text-slate-300">
                                     {item.description}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div className="text-sm bg-slate-100 dark:bg-slate-900 p-3 rounded-md border border-slate-200 dark:border-slate-800">
-                                        <p className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Customer</p>
-                                        <p className="font-semibold text-slate-900 dark:text-slate-100">{item.User?.name || "Unknown"}</p>
-                                        <p className="text-xs text-slate-700 dark:text-slate-400 font-medium">{item.User?.email}</p>
+                                    <div className="text-sm bg-slate-100/80 dark:bg-slate-900/80 p-3 rounded-md border border-slate-300 dark:border-slate-700 shadow-sm">
+                                        <p className="text-[11px] text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider mb-1">Customer</p>
+                                        <p className="font-bold text-slate-900 dark:text-slate-100">{item.User?.name || "Unknown"}</p>
+                                        <p className="text-xs text-slate-800 dark:text-slate-300 font-medium">{item.User?.email}</p>
                                     </div>
 
                                     <Link href={`/admin/valuations/${item.id}`} className="block">
-                                        <Button className="w-full font-semibold" variant="outline">
+                                        <Button className="w-full font-bold" variant="outline">
                                             Assess Item
                                         </Button>
                                     </Link>

@@ -108,13 +108,15 @@ async function main() {
     // So Auction depends on Item. Item must be created FIRST.
     console.log('Seeding Items...');
     for (const item of data.items) {
-        // Ensure we don't try to connect invalid relations if they don't exist yet?
-        // Item only depends on Loan and User.
-        await prisma.item.upsert({
-            where: { id: item.id },
-            update: {},
-            create: item,
-        });
+        try {
+            await prisma.item.upsert({
+                where: { id: item.id },
+                update: {},
+                create: item,
+            });
+        } catch (error) {
+            console.error(`Error seeding item ${item.id}:`, error);
+        }
     }
 
     // 5. Auctions (depend on Item)

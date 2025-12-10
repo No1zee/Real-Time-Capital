@@ -1,164 +1,137 @@
-import { getCustomerItems } from "@/app/actions/portal"
+import { getUserItems } from "@/app/actions/item"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { Package, Trophy, Lock, Calendar } from "lucide-react"
 import Link from "next/link"
+import { Package, Plus, AlertCircle, CheckCircle, Clock } from "lucide-react"
 
-export default async function PortalItemsPage() {
-    const { wonItems, pawnedItems } = await getCustomerItems()
+export const dynamic = "force-dynamic"
+
+export default async function UserInventoryPage() {
+    const items = await getUserItems()
+
+    const getStatusBadge = (status: string, valuationStatus: string | null) => {
+        // Valuation Status takes precedence if item is pending
+        if (status === "PENDING_VALUATION") {
+            if (valuationStatus === "PENDING_MARKET_EVAL")
+                return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 hover:bg-yellow-100"><Clock className="w-3 h-3 mr-1" /> In Review</Badge>
+            if (valuationStatus === "PENDING_FINAL_OFFER")
+                return <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-100"><Clock className="w-3 h-3 mr-1" /> Initial Offer Ready</Badge>
+            if (valuationStatus === "OFFER_ACCEPTED")
+                return <Badge className="bg-green-100 text-green-800 hover:bg-green-100"><CheckCircle className="w-3 h-3 mr-1" /> Offer Accepted</Badge>
+            if (valuationStatus === "REJECTED")
+                return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" /> Rejected</Badge>
+        }
+
+        if (status === "ACTIVE_LOAN") return <Badge className="bg-green-600">Active Loan</Badge>
+        if (status === "REDEEMED") return <Badge variant="outline" className="border-green-600 text-green-600">Redeemed</Badge>
+        if (status === "IN_AUCTION") return <Badge variant="secondary" className="bg-amber-100 text-amber-800">In Auction</Badge>
+        if (status === "SOLD") return <Badge variant="secondary">Sold</Badge>
+
+        return <Badge variant="outline">{status}</Badge>
+    }
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">My Items</h2>
-                <p className="text-slate-500 dark:text-slate-400 mt-1">Items you own and items held as collateral</p>
+        <div className="space-y-6 pb-20">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">My Items</h1>
+                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+                        Track your submitted assets and their valuation status.
+                    </p>
+                </div>
+                <Link href="/portal/pawn">
+                    <Button className="bg-amber-500 hover:bg-amber-600 text-white w-full md:w-auto">
+                        <Plus className="mr-2 h-4 w-4" />
+                        Pawn New Item
+                    </Button>
+                </Link>
             </div>
 
-            {/* ITEMS WON IN AUCTIONS */}
-            {wonItems.length > 0 && (
-                <section className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <Trophy className="w-5 h-5 text-amber-600 dark:text-amber-500" />
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Items Won in Auctions</h3>
-                        <Badge variant="outline">{wonItems.length}</Badge>
-                    </div>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {wonItems.map((item) => {
-                            const images = item.images ? JSON.parse(item.images as string) : []
-                            const firstImage = images[0]
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {items.map((item) => {
+                    // Image parsing safely
+                    let imageUrl = "/placeholder-item.jpg"
+                    try {
+                        const parsed = JSON.parse(item.images as string)
+                        if (Array.isArray(parsed) && parsed.length > 0) imageUrl = parsed[0]
+                    } catch (e) { }
 
-                            return (
-                                <Card key={item.id} className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200 dark:border-amber-800 overflow-hidden">
-                                    {/* Item Image */}
-                                    {firstImage && (
-                                        <div className="relative h-48 w-full bg-slate-100 dark:bg-slate-900">
-                                            <img
-                                                src={firstImage}
-                                                alt={item.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                            <div className="absolute top-2 right-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">
-                                                OWNED
-                                            </div>
+                    return (
+                        <Card key={item.id} className="overflow-hidden bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 flex flex-col hover:shadow-md transition-all">
+                            <div className="aspect-video w-full bg-slate-100 dark:bg-slate-900 relative group">
+                                <img
+                                    src={imageUrl}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                />
+                                <div className="absolute top-2 right-2">
+                                    {getStatusBadge(item.status, item.valuationStatus)}
+                                </div>
+                            </div>
+
+                            <CardHeader className="p-4 pb-2">
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-1">
+                                        <CardTitle className="text-base font-semibold line-clamp-1" title={item.name}>
+                                            {item.name}
+                                        </CardTitle>
+                                        <CardDescription className="capitalize text-xs">
+                                            {item.category.toLowerCase().replace("_", " ")}
+                                        </CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+
+                            <CardContent className="p-4 pt-2 space-y-4 flex-1 flex flex-col justify-end">
+                                <div className="space-y-2 text-sm">
+                                    <div className="flex justify-between text-slate-500 dark:text-slate-400">
+                                        <span>Submitted:</span>
+                                        <span>{formatDate(item.createdAt)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-500 dark:text-slate-400">Estimated Value:</span>
+                                        <span className="font-medium text-slate-700 dark:text-slate-200">
+                                            {formatCurrency(Number(item.userEstimatedValue || 0))}
+                                        </span>
+                                    </div>
+
+                                    {(Number(item.valuation) > 0) && (
+                                        <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg flex justify-between items-center mt-2 border border-green-100 dark:border-green-900/30">
+                                            <span className="text-green-700 dark:text-green-400 font-medium text-xs">Preliminary Offer</span>
+                                            <span className="text-green-700 dark:text-green-400 font-bold">
+                                                {formatCurrency(Number(item.valuation))}
+                                            </span>
                                         </div>
                                     )}
+                                </div>
 
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-amber-800 dark:text-amber-400">
-                                            {item.name}
-                                        </CardTitle>
-                                        <Trophy className="h-4 w-4 text-amber-600" />
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <div>
-                                            <p className="text-xs text-slate-600 dark:text-slate-400">Purchase Price</p>
-                                            <p className="text-2xl font-bold text-amber-700 dark:text-amber-400">
-                                                {formatCurrency(Number(item.salePrice || item.valuation))}
-                                            </p>
-                                        </div>
+                                <Link href={`/portal/items/${item.id}`} className="w-full">
+                                    <Button variant="outline" className="w-full border-slate-200 dark:border-slate-800">
+                                        View Details
+                                    </Button>
+                                </Link>
+                            </CardContent>
+                        </Card>
+                    )
+                })}
 
-                                        <div className="flex flex-wrap gap-2">
-                                            <Badge variant="outline">{item.category}</Badge>
-                                            {item.brand && <Badge variant="outline">{item.brand}</Badge>}
-                                            {!firstImage && <Badge className="bg-green-600">OWNED</Badge>}
-                                        </div>
-
-                                        {item.soldAt && (
-                                            <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
-                                                <Calendar className="w-3 h-3" />
-                                                Won: {formatDate(item.soldAt)}
-                                            </div>
-                                        )}
-
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                                            {item.description}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                </section>
-            )}
-
-            {/* ITEMS HELD AS COLLATERAL */}
-            {pawnedItems.length > 0 && (
-                <section className="space-y-4">
-                    <div className="flex items-center gap-2">
-                        <Lock className="w-5 h-5 text-blue-600 dark:text-blue-500" />
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">Items Held as Collateral</h3>
-                        <Badge variant="outline">{pawnedItems.length}</Badge>
-                    </div>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {pawnedItems.map((item) => (
-                            <Link href={`/portal/loans/${item.Loan?.id}`} key={item.id} className="block group">
-                                <Card className="bg-white dark:bg-slate-950 border-blue-200 dark:border-blue-800 transition-all hover:border-blue-500 hover:shadow-lg">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                                            {item.name}
-                                        </CardTitle>
-                                        <Package className="h-4 w-4 text-blue-600" />
-                                    </CardHeader>
-                                    <CardContent className="space-y-3">
-                                        <div>
-                                            <p className="text-xs text-slate-600 dark:text-slate-400">Valuation</p>
-                                            <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                {formatCurrency(Number(item.valuation))}
-                                            </p>
-                                        </div>
-
-                                        {item.Loan && (
-                                            <div className="bg-blue-50 dark:bg-blue-950/20 p-2 rounded border border-blue-100 dark:border-blue-900">
-                                                <p className="text-xs text-blue-800 dark:text-blue-200 font-medium">
-                                                    Loan: {formatCurrency(Number(item.Loan.principalAmount))}
-                                                </p>
-                                                <p className="text-xs text-blue-600 dark:text-blue-400">
-                                                    Due: {formatDate(item.Loan.dueDate)}
-                                                </p>
-                                            </div>
-                                        )}
-
-                                        <div className="flex flex-wrap gap-2">
-                                            <Badge variant="outline">{item.category}</Badge>
-                                            {item.brand && <Badge variant="outline">{item.brand}</Badge>}
-                                            <Badge className="bg-blue-600">{item.Loan?.status || "PAWNED"}</Badge>
-                                        </div>
-
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                                            {item.description}
-                                        </p>
-                                    </CardContent>
-                                </Card>
-                            </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            {/* EMPTY STATE */}
-            {wonItems.length === 0 && pawnedItems.length === 0 && (
-                <div className="text-center py-16 bg-white dark:bg-slate-950 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800">
-                    <div className="max-w-md mx-auto">
-                        <div className="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Package className="w-8 h-8 text-slate-400" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Items Yet</h3>
-                        <p className="text-slate-500 dark:text-slate-400 mb-6">
-                            You haven't won any auctions or pawned any items yet
+                {items.length === 0 && (
+                    <div className="col-span-full flex flex-col items-center justify-center p-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-900/50">
+                        <Package className="h-12 w-12 text-slate-400 mb-4" />
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white">No items found</h3>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1 max-w-sm mb-6">
+                            You haven't submitted any items for valuation yet. Start by pawning a new item.
                         </p>
-                        <div className="flex gap-4 justify-center">
-                            <Link href="/portal/auctions" className="text-sm text-amber-600 hover:text-amber-700 font-medium">
-                                Browse Auctions →
-                            </Link>
-                            <Link href="/portal/loans/apply" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                Apply for Loan →
-                            </Link>
-                        </div>
+                        <Link href="/portal/pawn">
+                            <Button className="bg-amber-500 hover:bg-amber-600 text-white">
+                                Get a Valuation
+                            </Button>
+                        </Link>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
         </div>
     )
 }

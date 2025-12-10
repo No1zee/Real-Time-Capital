@@ -22,7 +22,29 @@ export async function submitValuationRequest(prevState: ValuationState, formData
 
     const name = formData.get("name") as string
     const description = formData.get("description") as string
-    const category = formData.get("category") as string
+    const typeStr = formData.get("category") as string
+    const condition = formData.get("condition") as "NEW" | "LIKE_NEW" | "USED" | "DAMAGED" || "USED"
+    const yearOfPurchase = formData.get("yearOfPurchase") ? parseInt(formData.get("yearOfPurchase") as string) : null
+    const userEstimatedValue = formData.get("estimatedValue") ? parseFloat(formData.get("estimatedValue") as string) : null
+
+    // Asset Type Mapping
+    let category: "JEWELRY" | "ELECTRONICS" | "VEHICLE" | "COLLECTIBLE" | "FURNITURE" | "OTHER" = "OTHER"
+    if (["JEWELRY", "ELECTRONICS", "VEHICLE", "COLLECTIBLE", "FURNITURE", "OTHER"].includes(typeStr)) {
+        category = typeStr as any
+    }
+
+    // Dynamic Fields Extraction
+    const vin = formData.get("vin") as string
+    const mileage = formData.get("mileage") ? parseInt(formData.get("mileage") as string) : null
+    const engineNumber = formData.get("engineNumber") as string
+    const chassisNumber = formData.get("chassisNumber") as string
+    const registrationNumber = formData.get("registrationNumber") as string
+    const color = formData.get("color") as string
+
+    const purity = formData.get("purity") as string
+    const weight = formData.get("weight") ? parseFloat(formData.get("weight") as string) : null
+    const dimensions = formData.get("dimensions") as string
+    const provenance = formData.get("provenance") as string
 
     // Basic Validation
     if (!name || name.length < 3) {
@@ -32,10 +54,8 @@ export async function submitValuationRequest(prevState: ValuationState, formData
         return { message: "Validation Failed", errors: { description: ["Description must be detailed (min 10 chars)"] } }
     }
 
-    // Capture "Images" (Mocked for now as per plan, just taking names or simple string)
-    // In real app, we'd upload to S3/Blob here.
-    const imageFiles = formData.getAll("images") // Placeholder for future logic
-    const mockImages = ["/placeholder-item.jpg"] // Using placeholder for now
+    // Capture "Images" (Mocked for now)
+    const mockImages = ["/placeholder-item.jpg"]
 
     try {
         const item = await prisma.item.create({
@@ -43,10 +63,32 @@ export async function submitValuationRequest(prevState: ValuationState, formData
                 id: crypto.randomUUID(),
                 name,
                 description,
-                category,
-                valuation: 0, // 0 indicates Pending
+                category, // Enum
+                type: typeStr, // String backup
+                condition,
+                yearOfPurchase,
+                userEstimatedValue,
+
+                // Vehicle
+                vin,
+                engineNumber,
+                chassisNumber,
+                registrationNumber,
+                mileage,
+                color,
+
+                // Jewelry
+                purity,
+                weight,
+
+                // Others
+                dimensions,
+                provenance,
+
+                valuation: 0,
                 userId: session.user.id,
                 status: "PENDING_VALUATION",
+                valuationStatus: "PENDING_MARKET_EVAL", // Start workflow
                 images: JSON.stringify(mockImages),
                 location: "Digital Inventory",
                 updatedAt: new Date(),
@@ -62,15 +104,18 @@ export async function submitValuationRequest(prevState: ValuationState, formData
         })
 
         revalidatePath("/portal")
-        revalidatePath("/portal/activities")
-        return { message: "success" } // Frontend looks for "success" string
+        return { message: "success" }
     } catch (error) {
         console.error("Valuation Submission Error:", error)
         return { message: "Failed to submit request. Please try again." }
     }
 }
 
-export async function updateValuation(itemId: string, valuationAmount: number) {
+export async function updateValuation(
+    itemId: string,
+    amount: number,
+    type: "market-value" | "final-offer"
+) {
     const session = await auth()
     // @ts-ignore
     if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") {
@@ -78,12 +123,30 @@ export async function updateValuation(itemId: string, valuationAmount: number) {
     }
 
     try {
+        let updateData: any = {}
+        let nextStatus = ""
+        let actionType = ""
+
+        if (type === "market-value") {
+            updateData = {
+                marketValue: amount,
+                valuationStatus: "PENDING_FINAL_OFFER"
+            }
+            nextStatus = "PENDING_FINAL_OFFER"
+            actionType = "SET_MARKET_VALUE"
+        } else if (type === "final-offer") {
+            updateData = {
+                finalValuation: amount,
+                valuation: amount, // Also set main valuation field for consistency
+                valuationStatus: "OFFER_READY" // New status for user review
+            }
+            nextStatus = "OFFER_READY"
+            actionType = "SET_FINAL_OFFER"
+        }
+
         const item = await prisma.item.update({
             where: { id: itemId },
-            data: {
-                valuation: valuationAmount,
-                status: "VALUED"
-            }
+            data: updateData
         })
 
         await logAudit({
@@ -91,10 +154,16 @@ export async function updateValuation(itemId: string, valuationAmount: number) {
             action: "UPDATE",
             entityType: "ITEM",
             entityId: itemId,
-            details: { valuation: valuationAmount, status: "VALUED" }
+            details: {
+                amount,
+                type,
+                previousStatus: item.valuationStatus,
+                newStatus: nextStatus
+            }
         })
 
         revalidatePath("/admin/valuations")
+        revalidatePath(`/admin/valuations/${itemId}`)
         return { success: true }
     } catch (error) {
         console.error("Valuation Update Error:", error)

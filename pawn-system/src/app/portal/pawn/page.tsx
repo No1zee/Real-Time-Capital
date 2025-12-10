@@ -45,92 +45,209 @@ export default function PawnItemPage() {
         )
     }
 
+
+    // State for dynamic fields
+    const [selectedType, setSelectedType] = useState<string>("ELECTRONICS")
+
     return (
-        <div className="max-w-2xl mx-auto space-y-6 pb-20">
+        <div className="max-w-3xl mx-auto space-y-6 pb-20">
             <div>
                 <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 to-yellow-500">
                     Get a Valuation
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Upload details of your item to get a preliminary loan offer.
+                    Submit your asset details. The more info you provide, the more accurate our initial offer.
                 </p>
             </div>
 
-            <Card className="glass-card border-slate-200 dark:border-slate-800">
-                <CardHeader>
-                    <CardTitle>Item Details</CardTitle>
-                    <CardDescription>Tell us about what you want to pawn</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form action={formAction} className="space-y-6">
+            <form action={formAction} className="space-y-6">
+
+                {/* 1. Asset Type */}
+                <Card className="glass-card border-slate-200 dark:border-slate-800">
+                    <CardHeader>
+                        <CardTitle>Asset Type</CardTitle>
+                    </CardHeader>
+                    <CardContent>
                         <div className="space-y-2">
-                            <Label htmlFor="category">Category</Label>
-                            <Select name="category" defaultValue="Electronics">
+                            <Label htmlFor="category">What are you pawning?</Label>
+                            <Select name="category" defaultValue={selectedType} onValueChange={setSelectedType}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Electronics">Electronics</SelectItem>
-                                    <SelectItem value="Jewelry">Jewelry</SelectItem>
-                                    <SelectItem value="Vehicles">Vehicles</SelectItem>
-                                    <SelectItem value="Tools">Tools</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
+                                    <SelectItem value="ELECTRONICS">Electronics (Phones, Laptops)</SelectItem>
+                                    <SelectItem value="VEHICLE">Motor Vehicle (Cars, Trucks)</SelectItem>
+                                    <SelectItem value="JEWELRY">Jewelry (Gold, Diamonds)</SelectItem>
+                                    <SelectItem value="COLLECTIBLE">Collectibles (Art, Antiques)</SelectItem>
+                                    <SelectItem value="FURNITURE">Furniture</SelectItem>
+                                    <SelectItem value="OTHER">Other</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
+                    </CardContent>
+                </Card>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Item Name</Label>
-                            <Input
-                                id="name"
-                                name="name"
-                                placeholder="e.g. iPhone 14 Pro Max 256GB"
-                                className={state.errors?.name ? "border-red-500" : ""}
-                            />
-                            {state.errors?.name && <p className="text-xs text-red-500">{state.errors.name[0]}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description (Condition, Accessories, etc.)</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                placeholder="Describe the condition, included accessories, or any defects..."
-                                className={`min-h-[100px] ${state.errors?.description ? "border-red-500" : ""}`}
-                            />
-                            {state.errors?.description && <p className="text-xs text-red-500">{state.errors.description[0]}</p>}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label>Photos</Label>
-                            <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-8 flex flex-col items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer text-center">
-                                <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                                <p className="text-sm font-medium">Click to upload or drag and drop</p>
-                                <p className="text-xs text-muted-foreground mt-1">Mock Upload (Files won't be saved in this demo)</p>
-                                {/* Hidden input for functionality simulation */}
-                                <input type="hidden" name="mock-image" value="true" />
+                {/* 2. Core Details */}
+                <Card className="glass-card border-slate-200 dark:border-slate-800">
+                    <CardHeader>
+                        <CardTitle>Core Details</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Item Name / Title</Label>
+                                <Input id="name" name="name" placeholder={selectedType === "VEHICLE" ? "e.g. 2018 Toyota Hilux" : "e.g. iPhone 14 Pro"} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="yearOfPurchase">Year of Purchase / Manufacture</Label>
+                                <Input type="number" id="yearOfPurchase" name="yearOfPurchase" placeholder="YYYY" />
                             </div>
                         </div>
 
-                        <Button
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white"
-                            disabled={isPending}
-                        >
-                            {isPending ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Submitting...
-                                </>
-                            ) : "Submit for Valuation"}
-                        </Button>
+                        <div className="space-y-2">
+                            <Label htmlFor="description">Detailed Description</Label>
+                            <Textarea
+                                id="description"
+                                name="description"
+                                placeholder="Include defects, accessories included, or special features..."
+                                className="min-h-[100px]"
+                            />
+                        </div>
 
-                        {state.message && state.message !== "success" && (
-                            <p className="text-sm text-red-500 text-center">{state.message}</p>
-                        )}
-                    </form>
-                </CardContent>
-            </Card>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="condition">Condition</Label>
+                                <Select name="condition" defaultValue="USED">
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="NEW">New (Sealed/Unused)</SelectItem>
+                                        <SelectItem value="LIKE_NEW">Like New (Mint)</SelectItem>
+                                        <SelectItem value="USED">Used (Normal Wear)</SelectItem>
+                                        <SelectItem value="DAMAGED">Damaged / Needs Repair</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="estimatedValue">Your Estimate ($)</Label>
+                                <Input type="number" id="estimatedValue" name="estimatedValue" placeholder="e.g. 500.00" />
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* 3. Dynamic Fields based on Type */}
+                {selectedType === "VEHICLE" && (
+                    <Card className="glass-card border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-4">
+                        <CardHeader>
+                            <CardTitle>Vehicle Details</CardTitle>
+                            <CardDescription>Required for accurate vehicle valuation</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="vin">VIN / Chassis Number</Label>
+                                <Input id="vin" name="vin" required placeholder="17-character VIN" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="mileage">Mileage (km)</Label>
+                                <Input type="number" id="mileage" name="mileage" required placeholder="e.g. 120000" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="registrationNumber">Registration Number</Label>
+                                <Input id="registrationNumber" name="registrationNumber" placeholder="Number Plate" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="engineNumber">Engine Number</Label>
+                                <Input id="engineNumber" name="engineNumber" placeholder="Engine Serial No." />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="color">Color</Label>
+                                <Input id="color" name="color" placeholder="e.g. White" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {selectedType === "JEWELRY" && (
+                    <Card className="glass-card border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-4">
+                        <CardHeader>
+                            <CardTitle>Jewelry Specifics</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="purity">Material / Purity</Label>
+                                <Select name="purity" defaultValue="GOLD_18K">
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Material" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="GOLD_24K">Gold (24K)</SelectItem>
+                                        <SelectItem value="GOLD_18K">Gold (18K)</SelectItem>
+                                        <SelectItem value="GOLD_14K">Gold (14K)</SelectItem>
+                                        <SelectItem value="SILVER">Silver</SelectItem>
+                                        <SelectItem value="PLATINUM">Platinum</SelectItem>
+                                        <SelectItem value="OTHER">Other Gemstone</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="weight">Weight (Grams or Carats)</Label>
+                                <Input type="number" step="0.01" id="weight" name="weight" placeholder="e.g. 10.5" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {(selectedType === "FURNITURE" || selectedType === "OTHER") && (
+                    <Card className="glass-card border-slate-200 dark:border-slate-800 animate-in fade-in slide-in-from-top-4">
+                        <CardHeader>
+                            <CardTitle>Dimensions & Details</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="dimensions">Dimensions (Height x Width x Depth)</Label>
+                                <Input id="dimensions" name="dimensions" placeholder="e.g. 2m x 1.5m x 0.8m" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* 4. Images */}
+                <Card className="glass-card border-slate-200 dark:border-slate-800">
+                    <CardHeader>
+                        <CardTitle>Photos (Min 4)</CardTitle>
+                        <CardDescription>Front, Back, Labels, and Defects</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-8 flex flex-col items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer text-center">
+                            <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                            <p className="text-sm font-medium">Click to upload photos</p>
+                            <p className="text-xs text-muted-foreground mt-1">Accepts JPG, PNG (Max 5MB)</p>
+                            <input type="hidden" name="mock-image" value="true" />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white h-12 text-lg font-bold shadow-lg"
+                    disabled={isPending}
+                >
+                    {isPending ? (
+                        <>
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            Processing Submission...
+                        </>
+                    ) : "Submit Asset for Valuation"}
+                </Button>
+
+                {state.message && state.message !== "success" && (
+                    <div className="bg-red-500/10 text-red-600 p-3 rounded-md text-sm text-center border border-red-200">
+                        {state.message}
+                    </div>
+                )}
+            </form>
         </div>
     )
 }
