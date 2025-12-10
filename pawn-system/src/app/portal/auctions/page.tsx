@@ -51,7 +51,7 @@ export default async function CustomerAuctionsPage({
 
             <SearchFilters />
 
-            <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {auctions.map((auction: any) => {
                     let imageUrl = "https://placehold.co/600x400?text=No+Image"
                     try {
@@ -73,41 +73,41 @@ export default async function CustomerAuctionsPage({
 
                     return (
                         <Card key={auction.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-0 md:p-6 md:pb-2">
+                                <CardTitle className="text-xs md:text-sm font-medium text-slate-600 dark:text-slate-400 truncate pr-2">
                                     {auction.Item.name}
                                 </CardTitle>
-                                <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"}>
+                                <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"} className="text-[10px] px-1.5 py-0 h-5 md:text-xs md:px-2.5 md:py-0.5 md:h-auto">
                                     {auction.status}
                                 </Badge>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="relative h-40 md:h-48 w-full overflow-hidden rounded-t-lg">
+                                <div className="relative h-32 md:h-48 w-full overflow-hidden rounded-t-lg mt-2 md:mt-0">
                                     <img
                                         src={imageUrl}
                                         alt={auction.Item.name}
                                         className="h-full w-full object-cover transition-transform hover:scale-105"
                                     />
-                                    <div className="absolute top-2 right-2 z-10">
+                                    <div className="absolute top-2 right-2 z-10 scale-75 md:scale-100 origin-top-right">
                                         <WatchlistButton
                                             auctionId={auction.id}
                                             initialIsWatched={watchedIds.has(auction.id)}
                                             isLoggedIn={!!session?.user}
                                         />
                                     </div>
-                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
+                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-mono">
                                         <Countdown targetDate={auction.endTime} />
                                     </div>
                                 </div>
-                                <div className="p-4 md:p-6 pt-3 md:pt-4">
-                                    <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                                <div className="p-3 md:p-6 pt-2 md:pt-4">
+                                    <div className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2">
                                         {formatCurrency(Number(auction.currentBid || auction.startPrice))}
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
+                                    <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 mb-2 md:mb-4">
                                         Current Price
                                     </p>
 
-                                    <div className="space-y-2 text-sm text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
+                                    <div className="space-y-1 md:space-y-2 text-[10px] md:text-sm text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
                                         <div className="flex justify-between">
                                             <span>Ends:</span>
                                             <span>{formatDate(auction.endTime)}</span>
@@ -119,8 +119,8 @@ export default async function CustomerAuctionsPage({
                                     </div>
 
                                     <Link href={`/portal/auctions/${auction.id}`}>
-                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white text-sm md:text-base h-9 md:h-10">
-                                            View Auction
+                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs md:text-base h-8 md:h-10">
+                                            View
                                         </Button>
                                     </Link>
                                 </div>
