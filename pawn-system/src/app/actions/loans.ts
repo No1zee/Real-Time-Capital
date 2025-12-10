@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 import { z } from "zod"
 import { auth } from "@/auth"
 import { logActivity } from "@/app/actions/admin/analytics"
+import { LoanStatus, AssetType } from "@prisma/client"
 
 const loanSchema = z.object({
     // Customer
@@ -146,7 +147,7 @@ export async function createLoan(prevState: State, formData: FormData) {
                     create: {
                         // id: auto-generated
                         name: itemName,
-                        category,
+                        category: category as AssetType,
                         brand,
                         model,
                         description: itemDescription,
@@ -183,7 +184,7 @@ export async function createLoan(prevState: State, formData: FormData) {
     return { success: true, message: "Application Submitted Successfully!" }
 }
 
-import { LoanStatus } from "@prisma/client"
+
 
 export async function updateLoanStatus(loanId: string, newStatus: LoanStatus) {
     try {
@@ -214,6 +215,8 @@ export async function updateLoanStatus(loanId: string, newStatus: LoanStatus) {
         return { success: false, message: "Failed to update status" }
     }
 }
+
+
 
 export async function acceptLoanOffer(loanId: string) {
     try {
