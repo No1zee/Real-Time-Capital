@@ -69,7 +69,7 @@ export function NotificationListener() {
                         setWinnerDetails({
                             title: notification.title,
                             message: notification.message,
-                            link: notification.link
+                            link: notification.link ?? undefined
                         })
                         setWinnerModalOpen(true)
                         // Mark as read immediately to prevent re-trigger on refresh
