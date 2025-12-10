@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { logAudit } from "@/lib/logger"
+import { AssetType } from "@prisma/client"
 
 export type ValuationState = {
     message: string | null
@@ -63,7 +64,7 @@ export async function submitValuationRequest(prevState: ValuationState, formData
                 id: crypto.randomUUID(),
                 name,
                 description,
-                category, // Enum
+                category: category as AssetType, // Enum
                 type: typeStr, // String backup
                 condition,
                 yearOfPurchase,
