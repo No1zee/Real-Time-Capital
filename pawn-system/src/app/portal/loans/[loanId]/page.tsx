@@ -47,7 +47,14 @@ export default async function LoanDetailsPage({ params }: { params: Promise<{ lo
 
     // @ts-ignore
     const totalPaid = loan.Payment.reduce((sum: number, payment: any) => sum + Number(payment.amount), 0)
-    const totalDue = Number(loan.principalAmount) + (Number(loan.principalAmount) * Number(loan.interestRate) / 100)
+
+    const principal = Number(loan.principalAmount)
+    const interestRate = Number(loan.interestRate)
+    // @ts-ignore
+    const storageFee = Number(loan.storageFee || 0)
+
+    const interestAmount = (principal * interestRate) / 100
+    const totalDue = principal + interestAmount + storageFee
     const remainingBalance = totalDue - totalPaid
 
     return (
@@ -73,24 +80,43 @@ export default async function LoanDetailsPage({ params }: { params: Promise<{ lo
                 {/* Main Loan Info */}
                 <Card className="md:col-span-2">
                     <CardHeader>
-                        <CardTitle>Loan Information</CardTitle>
+                        <CardTitle>Loan Details</CardTitle>
+                        <CardDescription>Financial breakdown of your loan</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                    <CardContent className="space-y-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-4 border-b">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">Principal</p>
-                                <p className="text-2xl font-bold">{formatCurrency(Number(loan.principalAmount))}</p>
+                                <p className="text-xl font-bold">{formatCurrency(principal)}</p>
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Interest Rate</p>
-                                <p className="text-2xl font-bold">{Number(loan.interestRate)}%</p>
-                            </div>
-                            <div>
-                                <p className="text-sm font-medium text-muted-foreground">Outstanding Balance</p>
-                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-500">
-                                    {formatCurrency(remainingBalance)}
+                                <p className="text-sm font-medium text-muted-foreground">Interest ({interestRate}%)</p>
+                                <p className="text-xl font-bold text-slate-700 dark:text-slate-300">
+                                    {formatCurrency(interestAmount)}
                                 </p>
                             </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Storage Fee</p>
+                                <p className="text-xl font-bold text-slate-700 dark:text-slate-300">
+                                    {formatCurrency(storageFee)}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-muted-foreground">Total Repayment</p>
+                                <p className="text-xl font-bold text-primary">
+                                    {formatCurrency(totalDue)}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground mb-1">Outstanding Balance</p>
+                            <p className="text-3xl font-extrabold text-amber-600 dark:text-amber-500">
+                                {formatCurrency(remainingBalance)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Paid so far: {formatCurrency(totalPaid)}
+                            </p>
                         </div>
 
                         <div>

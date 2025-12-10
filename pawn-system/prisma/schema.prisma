@@ -269,6 +269,9 @@ model Loan {
   updatedAt       DateTime
   signatureUrl    String?
   ticketRef       String?   @unique
+  storageFee      Decimal   @default(0)
+  adminFee        Decimal   @default(0)
+  termsAccepted   Boolean   @default(false)
   Item            Item[]
   User            User?     @relation(fields: [userId], references: [id])
   Customer        Customer? @relation(fields: [customerId], references: [id])

@@ -223,21 +223,77 @@ export async function acceptLoanOffer(loanId: string) {
         const session = await auth()
         if (!session?.user) return { success: false, message: "Unauthorized" }
 
-        // 1. Verify Ownership (Optional but good practice, though usage in UI is protected)
-        // For simplicity, we assume UI checks are correct or we trust the session ID match if we implemented it fully.
+        // 1. Fetch Loan & Item to get details
+        const loan = await db.loan.findUnique({
+            where: { id: loanId },
+            include: { Item: true }
+        })
 
-        // 2. Activate Loan
+        if (!loan || !loan.Item[0]) {
+            return { success: false, message: "Loan or Item not found" }
+        }
+
+        const item = loan.Item[0]
+        const principal = Number(item.finalValuation) || Number(item.valuation)
+
+        if (principal <= 0) {
+            return { success: false, message: "Invalid valuation amount" }
+        }
+
+        // 2. Determine Rates & Duration based on Asset Category
+        let interestRate = 0 // Percentage
+        let storageFeePercent = 0 // Percentage
+        let durationDays = 30
+
+        if (item.category === AssetType.VEHICLE) {
+            // Motor vehicles: 4% for 30 days, Storage 21%
+            interestRate = 4
+            storageFeePercent = 21
+            durationDays = 30
+        } else {
+            // Others: 2% for 14 days, Storage 18%
+            interestRate = 2
+            storageFeePercent = 18
+            durationDays = 14
+        }
+
+        const storageFee = (principal * storageFeePercent) / 100
+
+        // 3. Calculate Dates
+        const startDate = new Date()
+        const dueDate = new Date(startDate)
+        dueDate.setDate(dueDate.getDate() + durationDays)
+
+        // 4. Update Loan ( Activate )
         await db.loan.update({
             where: { id: loanId },
             data: {
                 status: "ACTIVE",
-                startDate: new Date(), // Reset start date to now
-                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Reset due date to 30 days from now
+                principalAmount: principal,
+                interestRate: interestRate,
+                storageFee: storageFee,
+                durationDays: durationDays,
+                startDate: startDate,
+                dueDate: dueDate,
+                termsAccepted: true
             },
         })
 
-        // 3. Log
-        await logActivity("ACCEPT_LOAN_OFFER", { loanId, userId: session.user.id })
+        // 5. Update Item Status
+        await db.item.update({
+            where: { id: item.id },
+            data: {
+                status: "PAWNED",
+                valuationStatus: "OFFER_ACCEPTED"
+            }
+        })
+
+        // 6. Log
+        await logActivity("ACCEPT_LOAN_OFFER", {
+            loanId,
+            userId: session.user.id,
+            details: `Principal: ${principal}, Interest: ${interestRate}%, Storage: ${storageFee}`
+        })
 
         revalidatePath(`/portal/loans/${loanId}`)
         revalidatePath("/portal/loans")
