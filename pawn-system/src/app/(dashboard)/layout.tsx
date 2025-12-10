@@ -24,8 +24,8 @@ export default async function DashboardLayout({
 
     return (
         <div className="flex h-screen overflow-hidden bg-background">
-            <AppSidebar user={user} variant="default" />
-            <main className="flex-1 overflow-y-auto bg-muted/10 p-8">
+            <AppSidebar user={user} variant="default" className="hidden md:flex" />
+            <main className="flex-1 overflow-y-auto bg-muted/10 p-4 md:p-8">
                 {children}
             </main>
         </div>
