@@ -149,7 +149,7 @@ export default async function CustomerAuctionsPage({
                     </Link>
                 </div>
 
-                <div className="grid gap-4 md:gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
+                <div className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
                     {(await getAuctions("CUSTOMER", { ...filters, sort: "endTime_desc" }, true)).slice(0, 4).map((auction: any) => {
                         let imageUrl = "https://placehold.co/600x400?text=No+Image"
                         try {
@@ -166,19 +166,19 @@ export default async function CustomerAuctionsPage({
                         return (
                             <Link href={`/portal/auctions/${auction.id}`} key={auction.id} className="block group">
                                 <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-full overflow-hidden hover:ring-2 hover:ring-slate-400 dark:hover:ring-slate-600 transition-all">
-                                    <div className="relative h-32 w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
+                                    <div className="relative h-28 md:h-32 w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
                                         <img src={imageUrl} alt={auction.Item.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                            <span className="bg-black/60 text-white px-3 py-1 rounded text-sm font-medium border border-white/20">ENDED</span>
+                                            <span className="bg-black/60 text-white px-2 py-0.5 md:px-3 md:py-1 rounded text-[10px] md:text-sm font-medium border border-white/20">ENDED</span>
                                         </div>
                                     </div>
-                                    <CardContent className="p-4">
-                                        <h3 className="font-medium truncate" title={auction.Item.name}>{auction.Item.name}</h3>
-                                        <div className="flex justify-between items-center mt-2 text-sm">
-                                            <span className="text-slate-500">Sold for:</span>
+                                    <CardContent className="p-3 md:p-4">
+                                        <h3 className="font-medium truncate text-xs md:text-base" title={auction.Item.name}>{auction.Item.name}</h3>
+                                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mt-1 md:mt-2 text-[10px] md:text-sm">
+                                            <span className="text-slate-500">Sold:</span>
                                             <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(auction.currentBid || auction.startPrice))}</span>
                                         </div>
-                                        <div className="text-xs text-slate-400 mt-1">
+                                        <div className="text-[10px] md:text-xs text-slate-400 mt-1 hidden md:block">
                                             Ends: {formatDate(auction.endTime)}
                                         </div>
                                     </CardContent>
