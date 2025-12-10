@@ -31,7 +31,7 @@ export default async function PortalDashboard() {
             </div>
 
             {/* Bento Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[140px] md:auto-rows-[180px]">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[180px]">
 
                 {/* Main Stat: Total Debt (Large Card) */}
                 <Card className="glass-card md:col-span-2 md:row-span-2 flex flex-col justify-between relative overflow-hidden group">
