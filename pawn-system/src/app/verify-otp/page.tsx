@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { verifyOtp } from "@/app/actions/verify-otp"
 import { Button } from "@/components/ui/button"
 import { Loader2, ShieldCheck, Mail } from "lucide-react"
 import { toast } from "sonner"
 
-export default function VerifyOtpPage() {
+function VerifyOtpContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const email = searchParams.get("email") || ""
@@ -74,5 +74,13 @@ export default function VerifyOtpPage() {
                 </form>
             </div>
         </div>
+    )
+}
+
+export default function VerifyOtpPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
+            <VerifyOtpContent />
+        </Suspense>
     )
 }
