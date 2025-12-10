@@ -13,47 +13,71 @@ export async function getCustomerLoans() {
 
     if (!user) return []
 
-    const customer = await prisma.customer.findFirst({
-        where: { email: user.email },
-        include: {
-            Loan: {
-                include: {
-                    Item: true
-                },
-                orderBy: {
-                    createdAt: 'desc'
+    // Try finding customer by National ID first (most reliable for Loan Apps)
+    let customer = null
+
+    if (user.nationalId) {
+        customer = await prisma.customer.findUnique({
+            where: { nationalId: user.nationalId },
+            include: {
+                Loan: {
+                    include: { Item: true },
+                    orderBy: { createdAt: 'desc' }
                 }
             }
-        }
-    })
+        })
+    }
+
+    // Fallback to Email if no National ID match
+    if (!customer) {
+        customer = await prisma.customer.findFirst({
+            where: { email: user.email },
+            include: {
+                Loan: {
+                    include: { Item: true },
+                    orderBy: { createdAt: 'desc' }
+                }
+            }
+        })
+    }
 
     return customer?.Loan || []
 }
 
 export async function getCustomerItems() {
     const session = await auth()
-    if (!session?.user?.email) return []
+    if (!session?.user?.id) return { wonItems: [], pawnedItems: [] }
 
-    const user = await prisma.user.findUnique({
-        where: { email: session.user.email },
+    // Get items won in auctions (user owns them)
+    const wonItems = await prisma.item.findMany({
+        where: {
+            userId: session.user.id,
+            status: "SOLD" // Items purchased from auctions
+        },
+        orderBy: { soldAt: "desc" }
     })
 
-    if (!user) return []
-
-    const customer = await prisma.customer.findFirst({
-        where: { email: user.email },
+    // Get items held as collateral (pawned items)
+    const pawnedItems = await prisma.item.findMany({
+        where: {
+            loanId: { not: null },
+            Loan: {
+                userId: session.user.id,
+                status: { in: ["ACTIVE", "APPROVED", "PENDING"] } // Active collateral
+            }
+        },
         include: {
             Loan: {
-                include: {
-                    Item: true
+                select: {
+                    id: true,
+                    status: true,
+                    dueDate: true,
+                    principalAmount: true
                 }
             }
-        }
+        },
+        orderBy: { createdAt: "desc" }
     })
 
-    if (!customer) return []
-
-    // Extract all items from all loans
-    const items = customer.Loan.flatMap(loan => loan.Item)
-    return items
+    return { wonItems, pawnedItems }
 }

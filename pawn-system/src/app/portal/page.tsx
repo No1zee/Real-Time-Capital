@@ -11,6 +11,7 @@ export default async function PortalDashboard() {
     const items = await getCustomerItems()
 
     const activeLoans = loans.filter(l => l.status === "ACTIVE" || l.status === "DEFAULTED")
+    const pendingLoans = loans.filter(l => l.status === "PENDING" || l.status === "APPROVED")
     const totalDebt = activeLoans.reduce((sum, loan) => {
         return sum + Number(loan.principalAmount)
     }, 0)
@@ -58,7 +59,10 @@ export default async function PortalDashboard() {
                 </Card>
 
                 {/* Stat: Active Loans */}
-                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group">
+                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                    <Link href="/portal/loans?status=ACTIVE" className="absolute inset-0 z-10">
+                        <span className="sr-only">View Active Loans</span>
+                    </Link>
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-medium text-slate-400">Active Loans</CardTitle>
@@ -71,8 +75,28 @@ export default async function PortalDashboard() {
                     </CardContent>
                 </Card>
 
+                {/* Stat: Pending Loans */}
+                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                    <Link href="/portal/loans" className="absolute inset-0 z-10">
+                        <span className="sr-only">View Pending Loans</span>
+                    </Link>
+                    <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                            <CardTitle className="text-sm font-medium text-slate-400">Pending Applications</CardTitle>
+                            <Clock className="h-4 w-4 text-amber-400 group-hover:text-amber-300 transition-colors" />
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold text-white">{pendingLoans.length}</div>
+                        <p className="text-xs text-slate-500 mt-1">Under review</p>
+                    </CardContent>
+                </Card>
+
                 {/* Stat: Items in Pawn */}
-                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group">
+                <Card className="glass-card md:col-span-1 flex flex-col justify-center hover:border-amber-500/50 transition-colors cursor-pointer group relative">
+                    <Link href="/portal/loans" className="absolute inset-0 z-10">
+                        <span className="sr-only">View Items</span>
+                    </Link>
                     <CardHeader className="pb-2">
                         <div className="flex items-center justify-between">
                             <CardTitle className="text-sm font-medium text-slate-400">Items in Pawn</CardTitle>

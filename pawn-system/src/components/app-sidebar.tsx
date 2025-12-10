@@ -18,7 +18,8 @@ import {
     Heart,
     Info,
     Mail,
-    FileText
+    FileText,
+    Bell
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { logout } from "@/app/actions/auth"
@@ -51,7 +52,20 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
 
     useEffect(() => {
         if (variant === "portal" && user) {
-            getUnreadCount().then(setUnreadCount)
+            // Initial fetch
+            getUnreadCount().then((count) => {
+                console.log('[AppSidebar] Initial unread count:', count)
+                setUnreadCount(count)
+            })
+
+            // Poll every 5 seconds
+            const interval = setInterval(async () => {
+                const count = await getUnreadCount()
+                console.log('[AppSidebar] Polled unread count:', count)
+                setUnreadCount(count)
+            }, 5000)
+
+            return () => clearInterval(interval)
         }
     }, [variant, user])
 
@@ -92,7 +106,6 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
             // Customer Specific
             { name: "Dashboard", href: "/portal", icon: LayoutDashboard, roles: ["CUSTOMER"], header: "Menu" },
             { name: "My Loans", href: "/portal/loans", icon: FileText, roles: ["CUSTOMER"] },
-            { name: "My Offers", href: "/portal/loans/offers", icon: Banknote, roles: ["CUSTOMER"], className: "text-green-600 font-semibold" },
             { name: "My Items", href: "/portal/items", icon: Package, roles: ["CUSTOMER"] },
             { name: "My Wallet", href: "/portal/wallet", icon: Wallet, roles: ["CUSTOMER"] },
             { name: "My Watchlist", href: "/portal/watchlist", icon: Heart, roles: ["CUSTOMER"] },
@@ -161,12 +174,12 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
         )
     }
 
-    const UserProfile = () => {
+    const UserProfile = ({ count }: { count: number }) => {
         if (variant !== "portal" || !user) return null
         return (
             <div className="mb-8">
-                <Link href="/portal/profile">
-                    <div className="flex items-center gap-3 p-3 rounded-xl bg-sidebar-accent/10 border border-sidebar-border hover:border-primary/30 hover:bg-sidebar-accent/20 transition-all cursor-pointer group">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-sidebar-accent/10 border border-sidebar-border transition-all">
+                    <Link href="/portal/profile" className="flex items-center gap-3 flex-1 min-w-0 group">
                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold group-hover:scale-105 transition-transform ring-1 ring-primary/20">
                             {user.image ? (
                                 <img src={user.image} alt={user.name || "User"} className="w-full h-full rounded-full object-cover" />
@@ -182,8 +195,18 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
                                 View Profile
                             </p>
                         </div>
-                    </div>
-                </Link>
+                    </Link>
+
+                    {/* Notification Bell Icon */}
+                    <Link href="/portal/notifications" className="relative p-2 hover:bg-sidebar-accent/20 rounded-lg transition-colors">
+                        <Bell className="w-5 h-5 text-muted-foreground hover:text-sidebar-foreground transition-colors" />
+                        {count > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-sidebar">
+                                {count > 9 ? "9+" : count}
+                            </span>
+                        )}
+                    </Link>
+                </div>
             </div>
         )
     }
@@ -197,7 +220,7 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
 
             <div className="flex-1 overflow-y-auto py-4 scrollbar-hide">
                 <nav className="space-y-1 px-3">
-                    <UserProfile />
+                    <UserProfile count={unreadCount} />
 
                     {filteredNavItems.map((item, index) => {
                         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
@@ -236,13 +259,6 @@ export function AppSidebar({ user, variant = "default", trustScore }: AppSidebar
                             </div>
                         )
                     })}
-
-                    {/* Portal Notification Bell Injection */}
-                    {variant === "portal" && user && (
-                        <div className="px-3 py-2">
-                            <NotificationBell initialCount={unreadCount} />
-                        </div>
-                    )}
                 </nav>
             </div>
 

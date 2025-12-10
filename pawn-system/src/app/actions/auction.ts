@@ -276,7 +276,15 @@ export async function getAuctions(role: "STAFF" | "CUSTOMER" = "CUSTOMER", filte
         }
     }
 
-    const orderBy: any = filters?.sort === "price_asc" ? { startPrice: "asc" } : { endTime: "asc" }
+    let orderBy: any = { endTime: "asc" }
+
+    if (filters?.sort === "price_asc") {
+        orderBy = { startPrice: "asc" }
+    } else if (filters?.sort === "price_desc") {
+        orderBy = { startPrice: "desc" }
+    } else if (filters?.sort === "endTime_desc") {
+        orderBy = { endTime: "desc" }
+    }
 
     return await prisma.auction.findMany({
         where,

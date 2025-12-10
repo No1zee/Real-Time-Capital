@@ -1,224 +1,337 @@
 
 "use client"
 
-import { useActionState } from "react"
+import { useActionState, useState, useEffect, Suspense } from "react"
 import { registerUser, RegisterState } from "@/app/actions/auth"
-import { Loader2, Upload, Calendar, MapPin, Phone, User, Home, ShieldCheck } from "lucide-react"
+import { Loader2, Upload, Calendar, MapPin, Phone, User, ShieldCheck, CheckCircle2, ChevronRight, ChevronLeft, Info } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
-import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation" // Fixed import
-import { Suspense } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+
+import { useFormStatus } from "react-dom"
+
+import { Button } from "@/components/ui/button" // Ensure this component exists, or use standard button
 
 const initialState: RegisterState = {
     message: "",
     errors: {},
 }
 
-function RegisterForm() {
-    const [state, formAction, isPending] = useActionState(registerUser, initialState)
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get("callbackUrl") || "/login"
+// Terms Modal Component
+function TermsModal({ isOpen, onClose, onAccept }: { isOpen: boolean; onClose: () => void; onAccept: () => void }) {
+    if (!isOpen) return null
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div className="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+                <div className="p-6 border-b border-slate-800">
+                    <h2 className="text-xl font-bold text-white">Terms & Conditions</h2>
+                </div>
+                <div className="p-6 overflow-y-auto space-y-4 text-slate-300 text-sm">
+                    <p><strong>1. Introduction</strong><br />Welcome to Real Time Capital. By registering, you agree to...</p>
+                    <p><strong>2. Eligibility</strong><br />You must be at least 18 years old...</p>
+                    <p><strong>3. Data Privacy</strong><br />We collect your KYC data for legal compliance...</p>
+                    <p><strong>4. Repayment</strong><br />Loans must be repaid by the due date...</p>
+                    {/* Filler text to force scroll if needed */}
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+                <div className="p-6 border-t border-slate-800 flex justify-end gap-3 bg-slate-950">
+                    <Button variant="outline" onClick={onClose} className="border-slate-700 text-slate-300">Decline</Button>
+                    <Button onClick={onAccept} className="bg-amber-500 text-slate-900 hover:bg-amber-400">I Agree</Button>
+                </div>
+            </div>
+        </div>
+    )
+}
 
-    // File Name State
+function RegisterWizard() {
+    const [state, formAction] = useActionState(registerUser, initialState)
+    const router = useRouter()
+
+    // Step State
+    const [step, setStep] = useState(1)
+    const totalSteps = 4
+
+    // Form Data State (for visual persistence between steps)
+    const [formData, setFormData] = useState({
+        name: "", dateOfBirth: "", nationalId: "",
+        email: "", phoneNumber: "", address: "", location: "",
+        password: "", confirmPassword: "",
+        terms: false
+    })
+
     const [fileName, setFileName] = useState<string | null>(null)
+    const [showTerms, setShowTerms] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false) // Manual tracking for visual feedback outside formAction
 
     useEffect(() => {
         if (state.message) {
-            if (state.message.includes("success")) {
-                toast.success(state.message, { duration: 5000 })
-                // Redirect to login after slight delay to see toast, or just push
-                setTimeout(() => router.push(`/login`), 2000)
+            setIsSubmitting(false) // Reset loading
+            if (state.message === "success-otp") {
+                // Success! Redirect to verify-otp
+                // Pass email to query param
+                // We need the email used. It's in formData.
+                toast.success("Registration Successful! Please verify your OTP.")
+                router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`)
             } else if (state.message.includes("Error") || state.message.includes("Failed") || state.message.includes("use")) {
                 toast.error(state.message)
             }
         }
-    }, [state, router])
+    }, [state, router, formData.email])
+
+    const handleNext = () => setStep(s => Math.min(s + 1, totalSteps))
+    const handleBack = () => setStep(s => Math.max(s - 1, 1))
+
+    // Validation Check for Next Button
+    const isStepValid = () => {
+        if (step === 1) return formData.name && formData.dateOfBirth && formData.nationalId && fileName
+        if (step === 2) return formData.email && formData.phoneNumber && formData.address && formData.location
+        if (step === 3) return formData.password && formData.confirmPassword && formData.password === formData.confirmPassword
+        if (step === 4) return formData.terms
+        return false
+    }
+
+    // Update local state
+    const handleChange = (e: any) => {
+        const { name, value, type, checked } = e.target
+        setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }))
+    }
 
     return (
-        <div className="w-full max-w-2xl mx-auto space-y-6">
-            <div className="space-y-2 text-center">
-                <div className="flex justify-center mb-4">
-                    <div className="h-12 w-12 rounded-xl bg-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
-                        <span className="font-bold text-slate-900 text-2xl">R</span>
-                    </div>
+        <div className="w-full max-w-2xl mx-auto">
+            {/* Progress Bar */}
+            <div className="mb-8">
+                <div className="flex justify-between mb-2">
+                    {['Personal', 'Contact', 'Security', 'Review'].map((label, idx) => (
+                        <div key={label} className={`text-xs font-bold ${step > idx ? 'text-amber-500' : 'text-slate-600'} uppercase tracking-wider`}>
+                            {label}
+                        </div>
+                    ))}
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight text-white">Join Real Time Capital</h1>
-                <p className="text-slate-400">Complete your profile to start borrowing and bidding.</p>
+                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                        className="h-full bg-amber-500 transition-all duration-500 ease-out"
+                        style={{ width: `${(step / totalSteps) * 100}%` }}
+                    />
+                </div>
             </div>
 
-            <form action={formAction} className="space-y-6">
-                <input type="hidden" name="callbackUrl" value={callbackUrl} />
+            <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
+            <p className="text-slate-400 mb-6">Step {step} of {totalSteps}</p>
 
-                {/* Section 1: Personal Info */}
-                <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                    <h2 className="text-lg font-semibold text-amber-500 mb-2 flex items-center gap-2">
-                        <User className="h-5 w-5" /> Personal Information
-                    </h2>
+            {/* Error Display */}
+            {state.message && !state.message.includes("success") && (
+                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-red-400 text-sm">{state.message}</p>
+                    {state.errors && Object.keys(state.errors).length > 0 && (
+                        <ul className="mt-2 text-xs text-red-300 list-disc pl-4">
+                            {Object.entries(state.errors).map(([field, errors]) => (
+                                errors?.map((error, idx) => (
+                                    <li key={`${field}-${idx}`}>{field}: {error}</li>
+                                ))
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="name">Full Name</label>
-                            <input
-                                className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                id="name" name="name" placeholder="John Doe" required
-                            />
-                            {state.errors?.name && <p className="text-xs text-red-400">{state.errors.name}</p>}
-                        </div>
+            <form action={formAction} className="space-y-6" onSubmit={(e) => {
+                console.log("Form submitting...");
+                const formData = new FormData(e.currentTarget);
+                console.log("Form data entries:");
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}:`, value);
+                }
+            }}>
+                {/* Hidden inputs to ship all data at the end */}
+                {/* We only render visible inputs per step, but we need all inputs present when submitting */}
+                {/* Actually, standard form behavior: hidden inputs don't sync with the visible inputs automatically if they are separate components. */}
+                {/* Strategy: Render ALL inputs always, but use CSS 'hidden' to toggle visibility. This ensures browser collects all data on submit. */}
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="dateOfBirth">Date of Birth</label>
-                            <div className="relative">
-                                <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
-                                <input
-                                    className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 pl-10 pr-3 py-2 text-sm text-white focus-visible:outline-none focus-visible:border-amber-500/50"
-                                    id="dateOfBirth" name="dateOfBirth" type="date" required
-                                />
+                {/* Step 1: Personal */}
+                <div className={step === 1 ? "step-visible" : "step-hidden"}>
+                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-200">Full Name</label>
+                                <input className="input-field" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
                             </div>
-                            {state.errors?.dateOfBirth && <p className="text-xs text-red-400">{state.errors.dateOfBirth}</p>}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-200">Date of Birth</label>
+                                <input className="input-field" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} required />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-200">National ID</label>
+                                <input className="input-field" name="nationalId" value={formData.nationalId} onChange={handleChange} placeholder="63-1234567-T-07" required />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-slate-200">Upload ID</label>
+                                <div className="relative">
+                                    <input type="file" id="idImage" name="idImage" accept="image/*,application/pdf" className="hidden"
+                                        onChange={(e) => setFileName(e.target.files?.[0]?.name || null)} />
+                                    <label htmlFor="idImage" className="flex h-11 w-full items-center justify-between rounded-lg border border-white/10 bg-slate-950 px-3 cursor-pointer hover:bg-slate-900">
+                                        <span className="text-slate-400 truncate text-sm">{fileName || "Select File"}</span>
+                                        <Upload className="h-4 w-4 text-amber-500" />
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
+                {/* Step 2: Contact */}
+                <div className={step === 2 ? "step-visible" : "step-hidden"}>
+                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="nationalId">National ID Number</label>
-                            <input
-                                className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                id="nationalId" name="nationalId" placeholder="63-1234567-T-07" required
-                            />
-                            {state.errors?.nationalId && <p className="text-xs text-red-400">{state.errors.nationalId}</p>}
+                            <label className="text-sm font-medium text-slate-200">Email</label>
+                            <input className="input-field" name="email" type="email" value={formData.email} onChange={handleChange} required />
                         </div>
-
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="idImage">Upload ID (Image/PDF)</label>
-                            <div className="relative">
+                            <label className="text-sm font-medium text-slate-200">Phone</label>
+                            <input className="input-field" name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-200">Address</label>
+                            <input className="input-field" name="address" value={formData.address} onChange={handleChange} required />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-200">City/Location</label>
+                            <input className="input-field" name="location" value={formData.location} onChange={handleChange} required />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Step 3: Security */}
+                <div className={step === 3 ? "step-visible" : "step-hidden"}>
+                    <div className="space-y-4 bg-white/5 p-6 rounded-xl border border-white/10">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-200">Password</label>
+                            <input className="input-field" name="password" type="password" value={formData.password} onChange={handleChange} required title="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-200">Confirm Password</label>
+                            <input className="input-field" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} required />
+                        </div>
+                        <ul className="text-xs text-slate-400 list-disc pl-4 space-y-1 mt-2">
+                            <li>Min. 8 characters</li>
+                            <li>One uppercase & one lowercase</li>
+                            <li>One number & one special character</li>
+                        </ul>
+                    </div>
+                </div>
+
+                {/* Step 4: Review */}
+                <div className={step === 4 ? "step-visible" : "step-hidden"}>
+                    <div className="bg-white/5 p-6 rounded-xl border border-white/10 space-y-4">
+                        <h3 className="text-lg font-bold text-white">Summary</h3>
+                        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                            <dt className="text-slate-400">Name:</dt><dd className="text-slate-200 text-right">{formData.name}</dd>
+                            <dt className="text-slate-400">Email:</dt><dd className="text-slate-200 text-right">{formData.email}</dd>
+                            <dt className="text-slate-400">Phone:</dt><dd className="text-slate-200 text-right">{formData.phoneNumber}</dd>
+                        </dl>
+
+                        <div className="pt-4 border-t border-white/10">
+                            <div className="flex items-center gap-3 bg-amber-500/10 p-4 rounded-lg border border-amber-500/20">
                                 <input
-                                    type="file" id="idImage" name="idImage" accept="image/*,application/pdf" className="hidden"
-                                    onChange={(e) => setFileName(e.target.files?.[0]?.name || null)}
-                                    required
+                                    type="checkbox" id="terms" name="terms"
+                                    checked={formData.terms}
+                                    className="h-5 w-5 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500"
+                                    // Make read-only here, controlled by modal
+                                    readOnly
+                                    onClick={(e) => { e.preventDefault(); setShowTerms(true); }}
                                 />
-                                <label htmlFor="idImage" className="flex h-11 w-full items-center justify-between rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm cursor-pointer hover:bg-slate-900 transition-colors">
-                                    <span className="text-slate-400 truncate">{fileName || "Click to upload ID"}</span>
-                                    <Upload className="h-4 w-4 text-amber-500" />
+                                <label htmlFor="terms" className="text-sm text-slate-300 cursor-pointer select-none" onClick={() => setShowTerms(true)}>
+                                    I agree to the <span className="text-amber-500 underline font-medium">Terms & Conditions</span>
                                 </label>
                             </div>
-                            {state.errors?.idImage && <p className="text-xs text-red-400">{state.errors.idImage}</p>}
                         </div>
                     </div>
                 </div>
 
-                {/* Section 2: Contact Info */}
-                <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                    <h2 className="text-lg font-semibold text-amber-500 mb-2 flex items-center gap-2">
-                        <MapPin className="h-5 w-5" /> Contact Details
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="email">Email Address</label>
-                            <input
-                                className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                id="email" type="email" name="email" placeholder="john@example.com" required
-                            />
-                            {state.errors?.email && <p className="text-xs text-red-400">{state.errors.email}</p>}
-                        </div>
+                {/* Navigation Buttons */}
+                <div className="flex justify-between mt-8">
+                    {step > 1 ? (
+                        <button type="button" onClick={handleBack} className="btn-secondary">
+                            <ChevronLeft className="mr-2 h-4 w-4" /> Back
+                        </button>
+                    ) : <div></div>}
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="phoneNumber">Phone Number</label>
-                            <div className="relative">
-                                <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
-                                <input
-                                    className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 pl-10 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                    id="phoneNumber" name="phoneNumber" type="tel" placeholder="+263 77 123 4567" required
-                                />
-                            </div>
-                            {state.errors?.phoneNumber && <p className="text-xs text-red-400">{state.errors.phoneNumber}</p>}
-                        </div>
-
-                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-200" htmlFor="address">Residential Address</label>
-                                <input
-                                    className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                    id="address" name="address" placeholder="123 Samora Machel Ave" required
-                                />
-                                {state.errors?.address && <p className="text-xs text-red-400">{state.errors.address}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-200" htmlFor="location">City / Location</label>
-                                <input
-                                    className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                    id="location" name="location" placeholder="Harare" required
-                                />
-                                {state.errors?.location && <p className="text-xs text-red-400">{state.errors.location}</p>}
-                            </div>
-                        </div>
-                    </div>
+                    {step < 4 ? (
+                        <button type="button" onClick={handleNext} disabled={!isStepValid()} className="btn-primary">
+                            Next <ChevronRight className="ml-2 h-4 w-4" />
+                        </button>
+                    ) : (
+                        <SubmitButton disabled={!formData.terms} />
+                    )}
                 </div>
-
-                {/* Section 3: Security */}
-                <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                    <h2 className="text-lg font-semibold text-amber-500 mb-2 flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5" /> Account Security
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="password">Password</label>
-                            <input
-                                className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                id="password" type="password" name="password" required
-                                title="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special"
-                            />
-                            {state.errors?.password && <p className="text-xs text-red-400">{state.errors.password}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-200" htmlFor="confirmPassword">Confirm Password</label>
-                            <input
-                                className="flex h-11 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:border-amber-500/50"
-                                id="confirmPassword" type="password" name="confirmPassword" required
-                            />
-                            {state.errors?.confirmPassword && <p className="text-xs text-red-400">{state.errors.confirmPassword}</p>}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Terms */}
-                <div className="flex items-start gap-2">
-                    <input type="checkbox" id="terms" name="terms" className="mt-1" required />
-                    <label htmlFor="terms" className="text-sm text-slate-400 leading-snug">
-                        I agree to the <Link href="/terms" className="text-amber-500 hover:underline">Terms & Conditions</Link> and Confirm the accuracy of the provided information.
-                    </label>
-                </div>
-                {state.errors?.terms && <p className="text-xs text-red-400">{state.errors.terms}</p>}
-
-                {/* Role (Hidden/Optional for now, defaulted to CUSTOMER in schema) */}
-                {/* Only allow Staff if specifically requested or dev mode. For strict KYC form, usually it's Customer only. */}
-                {/* We'll hide role selector or keep it simpler? User asked for "Customer Registration". */}
-                {/* I will add a hidden input or just rely on default. */}
-                {/* But for testing, maybe we want to create staff? */}
-                {/* I'll leave it out. Admins promote staff. */}
-
-                <button
-                    className="inline-flex items-center justify-center rounded-lg text-sm font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-amber-500 text-slate-900 hover:bg-amber-400 h-12 px-4 py-2 w-full shadow-lg shadow-amber-500/20 mt-4"
-                    type="submit"
-                    disabled={isPending}
-                >
-                    {isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-                    Create Verified Account
-                </button>
             </form>
-            <div className="text-center text-sm text-slate-400">
-                Already have an account?{" "}
-                <Link href={`/login${callbackUrl ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`} className="font-medium text-amber-500 hover:text-amber-400 hover:underline">
-                    Sign in
-                </Link>
-            </div>
+
+            <TermsModal
+                isOpen={showTerms}
+                onClose={() => setShowTerms(false)}
+                onAccept={() => {
+                    setFormData(prev => ({ ...prev, terms: true }));
+                    setShowTerms(false);
+                }}
+            />
+
+            {/* Styles */}
+            <style jsx global>{`
+                .step-visible {
+                    display: block;
+                    opacity: 1;
+                    visibility: visible;
+                    max-height: none;
+                    animation: fadeIn 0.3s ease-in;
+                }
+                .step-hidden {
+                    visibility: hidden;
+                    max-height: 0;
+                    overflow: hidden;
+                    pointer-events: none;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .input-field {
+                    display: flex; height: 2.75rem; width: 100%; border-radius: 0.5rem;
+                    border: 1px solid rgba(255,255,255,0.1); background-color: rgb(2 6 23);
+                    padding: 0.5rem 0.75rem; font-size: 0.875rem; color: white;
+                }
+                .input-field:focus { outline: none; border-color: rgba(245,158,11,0.5); }
+                .btn-primary {
+                    display: inline-flex; align-items: center; justify-content: center;
+                    border-radius: 0.5rem; font-weight: 700; height: 3rem; padding: 0 1.5rem;
+                    background-color: #f59e0b; color: #0f172a; transition: all;
+                    opacity: 1;
+                }
+                .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+                .btn-secondary {
+                    display: inline-flex; align-items: center; justify-content: center;
+                    border-radius: 0.5rem; font-weight: 600; height: 3rem; padding: 0 1.5rem;
+                    background-color: transparent; border: 1px solid rgba(255,255,255,0.1);
+                    color: #94a3b8; transition: all;
+                }
+                .btn-secondary:hover { color: white; border-color: rgba(255,255,255,0.2); }
+            `}</style>
         </div>
+    )
+}
+
+function SubmitButton({ disabled }: { disabled: boolean }) {
+    const { pending } = useFormStatus()
+    return (
+        <button type="submit" disabled={disabled || pending} className="btn-primary">
+            {pending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <CheckCircle2 className="mr-2 h-5 w-5" />}
+            Create Account
+        </button>
     )
 }
 
 export default function RegisterPage() {
     return (
         <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
-            <RegisterForm />
+            <RegisterWizard />
         </Suspense>
     )
 }

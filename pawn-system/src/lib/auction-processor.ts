@@ -235,7 +235,8 @@ async function finalizeAuctionSale(auction: any, winnerId: string, soldPrice: nu
             data: {
                 status: "SOLD",
                 salePrice: soldPrice,
-                soldAt: new Date()
+                soldAt: new Date(),
+                userId: winnerId
             }
         })
     ])

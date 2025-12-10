@@ -6,9 +6,17 @@ import { CheckCircle2 } from "lucide-react"
 
 export default async function QuickApplyPage() {
     const session = await auth()
-    const user = session?.user?.email
-        ? await prisma.user.findUnique({ where: { email: session.user.email } })
-        : null
+    let user = null
+    if (session?.user?.email) {
+        const rawUser = await prisma.user.findUnique({ where: { email: session.user.email } })
+        if (rawUser) {
+            user = {
+                ...rawUser,
+                walletBalance: Number(rawUser.walletBalance),
+                practiceBalance: Number(rawUser.practiceBalance)
+            }
+        }
+    }
 
     return (
         <div className="max-w-3xl mx-auto py-10 px-4">

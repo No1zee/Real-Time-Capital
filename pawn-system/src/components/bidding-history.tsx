@@ -21,7 +21,7 @@ interface Bid {
     }
 }
 
-export function BiddingHistory({ bids }: { bids: any[] }) {
+export function BiddingHistory({ bids, currentUserId }: { bids: any[], currentUserId?: string }) {
     return (
         <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
             <CardHeader>
@@ -52,20 +52,20 @@ export function BiddingHistory({ bids }: { bids: any[] }) {
                                     const currentPrice = Number(bid.auction.currentBid || 0)
                                     const myBidAmount = Number(bid.amount)
                                     const isWinning = myBidAmount >= currentPrice && bid.auction.status === "ACTIVE"
-                                    const isWon = myBidAmount >= currentPrice && bid.auction.status === "COMPLETED" // Simplified logic
-                                    const isOutbid = myBidAmount < currentPrice
+
+                                    // Check if auction is ended and I am the owner of the item (ownership transferred on win)
+                                    const isEnded = bid.auction.status === "ENDED" || bid.auction.status === "SOLD"
+                                    const isWon = isEnded && bid.auction.Item?.userId === currentUserId
+                                    const isLost = isEnded && !isWon
 
                                     let resultBadge = <Badge variant="secondary">Pending</Badge>
+
                                     if (bid.auction.status === "ACTIVE") {
                                         if (isWinning) resultBadge = <Badge className="bg-green-500 hover:bg-green-600">Winning</Badge>
                                         else resultBadge = <Badge variant="destructive">Outbid</Badge>
-                                    } else if (bid.auction.status === "COMPLETED" || bid.auction.status === "SOLD") {
-                                        // This logic is imperfect without knowing the actual winner ID stored on auction
-                                        // But for now, if my bid is >= currentPrice (which shouldn't happen if I lost, unless currentPrice is my bid)
-                                        // Actually, we need to check if I am the winner. 
-                                        // But `getUserBids` doesn't return winnerId of auction easily unless we include it.
-                                        // Let's rely on status for now.
-                                        resultBadge = <Badge variant="outline">Ended</Badge>
+                                    } else if (isEnded) {
+                                        if (isWon) resultBadge = <Badge className="bg-green-600 hover:bg-green-700 font-bold">WON 🎉</Badge>
+                                        else resultBadge = <Badge variant="outline" className="text-slate-500">Lost</Badge>
                                     }
 
                                     return (

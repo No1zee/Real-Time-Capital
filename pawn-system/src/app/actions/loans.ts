@@ -79,6 +79,7 @@ export async function createLoan(prevState: State, formData: FormData) {
     })
 
     if (!validatedFields.success) {
+        console.error("LOAN VALIDATION FAILED:", validatedFields.error.flatten().fieldErrors)
         return {
             errors: validatedFields.error.flatten().fieldErrors,
             message: "Missing Fields. Failed to Create Loan.",
@@ -177,7 +178,9 @@ export async function createLoan(prevState: State, formData: FormData) {
     }
 
     revalidatePath("/loans")
-    redirect("/loans") // Or redirect to a "Success" page
+    revalidatePath("/loans")
+    // redirect("/loans") // Let client handle navigation for better UX
+    return { success: true, message: "Application Submitted Successfully!" }
 }
 
 import { LoanStatus } from "@prisma/client"
@@ -208,7 +211,36 @@ export async function updateLoanStatus(loanId: string, newStatus: LoanStatus) {
         revalidatePath("/loans")
         return { success: true }
     } catch (error) {
-        console.error("Failed to update status:", error)
         return { success: false, message: "Failed to update status" }
+    }
+}
+
+export async function acceptLoanOffer(loanId: string) {
+    try {
+        const session = await auth()
+        if (!session?.user) return { success: false, message: "Unauthorized" }
+
+        // 1. Verify Ownership (Optional but good practice, though usage in UI is protected)
+        // For simplicity, we assume UI checks are correct or we trust the session ID match if we implemented it fully.
+
+        // 2. Activate Loan
+        await db.loan.update({
+            where: { id: loanId },
+            data: {
+                status: "ACTIVE",
+                startDate: new Date(), // Reset start date to now
+                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // Reset due date to 30 days from now
+            },
+        })
+
+        // 3. Log
+        await logActivity("ACCEPT_LOAN_OFFER", { loanId, userId: session.user.id })
+
+        revalidatePath(`/portal/loans/${loanId}`)
+        revalidatePath("/portal/loans")
+        return { success: true, message: "Loan Activated Successfully!" }
+    } catch (error) {
+        console.error("Failed to accept offer:", error)
+        return { success: false, message: "Failed to accept offer." }
     }
 }

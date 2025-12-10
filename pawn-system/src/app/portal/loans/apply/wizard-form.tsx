@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useFormState } from "react-dom"
+import { useActionState } from "react"
 import { createLoan } from "@/app/actions/loans"
 import { CheckCircle2, ChevronRight, Camera, AlertTriangle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -36,9 +36,12 @@ interface WizardFormProps {
 }
 
 export default function WizardForm({ user }: WizardFormProps) {
+    console.log("Rendering WizardForm", { userVerified: user?.verificationStatus })
     const [step, setStep] = useState(1)
     const [category, setCategory] = useState("")
     const [signature, setSignature] = useState<string | null>(null)
+    const [idFileName, setIdFileName] = useState<string | null>(null)
+    const [itemFileName, setItemFileName] = useState<string | null>(null)
 
     // Auto-fill personal details if user exists
     const [formData, setFormData] = useState({
@@ -72,7 +75,7 @@ export default function WizardForm({ user }: WizardFormProps) {
 
     // Server Action Binding
     const initialState = { message: "", errors: {} }
-    const [state, formAction] = useFormState(createLoan, initialState)
+    const [state, formAction] = useActionState(createLoan, initialState)
 
     // Monitor form state for errors or success
     useEffect(() => {
@@ -171,17 +174,65 @@ export default function WizardForm({ user }: WizardFormProps) {
         return null
     }
 
+    if (state?.message === "Application Submitted Successfully!") {
+        return (
+            <Card className="border-green-200 dark:border-green-900 shadow-xl bg-white dark:bg-slate-950">
+                <CardContent className="py-12 flex flex-col items-center text-center space-y-4">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-2">
+                        <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Application Received!</h2>
+                    <p className="text-slate-500 dark:text-slate-400 max-w-md">
+                        Your loan application for <strong>{formData.itemName}</strong> has been submitted.
+                        Our team will review your item and provide a final valuation shortly.
+                    </p>
+                    <div className="flex gap-4 mt-6">
+                        <Link href="/portal">
+                            <Button variant="outline">Go to Dashboard</Button>
+                        </Link>
+                        <Link href="/portal/loans">
+                            <Button>View My Loans</Button>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
+
     return (
         <Card className="border-slate-200 dark:border-slate-800 shadow-xl bg-white/50 dark:bg-slate-950/50 backdrop-blur">
             <form action={formAction}>
                 {/* State Feedback */}
                 {state.message && (
                     <div className="p-4 bg-red-50 text-red-600 rounded-t-lg border-b border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900">
-                        {state.message}
+                        <p className="font-bold">{state.message}</p>
+                        {state.errors && (
+                            <ul className="list-disc list-inside mt-2 text-sm">
+                                {Object.entries(state.errors).map(([key, messages]) => (
+                                    <li key={key}>
+                                        <span className="capitalize">{key}:</span> {messages && (messages as string[]).join(", ")}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 )}
 
-                {/* Hidden utility fields */}
+                {/* Hidden utility fields & Data Persistence for Multi-step */}
+                {/* We must replicate ALL fields here as hidden inputs because unmounted steps don't submit data */}
+                <input type="hidden" name="itemName" value={formData.itemName} />
+                <input type="hidden" name="category" value={formData.category} />
+                <input type="hidden" name="itemDescription" value={formData.itemDescription} />
+                <input type="hidden" name="valuation" value={formData.valuation} />
+                <input type="hidden" name="brand" value={formData.brand} />
+                <input type="hidden" name="model" value={formData.model} />
+                <input type="hidden" name="serialNumber" value={formData.serialNumber} />
+
+                <input type="hidden" name="firstName" value={formData.firstName} />
+                <input type="hidden" name="lastName" value={formData.lastName} />
+                <input type="hidden" name="nationalId" value={formData.nationalId} />
+                <input type="hidden" name="phoneNumber" value={formData.phoneNumber} />
+
                 <input type="hidden" name="principalAmount" value={Number(formData.valuation || 0) * 0.5} />
                 <input type="hidden" name="interestRate" value="15" />
                 <input type="hidden" name="durationDays" value="30" />
@@ -243,6 +294,23 @@ export default function WizardForm({ user }: WizardFormProps) {
                                 <Label>Value ($)</Label>
                                 <Input name="valuation" type="number" value={formData.valuation} onChange={handleChange} required />
                             </div>
+                            <div className="grid gap-2">
+                                <Label>Item Photos</Label>
+                                <div className="border border-slate-200 dark:border-slate-800 rounded-md p-3">
+                                    <Input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                setItemFileName(e.target.files[0].name)
+                                                // In a real app, upload here. For demo, we just set a placeholder.
+                                                setFormData(prev => ({ ...prev, images: JSON.stringify(["https://placehold.co/600x400?text=Uploaded+Item"]) }))
+                                            }
+                                        }}
+                                    />
+                                    {itemFileName && <p className="text-xs text-green-600 mt-1">Selected: {itemFileName}</p>}
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -295,7 +363,21 @@ export default function WizardForm({ user }: WizardFormProps) {
                                     <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-6 flex flex-col items-center text-center">
                                         <Camera className="w-8 h-8 mb-2 text-slate-400" />
                                         <p className="text-sm font-medium">Upload ID Document</p>
-                                        <Button variant="secondary" size="sm" type="button" className="mt-2">Choose File</Button>
+                                        <div className="mt-2">
+                                            <Label htmlFor="id-upload" className="cursor-pointer inline-flex items-center justify-center rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 h-8 px-4 py-2">
+                                                Choose File
+                                            </Label>
+                                            <Input
+                                                id="id-upload"
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*,.pdf"
+                                                onChange={(e) => {
+                                                    if (e.target.files?.[0]) setIdFileName(e.target.files[0].name)
+                                                }}
+                                            />
+                                        </div>
+                                        {idFileName && <p className="text-xs text-green-600 mt-2 font-medium">✓ {idFileName}</p>}
                                     </div>
                                     <p className="text-xs text-slate-500">
                                         You can also complete this later in your profile, but this application will remain pending.

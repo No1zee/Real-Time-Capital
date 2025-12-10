@@ -50,7 +50,10 @@ export default async function NotificationsPage() {
                                     <Bell className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1 space-y-1">
-                                    <p className="text-slate-900 dark:text-white font-medium">
+                                    <p className={`font-medium ${notification.isRead
+                                        ? 'text-slate-700 dark:text-slate-300'
+                                        : 'text-slate-900 dark:text-slate-100'
+                                        }`}>
                                         {notification.message}
                                     </p>
                                     <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">

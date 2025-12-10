@@ -13,6 +13,8 @@ import { auth } from "@/auth"
 import { getWatchlist } from "@/app/actions/watchlist"
 import { WatchlistButton } from "@/components/watchlist-button"
 
+export const dynamic = "force-dynamic"
+
 export default async function CustomerAuctionsPage({
     searchParams,
 }: {
@@ -133,6 +135,64 @@ export default async function CustomerAuctionsPage({
                         <p className="text-slate-500 dark:text-slate-400 mt-2">Check back later for new items.</p>
                     </div>
                 )}
+            </div>
+
+            {/* Recently Ended Section */}
+            <div className="pt-10 border-t border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">Recently Ended</h2>
+                        <p className="text-slate-500 dark:text-slate-400">Auctions that have closed recently.</p>
+                    </div>
+                    <Link href="/portal/auctions/archive">
+                        <Button variant="ghost" className="hidden md:flex">View All Past Auctions</Button>
+                    </Link>
+                </div>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
+                    {(await getAuctions("CUSTOMER", { ...filters, sort: "endTime_desc" }, true)).slice(0, 4).map((auction: any) => {
+                        let imageUrl = "https://placehold.co/600x400?text=No+Image"
+                        try {
+                            const rawImages = auction.Item.images
+                            let images: string[] = []
+                            if (typeof rawImages === 'string') {
+                                images = JSON.parse(rawImages)
+                            } else if (Array.isArray(rawImages)) {
+                                images = rawImages
+                            }
+                            if (Array.isArray(images) && images.length > 0) imageUrl = images[0]
+                        } catch (e) { }
+
+                        return (
+                            <Link href={`/portal/auctions/${auction.id}`} key={auction.id} className="block group">
+                                <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-full overflow-hidden hover:ring-2 hover:ring-slate-400 dark:hover:ring-slate-600 transition-all">
+                                    <div className="relative h-32 w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
+                                        <img src={imageUrl} alt={auction.Item.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <span className="bg-black/60 text-white px-3 py-1 rounded text-sm font-medium border border-white/20">ENDED</span>
+                                        </div>
+                                    </div>
+                                    <CardContent className="p-4">
+                                        <h3 className="font-medium truncate" title={auction.Item.name}>{auction.Item.name}</h3>
+                                        <div className="flex justify-between items-center mt-2 text-sm">
+                                            <span className="text-slate-500">Sold for:</span>
+                                            <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(auction.currentBid || auction.startPrice))}</span>
+                                        </div>
+                                        <div className="text-xs text-slate-400 mt-1">
+                                            Ends: {formatDate(auction.endTime)}
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        )
+                    })}
+                </div>
+
+                <div className="mt-6 md:hidden">
+                    <Link href="/portal/auctions/archive" className="w-full block">
+                        <Button variant="outline" className="w-full">View All Past Auctions</Button>
+                    </Link>
+                </div>
             </div>
         </div>
     )

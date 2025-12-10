@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call Auction Lifecycle API
+        # Required secrets (configure in GitHub repo settings):
+        # - APP_URL: Your deployed application URL
+        # - CRON_SECRET: Secret for authenticating cron requests
         run: |
           curl -X POST ${{ secrets.APP_URL }}/api/cron/auction-lifecycle \
           -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \

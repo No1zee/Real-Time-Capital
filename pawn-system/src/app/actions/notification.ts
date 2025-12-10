@@ -75,16 +75,26 @@ export async function markNotificationAsRead(notificationId: string) {
 
 export async function getUnreadCount() {
     const session = await auth()
-    if (!session?.user?.id) return 0
+    if (!session?.user?.id) {
+        console.log('[getUnreadCount] No session or user ID')
+        return 0
+    }
 
     try {
-        return await prisma.notification.count({
+        console.log('[getUnreadCount] Querying for userId:', session.user.id)
+
+        // Force fresh data - no caching
+        const count = await prisma.notification.count({
             where: {
                 userId: session.user.id,
                 isRead: false
             }
         })
+
+        console.log('[getUnreadCount] Found count:', count)
+        return count
     } catch (error) {
+        console.error('[getUnreadCount] Error:', error)
         return 0
     }
 }

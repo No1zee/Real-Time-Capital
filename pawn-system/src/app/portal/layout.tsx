@@ -19,7 +19,8 @@ export default async function PortalLayout({
     return (
         <div className="flex h-screen overflow-hidden bg-background">
             <AppSidebar user={user} variant="portal" trustScore={<TrustScore />} />
-            <NotificationListener />
+            {/* Temporarily disabled to test notification badge */}
+            {/* <NotificationListener /> */}
 
             <main className="flex-1 overflow-y-auto flex flex-col relative z-0 bg-background w-full">
                 {/* Mobile Header */}

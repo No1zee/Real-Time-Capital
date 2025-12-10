@@ -46,7 +46,9 @@ export default async function ProfilePage() {
                 note={(session.user as any).verificationNote}
             />
 
-            <BiddingHistory bids={bids} />
+            {session.user.role !== "ADMIN" && session.user.role !== "STAFF" && (
+                <BiddingHistory bids={bids} currentUserId={session.user.id} />
+            )}
         </div>
     )
 }

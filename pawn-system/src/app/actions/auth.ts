@@ -10,7 +10,8 @@ import { join } from "path"
 import { randomUUID } from "crypto"
 
 // Password Regex: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+// Follows NIST guidelines - allows any printable characters
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$/
 
 const registerSchema = z.object({
     name: z.string().min(2, "Name must be at least 2 characters"),
@@ -19,11 +20,21 @@ const registerSchema = z.object({
     nationalId: z.string().min(5, "National ID is required"),
     address: z.string().min(5, "Address is required"),
     location: z.string().min(2, "Location is required"),
-    dateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
+    dateOfBirth: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date")
+        .refine((val) => {
+            const date = new Date(val);
+            const today = new Date();
+            const age = today.getFullYear() - date.getFullYear();
+            const m = today.getMonth() - date.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+                return age - 1 >= 18;
+            }
+            return age >= 18;
+        }, "You must be at least 18 years old"),
     password: z.string().regex(passwordRegex, "Password must be at least 8 characters, include uppercase, lowercase, number, and special character"),
     confirmPassword: z.string(),
     role: z.enum(["CUSTOMER", "STAFF", "ADMIN"]).default("CUSTOMER"),
-    terms: z.string().refine((val) => val === "on", "You must accept the Terms & Conditions"),
+    terms: z.string().refine((val) => val === "on" || val === "true", "You must accept the Terms & Conditions"),
     idImage: z.instanceof(File, { message: "ID Document is required" })
         .refine((file) => file.size < 5 * 1024 * 1024, "File size must be less than 5MB")
         .refine((file) => ["image/jpeg", "image/png", "application/pdf"].includes(file.type), "Only JPG, PNG, or PDF allowed"),
@@ -61,7 +72,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
         password: formData.get("password"),
         confirmPassword: formData.get("confirmPassword"),
         role: formData.get("role") || "CUSTOMER",
-        terms: formData.get("terms"),
+        terms: formData.get("terms") ? "true" : "false", // Convert checkbox to string
         idImage: formData.get("idImage"),
     })
 
@@ -98,12 +109,12 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
 
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        // Generate Verification Token
-        const verificationToken = randomUUID()
-        const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+        // Generate 6-Digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString()
+        const tokenExpiry = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
         // Create User
-        await prisma.user.create({
+        const newUser = await prisma.user.create({
             data: {
                 name,
                 email,
@@ -116,29 +127,38 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
                 role: role as "CUSTOMER" | "STAFF" | "ADMIN",
                 idImage: publicPath,
                 termsAccepted: true,
-                verificationStatus: "PENDING", // Wait for verification
+                verificationStatus: "PENDING",
                 emailVerified: null,
             },
         })
 
-        // Save Token (Using existing VerificationToken model if available, or just mock logic if model differs)
-        // Schema has VerificationToken model: identifier, token, expires.
+        // Save OTP
         await prisma.verificationToken.create({
             data: {
                 identifier: email,
-                token: verificationToken,
+                token: otp,
                 expires: tokenExpiry
             }
         })
 
-        // Mock Send Email
+        // Create Welcome Notification
+        await prisma.notification.create({
+            data: {
+                userId: newUser.id,
+                title: "Welcome to Real Time Capital! 🎉",
+                message: `Hi ${name.split(" ")[0]}! We're excited to have you here. Complete your verification to unlock all features and start bidding on premium items.`,
+                type: "SYSTEM",
+                link: "/portal/welcome"
+            }
+        })
+
+        // Mock Send OTP (SMS + Email)
         console.log("==========================================")
-        console.log(`[MOCK EMAIL] TO: ${email}`)
-        console.log(`SUBJECT: Verify your account`)
-        console.log(`LINK: http://localhost:3000/verify-email?token=${verificationToken}`)
+        console.log(`[MOCK NOTIFICATION] TO: ${email} / ${phoneNumber}`)
+        console.log(`YOUR OTP CODE: ${otp}`)
         console.log("==========================================")
 
-        return { message: "Registration successful! check your server console for the verification link." }
+        return { message: "success-otp" }
 
     } catch (error) {
         console.error("Registration error:", error)

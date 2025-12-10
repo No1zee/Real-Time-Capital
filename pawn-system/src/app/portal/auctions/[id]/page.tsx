@@ -32,14 +32,23 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<{
                 {/* Image Gallery */}
                 <div className="w-full md:w-1/2">
                     {/* @ts-ignore */}
-                    <ImageGallery images={auction.item.images} title={auction.item.name} />
+                    <ImageGallery
+                        images={(() => {
+                            try {
+                                return JSON.parse(auction.Item.images)
+                            } catch (e) {
+                                return []
+                            }
+                        })()}
+                        title={auction.Item.name}
+                    />
                 </div>
 
                 {/* Auction Details & Bidding */}
                 <div className="w-full md:w-1/2 space-y-6">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">{auction.item.name}</h1>
-                        <p className="text-muted-foreground mt-2">{auction.item.description}</p>
+                        <h1 className="text-3xl font-bold tracking-tight">{auction.Item.name}</h1>
+                        <p className="text-muted-foreground mt-2">{auction.Item.description}</p>
                     </div>
 
                     <div className="flex items-center space-x-4">
@@ -67,7 +76,7 @@ export default async function AuctionDetailsPage({ params }: { params: Promise<{
                                 <div className="text-right">
                                     <p className="text-sm font-medium text-muted-foreground">Market Valuation</p>
                                     <p className="text-lg font-semibold">
-                                        {formatCurrency(Number(auction.item.valuation))}
+                                        {formatCurrency(Number(auction.Item.valuation))}
                                     </p>
                                 </div>
                             </div>
