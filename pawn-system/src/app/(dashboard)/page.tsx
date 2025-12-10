@@ -104,25 +104,25 @@ export default async function DashboardPage() {
                 })}
             </div>
 
-            <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-7">
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-2 md:gap-4 lg:grid-cols-7">
                 {hasPermission(PERMISSIONS.LOANS_READ) && (
-                    <div className="lg:col-span-4 rounded-xl border bg-card text-card-foreground shadow-sm">
+                    <div className="lg:col-span-4 rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col">
                         <div className="p-3 md:p-6 flex flex-col space-y-1">
-                            <h3 className="text-sm md:text-lg font-semibold leading-none tracking-tight">Recent Loans</h3>
-                            <p className="text-xs md:text-sm text-muted-foreground">Latest transactions processed today.</p>
+                            <h3 className="text-xs md:text-lg font-semibold leading-none tracking-tight">Recent Loans</h3>
+                            <p className="text-[10px] md:text-sm text-muted-foreground truncate">Latest transactions.</p>
                         </div>
-                        <div className="p-3 md:p-6 pt-0">
+                        <div className="p-3 md:p-6 pt-0 flex-1">
                             <div className="space-y-3 md:space-y-4">
                                 {[1, 2, 3, 4, 5].map((i) => (
                                     <div key={i} className="flex items-center">
-                                        <div className="h-7 w-7 md:h-9 md:w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <div className="h-6 w-6 md:h-9 md:w-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                                             <Banknote className="h-3 w-3 md:h-4 md:w-4 text-primary" />
                                         </div>
                                         <div className="ml-2 md:ml-4 space-y-0.5 md:space-y-1 min-w-0 flex-1">
-                                            <p className="text-xs md:text-sm font-medium leading-none truncate">Loan #{1000 + i}</p>
-                                            <p className="text-[10px] md:text-sm text-muted-foreground truncate">Customer Name</p>
+                                            <p className="text-[10px] md:text-sm font-medium leading-none truncate">Loan #{1000 + i}</p>
+                                            <p className="text-[9px] md:text-sm text-muted-foreground truncate">Customer</p>
                                         </div>
-                                        <div className="ml-auto text-xs md:text-base font-medium">+$250.00</div>
+                                        <div className="ml-auto text-[10px] md:text-base font-medium">+$250</div>
                                     </div>
                                 ))}
                             </div>
@@ -131,21 +131,21 @@ export default async function DashboardPage() {
                 )}
 
                 {hasPermission(PERMISSIONS.VALUATIONS_READ) && (
-                    <div className="lg:col-span-3 rounded-xl border bg-card text-card-foreground shadow-sm">
+                    <div className="lg:col-span-3 rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col">
                         <div className="p-3 md:p-6 flex flex-col space-y-1">
-                            <h3 className="text-sm md:text-lg font-semibold leading-none tracking-tight">Pending Approvals</h3>
-                            <p className="text-xs md:text-sm text-muted-foreground">Loans requiring manager review.</p>
+                            <h3 className="text-xs md:text-lg font-semibold leading-none tracking-tight">Pend. Approvals</h3>
+                            <p className="text-[10px] md:text-sm text-muted-foreground truncate">Requires review.</p>
                         </div>
-                        <div className="p-3 md:p-6 pt-0">
+                        <div className="p-3 md:p-6 pt-0 flex-1">
                             <div className="space-y-3 md:space-y-4">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-center justify-between border-b pb-2 md:pb-4 last:border-0 last:pb-0">
-                                        <div className="space-y-0.5 md:space-y-1">
-                                            <p className="text-xs md:text-sm font-medium truncate max-w-[120px]">Gold Necklace 18k</p>
-                                            <p className="text-[10px] md:text-xs text-muted-foreground">Valuation: $400</p>
+                                    <div key={i} className="flex flex-col md:flex-row md:items-center justify-between border-b pb-2 md:pb-4 last:border-0 last:pb-0 gap-1 md:gap-0">
+                                        <div className="space-y-0.5 md:space-y-1 min-w-0">
+                                            <p className="text-[10px] md:text-sm font-medium truncate">Gold Ring 18k</p>
+                                            <p className="text-[9px] md:text-xs text-muted-foreground">$400</p>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 md:px-2.5 text-[10px] md:text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20">Pending</span>
+                                            <span className="inline-flex items-center rounded-full border px-1.5 py-0.5 md:px-2.5 text-[9px] md:text-xs font-semibold bg-yellow-500/10 text-yellow-600">Pending</span>
                                         </div>
                                     </div>
                                 ))}
