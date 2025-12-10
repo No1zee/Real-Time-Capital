@@ -44,9 +44,10 @@ interface AppSidebarProps {
     user: any // keeping loose for now to align with existing usage
     variant?: SidebarVariant
     trustScore?: React.ReactNode
+    className?: string
 }
 
-export function AppSidebar({ user, variant = "default", trustScore }: AppSidebarProps) {
+export function AppSidebar({ user, variant = "default", trustScore, className }: AppSidebarProps) {
     const pathname = usePathname()
     const [unreadCount, setUnreadCount] = useState(0)
 
