@@ -71,7 +71,8 @@ export async function createAuction(formData: FormData) {
                     startTime,
                     endTime,
                     type: type as any, // Cast for stale client type
-                    status: "ACTIVE"
+                    status: "ACTIVE",
+                    updatedAt: new Date(), // Fixed: Required in schema (missing @updatedAt)
                 }
             })
 
