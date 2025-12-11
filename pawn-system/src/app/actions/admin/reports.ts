@@ -23,7 +23,7 @@ export async function getInventoryValuationStats() {
         _count: {
             id: true
         }
-    }) as any[]
+    } as any) as any[]
 
     // Group by Status
     const statusDistribution = await db.item.groupBy({
