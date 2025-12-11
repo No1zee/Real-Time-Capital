@@ -72,11 +72,8 @@ export async function reverseTransaction(id: string, reason: string) {
     await db.transaction.update({
         where: { id },
         data: {
-            status: "CANCELLED" as any, // Using CANCELLED as closest proxy to "Reversed" in our current enum, or we can add REFUNDED?
-            // Let's stick to CANCELLED or FAILED for now unless we change schema again. 
-            // Actually, "Transaction Reversal" usually implies money moving back.
+            status: "CANCELLED" as any, // Using CANCELLED as closest proxy to "Reversed"
             // Let's explicitly log this action.
-            status: "CANCELLED" as any,
         }
     })
 
