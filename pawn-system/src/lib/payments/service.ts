@@ -61,7 +61,6 @@ export async function initiateSystemPayment(
         await db.transaction.update({
             where: { id: transaction.id },
             data: {
-                status: "FAILED",
                 status: "FAILED"
             }
         })
