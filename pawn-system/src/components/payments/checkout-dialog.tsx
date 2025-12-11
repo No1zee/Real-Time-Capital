@@ -82,7 +82,7 @@ export function CheckoutDialog({ title, description, amount, onConfirm, trigger,
                             <TabsList className="grid w-full grid-cols-3">
                                 <TabsTrigger value="ECOCASH">Ecocash</TabsTrigger>
                                 <TabsTrigger value="CASH">Cash</TabsTrigger>
-                                <TabsTrigger value="BANK_TRANSFER">Bank</TabsTrigger>
+                                <TabsTrigger value="ZIPIT">ZIPIT / Bank</TabsTrigger>
                             </TabsList>
 
                             <div className="mt-4 space-y-4">
@@ -110,11 +110,11 @@ export function CheckoutDialog({ title, description, amount, onConfirm, trigger,
                                     </div>
                                 )}
 
-                                {method === "BANK_TRANSFER" && (
+                                {method === "ZIPIT" && (
                                     <div className="space-y-2">
-                                        <Label>Proof of Payment Ref</Label>
+                                        <Label>Proof of Payment / ZIPIT Ref</Label>
                                         <Input
-                                            placeholder="POP-..."
+                                            placeholder="BP..."
                                             value={reference}
                                             onChange={(e) => setReference(e.target.value)}
                                         />
