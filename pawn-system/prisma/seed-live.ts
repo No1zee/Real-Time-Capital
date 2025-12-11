@@ -123,6 +123,7 @@ async function main() {
                         amount: totalDue,
                         date: repayDate,
                         method: "CASH",
+                        reference: `REPAY-${loan.id.slice(-6)}`, // Fixed: Required field
                         createdAt: repayDate
                     }
                 })
