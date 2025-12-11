@@ -28,7 +28,6 @@ export async function initiateSystemPayment(
             status: "PENDING",
             method: request.method,
             reference: request.reference,
-            reference: request.reference
         }
     })
 
