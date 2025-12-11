@@ -1,4 +1,4 @@
-import { Lightbulb, Info, FileText, Gavel, TrendingUp, AlertCircle, Clock, Package } from "lucide-react"
+import { Lightbulb, Info, FileText, Gavel, TrendingUp, AlertCircle, Clock, Package, Shield, Activity, Target, BarChart2 } from "lucide-react"
 
 export interface ProTip {
     route: string | string[] // Can match multiple routes
@@ -172,5 +172,34 @@ export const proTips: ProTip[] = [
         title: "Linked Contracts",
         message: "Direct link to the active pawn agreement. If 'Defaulted', the asset can be legally liquidated after the 14-day grace period.",
         icon: FileText
+    },
+    // User Profile Context
+    {
+        id: "profile-permissions",
+        route: "hover",
+        title: "Access Control",
+        message: "Grants granular access to system modules. 'SUPER_ADMIN' overrides all specific flags. Revoking 'LOGIN' suspends the account immediately.",
+        icon: Shield
+    },
+    {
+        id: "profile-health",
+        route: "hover",
+        title: "Risk Score",
+        message: "Composite score based on disputes, payment failures, and verification status. High dispute count (>3) triggers automatic bidding restrictions.",
+        icon: Activity
+    },
+    {
+        id: "profile-marketing",
+        route: "hover",
+        title: "Persona Engine",
+        message: "AI-driven classification based on browsing history and bid patterns. Used to tailor email campaigns and push notifications.",
+        icon: Target
+    },
+    {
+        id: "profile-interests",
+        route: "hover",
+        title: "Behavior Analysis",
+        message: "Heatmap of category engagement. 'High Intensity' zones indicate likely conversion areas for future pawn offers.",
+        icon: BarChart2
     }
 ]

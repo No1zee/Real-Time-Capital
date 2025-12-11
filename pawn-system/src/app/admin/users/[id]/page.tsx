@@ -10,6 +10,7 @@ import { formatCurrency } from "@/lib/utils"
 import { ArrowLeft, Calendar, DollarSign, Eye, ShoppingBag, Clock } from "lucide-react"
 import Link from "next/link"
 import { PermissionsEditor } from "@/components/admin/permissions-editor"
+import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 
 interface AdminUserDetailPageProps {
     params: Promise<{
@@ -60,7 +61,11 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                 {/* Left Column: Stats & Interests */}
                 <div className="space-y-6 lg:col-span-2">
                     {/* Permissions Editor */}
-                    <div className="mb-6">
+                    <div className="mb-6 space-y-2">
+                        <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-semibold">Permissions & Access Control</h3>
+                            <ProTipTrigger tipId="profile-permissions" />
+                        </div>
                         <PermissionsEditor userId={user.id} initialPermissions={user.permissions ? user.permissions.split(',').filter(p => p) : []} />
                     </div>
 
@@ -104,12 +109,25 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
 
                     {/* Charts & Graphs */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <UserInterestChart interests={stats.interests} />
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-sm font-medium text-muted-foreground">Category Preferences</h3>
+                                <ProTipTrigger tipId="profile-interests">
+                                    <Info className="h-4 w-4 text-muted-foreground hover:text-amber-500 cursor-help" />
+                                </ProTipTrigger>
+                            </div>
+                            <UserInterestChart interests={stats.interests} />
+                        </div>
 
                         {/* Additional insights card or placeholder */}
                         <Card className="glass-card">
                             <CardHeader>
-                                <CardTitle className="text-sm font-medium text-slate-400">Account Health</CardTitle>
+                                <CardTitle className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                                    Account Health
+                                    <ProTipTrigger tipId="profile-health">
+                                        <HelpCircle className="h-4 w-4 text-slate-400 hover:text-amber-500 cursor-help" />
+                                    </ProTipTrigger>
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between items-center border-b border-border pb-2">
@@ -181,6 +199,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                             <CardTitle className="text-primary flex items-center gap-2">
                                 <ShoppingBag className="w-4 h-4" />
                                 Marketing Profile
+                                <ProTipTrigger tipId="profile-marketing" />
                             </CardTitle>
                         </CardHeader>
                         <CardContent>

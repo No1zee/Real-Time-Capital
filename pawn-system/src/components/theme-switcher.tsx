@@ -41,6 +41,9 @@ export function ThemeSwitcher() {
                 <DropdownMenuItem onClick={() => setTheme("luxury")} className={theme === "luxury" ? "bg-accent" : ""}>
                     Default (Gold)
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("sunset")} className={theme === "sunset" ? "bg-accent" : ""}>
+                    Pastel Sunset
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("corporate")} className={theme === "corporate" ? "bg-accent" : ""}>
                     Corporate (Blue)
                 </DropdownMenuItem>

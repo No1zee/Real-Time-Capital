@@ -24,6 +24,11 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     // 1. Filter steps based on current route
     const steps = tourSteps.filter(step => {
         if (!step.route) return false
+
+        // 1a. Global Intro Check: If user has seen the intro anywhere, distinct from route-specific tours, hide it.
+        const hasSeenIntro = typeof window !== 'undefined' ? localStorage.getItem('hasSeenGlobalIntro') : null
+        if (step.id === 'intro-global' && hasSeenIntro) return false
+
         if (Array.isArray(step.route)) return step.route.some(r => pathname === r || pathname?.startsWith(r))
         return pathname === step.route || pathname?.startsWith(step.route)
     })
@@ -79,7 +84,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
 
 
     const handleJoyrideCallback = (data: CallBackProps) => {
-        const { status, type, index } = data
+        const { status, type, index, step } = data
+
+        // Mark global intro as seen if we just saw it
+        if ((step as any).id === 'intro-global') {
+            localStorage.setItem('hasSeenGlobalIntro', 'true')
+        }
+
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
             setRun(false)
             if (status === STATUS.SKIPPED) {

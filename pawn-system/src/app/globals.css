@@ -179,6 +179,54 @@
     --sidebar-border: 217 32% 17%;
     --sidebar-ring: 199 89% 48%;
   }
+
+  [data-theme="sunset"] {
+    /* Pastel Sunset Theme */
+    --background: 14 90% 94%;
+    /* Misty Rose */
+    --foreground: 13 30% 30%;
+    /* Darker Brown for text contrast */
+
+    --card: 21 82% 87%;
+    /* Apricot */
+    --card-foreground: 13 30% 30%;
+
+    --popover: 14 90% 94%;
+    --popover-foreground: 13 30% 30%;
+
+    --primary: 173 36% 55%;
+    /* Teal */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 178 95% 87%;
+    /* Light Cyan */
+    --secondary-foreground: 173 40% 30%;
+
+    --muted: 13 13% 65%;
+    /* Cinereous */
+    --muted-foreground: 13 30% 40%;
+
+    --accent: 178 95% 87%;
+    /* Light Cyan */
+    --accent-foreground: 173 40% 30%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 13 13% 65%;
+    /* Cinereous */
+    --input: 13 13% 65%;
+    --ring: 173 36% 55%;
+
+    --sidebar: 14 90% 94%;
+    --sidebar-foreground: 13 30% 30%;
+    --sidebar-primary: 173 36% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 178 95% 87%;
+    --sidebar-accent-foreground: 173 40% 30%;
+    --sidebar-border: 13 13% 65%;
+    --sidebar-ring: 173 36% 55%;
+  }
 }
 
 @layer base {

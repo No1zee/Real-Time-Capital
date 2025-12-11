@@ -2,6 +2,7 @@ import { Step } from "react-joyride"
 import { Sparkles, Bot } from "lucide-react"
 
 export interface AppTourStep extends Step {
+    id?: string
     route?: string | string[]
 }
 
@@ -18,6 +19,7 @@ const TourHeader = ({ title, icon: Icon = Sparkles }: { title: string, icon?: an
 export const tourSteps: AppTourStep[] = [
     // --- Global / Layout Items ---
     {
+        id: 'intro-global',
         target: 'body',
         content: (
             <div>
