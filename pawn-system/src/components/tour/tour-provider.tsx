@@ -104,8 +104,6 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
                     steps={steps}
                     run={run}
                     stepIndex={stepIndex}
-                    continuous
-                    continuous
                     // disableBeacon={true} // Commented out to fix Vercel build type error
                     // disableOverlay={false} // Default is false, which means SHOW overlay. We explicitly want this for immersion.
                     showSkipButton
