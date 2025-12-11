@@ -4,6 +4,7 @@ import { TierBadge } from "@/components/tier-badge"
 import { redirect } from "next/navigation"
 import { getUserBids } from "@/app/actions/user"
 import { BiddingHistory } from "@/components/bidding-history"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function ProfilePage() {
     const session = await auth()
@@ -49,6 +50,9 @@ export default async function ProfilePage() {
             {session.user.role !== "ADMIN" && session.user.role !== "STAFF" && (
                 <BiddingHistory bids={bids} currentUserId={session.user.id} />
             )}
+            <div className="mt-8">
+                <KnowledgeWidget category="security" title="Account Security" limit={3} />
+            </div>
         </div>
     )
 }

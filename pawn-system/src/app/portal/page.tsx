@@ -6,6 +6,7 @@ import { FileText, Package, AlertCircle, TrendingUp, Clock, ShieldCheck } from "
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function PortalDashboard() {
     const loans = await getCustomerLoans()
@@ -153,6 +154,9 @@ export default async function PortalDashboard() {
                 </Card>
 
             </div>
-        </div>
+
+            {/* Knowledge Hub Widget */}
+            <KnowledgeWidget category="general" title="Getting Started" limit={4} />
+        </div >
     )
 }

@@ -5,6 +5,7 @@ import { DepositModal } from "@/components/deposit-modal"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Wallet, ArrowUpRight, ArrowDownLeft, Clock, CheckCircle2, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function WalletPage() {
     const session = await auth()
@@ -102,6 +103,9 @@ export default async function WalletPage() {
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+            <div className="mt-8">
+                <KnowledgeWidget category="finance" title="Financial Literacy" limit={3} />
             </div>
         </div>
     )

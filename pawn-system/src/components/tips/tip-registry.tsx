@@ -202,4 +202,9 @@ export const proTips: ProTip[] = [
         message: "Heatmap of category engagement. 'High Intensity' zones indicate likely conversion areas for future pawn offers.",
         icon: BarChart2
     }
+    // Profile/User Tips
+    // {
+    //     id: "profile-permissions",
+    //     ... (this one exists)
+    // }
 ]

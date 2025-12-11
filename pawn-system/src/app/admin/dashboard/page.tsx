@@ -14,6 +14,7 @@ import { getRevenueData, getUserGrowthData, getBusinessKPIs } from "@/app/action
 import { AnalyticsWidgets } from "@/components/admin/analytics-widgets"
 import { BusinessKPIGrid } from "@/components/admin/business-kpi-grid"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function AdminDashboardPage() {
     const session = await auth()
@@ -129,6 +130,9 @@ export default async function AdminDashboardPage() {
                         email: t.User.email
                     }
                 }))} />
+            </div>
+            <div className="mt-8">
+                <KnowledgeWidget category="staff" title="Staff Training" limit={3} />
             </div>
         </div>
     )

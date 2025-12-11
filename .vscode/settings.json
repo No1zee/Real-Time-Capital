@@ -1,0 +1,7 @@
+{
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
+    "less.lint.unknownAtRules": "ignore",
+    "github-actions.workflows.validate": false,
+    "github-actions.validation.enabled": false
+}

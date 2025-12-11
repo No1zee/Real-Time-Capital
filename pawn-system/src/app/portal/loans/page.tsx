@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Plus, Sparkles, Clock, CheckCircle2, AlertCircle } from "lucide-react"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function PortalLoansPage() {
     const loans = await getCustomerLoans()
@@ -229,6 +230,9 @@ export default async function PortalLoansPage() {
                     </div>
                 </div>
             )}
+            <div className="mt-8">
+                <KnowledgeWidget category="loans" title="Borrowing Guides" limit={3} />
+            </div>
         </div>
     )
 }

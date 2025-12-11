@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Package, Plus, AlertCircle, CheckCircle, Clock } from "lucide-react"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export const dynamic = "force-dynamic"
 
@@ -131,6 +132,9 @@ export default async function UserInventoryPage() {
                         </Link>
                     </div>
                 )}
+            </div>
+            <div className="mt-8">
+                <KnowledgeWidget category="valuations" title="Valuation Tips" limit={3} />
             </div>
         </div>
     )

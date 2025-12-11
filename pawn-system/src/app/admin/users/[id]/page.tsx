@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
-import { ArrowLeft, Calendar, DollarSign, Eye, ShoppingBag, Clock } from "lucide-react"
+import { ArrowLeft, Calendar, DollarSign, Eye, ShoppingBag, Clock, Info, HelpCircle } from "lucide-react"
 import Link from "next/link"
 import { PermissionsEditor } from "@/components/admin/permissions-editor"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
@@ -61,13 +61,13 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                 {/* Left Column: Stats & Interests */}
                 <div className="space-y-6 lg:col-span-2">
                     {/* Permissions Editor */}
-                    <div className="mb-6 space-y-2">
-                        <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold">Permissions & Access Control</h3>
-                            <ProTipTrigger tipId="profile-permissions" />
-                        </div>
-                        <PermissionsEditor userId={user.id} initialPermissions={user.permissions ? user.permissions.split(',').filter(p => p) : []} />
+                    <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-lg font-semibold">Permissions & Access Control</h3>
+                        <ProTipTrigger tipId="profile-permissions">
+                            <Info className="h-4 w-4 text-muted-foreground hover:text-amber-500 cursor-help" />
+                        </ProTipTrigger>
                     </div>
+                    <PermissionsEditor userId={user.id} initialPermissions={(user.permissions || "").split(',').filter(Boolean)} />
 
                     {/* CRM Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -192,14 +192,16 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
                     </Card>
                 </div>
 
-                {/* Right Column: Metadata / Notes (Could expand later) */}
+                {/* Right Column: Metadata / Notes */}
                 <div className="space-y-6">
                     <Card className="glass-card bg-primary/5 border-primary/20">
                         <CardHeader>
                             <CardTitle className="text-primary flex items-center gap-2">
                                 <ShoppingBag className="w-4 h-4" />
                                 Marketing Profile
-                                <ProTipTrigger tipId="profile-marketing" />
+                                <ProTipTrigger tipId="profile-marketing">
+                                    <Info className="h-4 w-4 text-muted-foreground hover:text-amber-500 cursor-help" />
+                                </ProTipTrigger>
                             </CardTitle>
                         </CardHeader>
                         <CardContent>

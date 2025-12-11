@@ -10,6 +10,7 @@ import { formatCurrency, formatDistanceToNow } from "@/lib/utils"
 import Image from "next/image"
 import { Timer, Gavel } from "lucide-react"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
+import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
 export default async function AuctionsPage() {
     const session = await auth()
@@ -152,6 +153,9 @@ export default async function AuctionsPage() {
                     </div>
                 </div>
             )}
+            <div className="mt-8">
+                <KnowledgeWidget category="auctions" title="Bidding Tips" limit={3} />
+            </div>
         </div>
     )
 }
