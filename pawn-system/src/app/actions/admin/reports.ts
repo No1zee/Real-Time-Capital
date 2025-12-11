@@ -14,16 +14,20 @@ export async function getInventoryValuationStats() {
     // Group by Category (AssetType)
     // We cast the _sum input to 'any' to bypass stale Prisma client types for finalValuation
     // We cast the result to 'any[]' to ensure the return type allows accessing these fields
-    const valuationByCategory = await db.item.groupBy({
+    // Force cast args to any to bypass Prisma strict typing issues
+    const groupByArgs: any = {
         by: ['category'],
         _sum: {
             finalValuation: true,
             marketValue: true
-        } as any,
+        },
         _count: {
             id: true
         }
-    } as any) as any[]
+    }
+
+    // @ts-ignore
+    const valuationByCategory = await db.item.groupBy(groupByArgs) as any[]
 
     // Group by Status
     const statusDistribution = await db.item.groupBy({
