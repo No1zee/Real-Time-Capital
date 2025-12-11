@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/prisma"
 import { headers } from "next/headers"
 
+export type AuditAction = "LOGIN" | "LOGOUT" | "CREATE" | "UPDATE" | "DELETE" | "VIEW" | "EXPORT" | string
+export type AuditEntity = "USER" | "LOAN" | "ITEM" | "AUCTION" | "PAYMENT" | "REPORT" | "SYSTEM" | string
+
 interface LogAuditParams {
     userId: string
-    action: string
-    entityType: string
+    action: AuditAction
+    entityType: AuditEntity
     entityId?: string
     details?: any
 }
