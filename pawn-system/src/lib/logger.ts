@@ -1,37 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import { headers } from "next/headers"
 
-export type AuditAction =
-    | "LOGIN"
-    | "LOGOUT"
-    | "CREATE"
-    | "UPDATE"
-    | "DELETE"
-    | "VIEW_SENSITIVE"
-    | "PERMISSION_CHANGE"
-    | "CREATE_OFFER"
-    | "ACCEPT_LOAN"
-    | "EXPORT_DATA"
-    | "ANONYMIZE_USER"
-    | "PRINT_TICKET"
-    | "VERIFY_IDENTITY"
-
-export type AuditEntity =
-    | "USER"
-    | "LOAN"
-    | "ITEM"
-    | "AUCTION"
-    | "SYSTEM"
-
 interface LogAuditParams {
     userId: string
-    action: AuditAction
-    entityType: AuditEntity
+    action: string
+    entityType: string
     entityId?: string
-    details?: Record<string, any>
+    details?: any
 }
 
 export async function logAudit({ userId, action, entityType, entityId, details }: LogAuditParams) {
+    // Req 4c: Audit Trail
     try {
         const headersList = await headers()
         const ipAddress = headersList.get("x-forwarded-for") || "unknown"
@@ -43,13 +22,17 @@ export async function logAudit({ userId, action, entityType, entityId, details }
                 action,
                 entityType,
                 entityId,
-                details: details ? JSON.stringify(details) : undefined,
-                ipAddress: typeof ipAddress === 'string' ? ipAddress : ipAddress[0],
-                userAgent
+                details: JSON.stringify(details || {}),
+                ipAddress,
+                userAgent,
             }
         })
+
+        // Also log to console for immediate visibility during dev
+        console.log(`[AUDIT] [${action}] User:${userId} Resource:${entityType} IP:${ipAddress}`)
+
     } catch (error) {
-        // Fail silently to not block the main action, but log to console
-        console.error("Failed to log audit event:", error)
+        // Fallback: don't crash the app if audit logging fails
+        console.error("Audit log failed:", error)
     }
 }

@@ -14,12 +14,14 @@ import {
 import { formatDate, formatCurrency } from "@/lib/utils"
 import { Search, Shield, Ban, CheckCircle } from "lucide-react"
 import Link from "next/link"
+import { MobileAdminHeader } from "@/components/admin/mobile-header"
 
 export default async function AdminUsersPage() {
     const users = await getAllUsers()
 
     return (
         <div className="p-8 space-y-8">
+            <MobileAdminHeader title="User Management" backHref="/admin/dashboard" />
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">User Management</h1>

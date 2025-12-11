@@ -1,71 +1,141 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
+import { db } from "@/lib/db"
 import { auth } from "@/auth"
 
-// Helper to format date for CSV
-const fmt = (d: Date) => d.toISOString().split('T')[0]
-
-export async function getLoanBookReport() {
+// 1. Inventory Reports
+// Asset Valuation Report: Total value of assets by type and condition
+export async function getInventoryValuationStats() {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") throw new Error("Unauthorized")
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "STAFF")) {
+        return { error: "Unauthorized" }
+    }
 
-    const loans = await prisma.loan.findMany({
-        include: { Customer: true, Item: true },
-        orderBy: { createdAt: "desc" }
+    // Group by Category (AssetType)
+    // We cast the _sum input to 'any' to bypass stale Prisma client types for finalValuation
+    // We cast the result to 'any[]' to ensure the return type allows accessing these fields
+    const valuationByCategory = await db.item.groupBy({
+        by: ['category'],
+        _sum: {
+            finalValuation: true,
+            marketValue: true
+        } as any,
+        _count: {
+            id: true
+        }
+    }) as any[]
+
+    // Group by Status
+    const statusDistribution = await db.item.groupBy({
+        by: ['status'],
+        _count: {
+            id: true
+        }
     })
 
-    return loans.map(l => ({
-        LoanID: l.id,
-        Customer: l.Customer ? `${l.Customer.firstName} ${l.Customer.lastName}` : "Unknown",
-        Principal: l.principalAmount,
-        InterestRate: l.interestRate,
-        AmountDue: Number(l.principalAmount) * (1 + Number(l.interestRate) / 100),
-        Status: l.status,
-        DateIssued: fmt(l.createdAt),
-        DueDate: fmt(l.dueDate),
-        Collateral: l.Item.map(i => i.name).join("; ")
+    return {
+        valuationByCategory,
+        statusDistribution
+    }
+}
+
+// 2. Loan Reports
+// Active Loans Summary
+export async function getLoanStats() {
+    const session = await auth()
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "STAFF")) {
+        return { error: "Unauthorized" }
+    }
+
+    // Active Loans
+    // Cast result to 'any' because Prisma client doesn't know about storageFee being summable yet
+    const activeLoans = await db.loan.aggregate({
+        where: { status: 'ACTIVE' },
+        _sum: {
+            principalAmount: true,
+            storageFee: true,
+        } as any,
+        _count: {
+            id: true
+        }
+    }) as any
+
+    // Overdue Loans
+    const overdueLoans = await db.loan.count({
+        where: {
+            status: 'ACTIVE',
+            dueDate: { lt: new Date() }
+        }
+    })
+
+    // Loan Performance: Default Rate (Defaulted / Total Completed+Defaulted)
+    const completedCount = await db.loan.count({ where: { status: 'COMPLETED' } })
+    const defaultedCount = await db.loan.count({ where: { status: 'DEFAULTED' } })
+
+    return {
+        activeLoans, // typed as any here, but structure matches ReportsDashboard expectation
+        overdueLoans,
+        performance: {
+            completed: completedCount,
+            defaulted: defaultedCount,
+            total: completedCount + defaultedCount
+        }
+    }
+}
+
+// 3. Financial Reports
+// Cash Flow (Payments received over last 30 days)
+export async function getRecentCashFlow() {
+    const session = await auth()
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "STAFF")) {
+        return { error: "Unauthorized" }
+    }
+
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const payments = await db.payment.groupBy({
+        by: ['date'],
+        where: {
+            date: { gte: thirtyDaysAgo }
+        },
+        _sum: {
+            amount: true
+        },
+        orderBy: {
+            date: 'asc'
+        }
+    })
+
+    // Group by day for chart
+    return payments.map(p => ({
+        date: p.date.toISOString().split('T')[0],
+        amount: p._sum.amount ? p._sum.amount.toNumber() : 0
     }))
 }
 
-export async function getAuctionSalesReport() {
+// 4. Exceptions Report
+export async function getExceptionTransactions() {
     const session = await auth()
-    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") throw new Error("Unauthorized")
+    if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "STAFF")) {
+        return []
+    }
 
-    // Completed auctions (Items with status SOLD)
-    const items = await prisma.item.findMany({
-        where: { status: "SOLD" },
-        include: { Auction: true },
-        orderBy: { updatedAt: "desc" }
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+    const exceptions = await db.transaction.findMany({
+        where: {
+            OR: [
+                { status: 'FAILED' },
+                { status: 'PENDING', createdAt: { lt: twentyFourHoursAgo } }
+            ]
+        },
+        include: {
+            User: { select: { name: true, email: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50
     })
 
-    return items.map(i => ({
-        ItemID: i.id,
-        Name: i.name,
-        Category: i.category,
-        Valuation: i.valuation,
-        SalePrice: i.salePrice,
-        SoldDate: fmt(i.updatedAt),
-        AuctionID: i.Auction?.id || "Direct Sale"
-    }))
-}
-
-export async function getUserDirectoryReport() {
-    const session = await auth()
-    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "STAFF") throw new Error("Unauthorized")
-
-    const users = await prisma.user.findMany({
-        orderBy: { createdAt: "desc" }
-    })
-
-    return users.map(u => ({
-        UserID: u.id,
-        Name: u.name,
-        Email: u.email,
-        Role: u.role,
-        Status: u.isActive ? "Active" : "Suspended",
-        Verification: u.verificationStatus,
-        WalletBalance: u.walletBalance,
-        JoinedDate: fmt(u.createdAt)
-    }))
+    return exceptions
 }

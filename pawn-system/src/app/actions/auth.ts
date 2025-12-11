@@ -60,7 +60,14 @@ export type RegisterState = {
     message?: string
 }
 
+import { rateLimit } from "@/lib/rate-limit"
+
 export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+    const allowed = await rateLimit(5, 60000) // 5 attempts per minute
+    if (!allowed) {
+        return { message: "Too many attempts. Please try again later." }
+    }
+
     const validatedFields = registerSchema.safeParse({
         name: formData.get("name"),
         email: formData.get("email"),
@@ -127,10 +134,11 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
                 role: role as "CUSTOMER" | "STAFF" | "ADMIN",
                 idImage: publicPath,
                 termsAccepted: true,
+                passwordLastSet: new Date(), // Req 4b
                 verificationStatus: "PENDING",
                 emailVerified: null,
             },
-        })
+        } as any)
 
         // Save OTP
         await prisma.verificationToken.create({
@@ -145,7 +153,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
         await prisma.notification.create({
             data: {
                 userId: newUser.id,
-                title: "Welcome to Real Time Capital! 🎉",
+                title: "Welcome to Cashpoint! 🎉",
                 message: `Hi ${name.split(" ")[0]}! We're excited to have you here. Complete your verification to unlock all features and start bidding on premium items.`,
                 type: "SYSTEM",
                 link: "/portal/welcome"

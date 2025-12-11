@@ -40,6 +40,7 @@ enum TransactionStatus {
   PENDING
   COMPLETED
   FAILED
+  CANCELLED
   REJECTED
 }
 
@@ -90,6 +91,38 @@ enum NotificationType {
   PAYMENT_REMINDER
 }
 
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketCategory {
+  LOAN_INQUIRY
+  VALUATION
+  PAYMENT_ISSUE
+  ACCOUNT
+  OTHER
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SenderType {
+  USER
+  SUPPORT
+}
+
+enum AuctionType {
+  ONLINE
+  LIVE
+  SEALED
+}
+
 model Account {
   id                String  @id
   userId            String
@@ -113,8 +146,10 @@ model Auction {
   itemId     String      @unique
   startPrice Decimal
   currentBid Decimal?
+  reservePrice Decimal?
   startTime  DateTime
   endTime    DateTime
+  type       AuctionType        @default(ONLINE)
   status     AuctionStatus      @default(SCHEDULED)
   isPractice Boolean     @default(false)
   createdAt  DateTime    @default(now())
@@ -297,10 +332,13 @@ model Payment {
   amount    Decimal
   date      DateTime @default(now())
   method    String
-  reference String?
+  reference String // e.g. "LOAN-123"
+  description String?
   createdAt DateTime @default(now())
   Loan      Loan     @relation(fields: [loanId], references: [id])
 }
+
+
 
 model Rating {
   id        String   @id @default(cuid())
@@ -356,6 +394,7 @@ model User {
   isActive           Boolean        @default(true)
   permissions        String         @default("") // SQLite doesn't support arrays, use comma-separated string
   walletBalance      Decimal        @default(0)
+  auctionDeposit     Decimal        @default(0)
   practiceBalance    Decimal        @default(50000)
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
@@ -370,7 +409,10 @@ model User {
   Watchlist          Watchlist[]
   Item               Item[]
   Loan               Loan[]
+
   AuditLog           AuditLog[]
+  Ticket             Ticket[]
+  Article            Article[]
 }
 
 model VerificationToken {
@@ -403,4 +445,45 @@ model AuditLog {
   ipAddress String?
   userAgent String?
   createdAt DateTime @default(now())
+}
+
+model Ticket {
+  id          String         @id @default(cuid())
+  userId      String
+  subject     String
+  category    TicketCategory
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(MEDIUM)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  User     User            @relation(fields: [userId], references: [id])
+  Messages TicketMessage[]
+}
+
+model TicketMessage {
+  id        String     @id @default(cuid())
+  ticketId  String
+  sender    SenderType
+  message   String
+  timestamp DateTime   @default(now())
+
+  Ticket Ticket @relation(fields: [ticketId], references: [id])
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String?
+  content     String   @db.Text
+  category    String
+  coverImage  String?
+  published   Boolean  @default(false)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  Author User @relation(fields: [authorId], references: [id])
 }

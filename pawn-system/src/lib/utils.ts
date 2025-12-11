@@ -19,3 +19,9 @@ export function formatDate(date: string | Date) {
     year: "numeric",
   }).format(new Date(date))
 }
+
+import { formatDistanceToNow as fnsDistance } from "date-fns"
+
+export function formatDistanceToNow(date: string | Date, options?: { addSuffix?: boolean }) {
+  return fnsDistance(new Date(date), options)
+}

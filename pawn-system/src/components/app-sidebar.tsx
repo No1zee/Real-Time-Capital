@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
     LayoutDashboard,
@@ -28,6 +29,7 @@ import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { getUnreadCount } from "@/app/actions/notification"
+import { TourTrigger } from "@/components/tour/tour-trigger"
 
 type SidebarVariant = "default" | "admin" | "portal"
 
@@ -77,7 +79,7 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
     // 1. Navigation Items
     const navItems: Record<SidebarVariant, NavItem[]> = {
         default: [
-            { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["ADMIN", "STAFF", "CUSTOMER"] },
+            { name: "Dashboard", href: "/portal", icon: LayoutDashboard, roles: ["ADMIN", "STAFF", "CUSTOMER"] },
             { name: "Loans", href: "/loans", icon: Banknote, roles: ["ADMIN", "STAFF"] },
             { name: "My Loans", href: "/portal/loans", icon: Banknote, roles: ["CUSTOMER"] },
             { name: "Inventory", href: "/inventory", icon: Package, roles: ["ADMIN", "STAFF"] },
@@ -94,7 +96,9 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
             { name: "Valuations", href: "/admin/valuations", icon: Banknote, roles: ["ADMIN", "STAFF"], className: "text-amber-500" },
             { name: "Auctions", href: "/admin/auctions", icon: Gavel, roles: ["ADMIN", "STAFF"] },
             { name: "Payments", href: "/admin/payments", icon: CreditCard, roles: ["ADMIN", "STAFF"] },
+            { name: "Audit Log", href: "/admin/transactions", icon: FileText, roles: ["ADMIN", "STAFF"], className: "text-red-500 hover:text-red-600 bg-red-500/10 hover:bg-red-500/20" },
             { name: "Reports", href: "/admin/reports", icon: FileBarChart, roles: ["ADMIN", "STAFF"] },
+            { name: "Content", href: "/admin/education", icon: BookOpenIcon, roles: ["ADMIN", "STAFF"] },
             { name: "Settings", href: "/admin/settings", icon: Settings, roles: ["ADMIN", "STAFF"] },
         ],
         portal: [
@@ -154,15 +158,20 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
             <div className="p-6 border-b border-sidebar-border space-y-4">
                 <Link href={variant === "portal" ? "/portal/auctions" : "/"}>
                     {variant === "portal" ? (
-                        <h1 className="text-2xl font-bold text-sidebar-foreground cursor-pointer tracking-tight">
-                            <span className="text-primary">Real Time</span> Capital
-                        </h1>
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 relative rounded-full overflow-hidden border border-white/10">
+                                <Image src="/logo.png" alt="Cashpoint" fill className="object-cover scale-[1.8]" />
+                            </div>
+                            <h1 className="text-2xl font-bold text-sidebar-foreground cursor-pointer tracking-tight">
+                                <span className="text-primary">Cashpoint</span>
+                            </h1>
+                        </div>
                     ) : (
                         <div className="flex items-center gap-2">
-                            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-                                <span className="font-bold text-primary-foreground text-lg">R</span>
+                            <div className="h-8 w-8 relative rounded-full overflow-hidden border border-white/10">
+                                <Image src="/logo.png" alt="Cashpoint" fill className="object-cover scale-[1.8]" />
                             </div>
-                            <h1 className="text-lg font-bold tracking-tight">Real Time Capital</h1>
+                            <h1 className="text-lg font-bold tracking-tight text-primary">Cashpoint</h1>
                         </div>
                     )}
                 </Link>
@@ -275,7 +284,7 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
                 {variant === "admin" && (
                     <div className="space-y-1 mb-2">
                         <Link
-                            href="/portal"
+                            href="/portal/auctions"
                             className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
                         >
                             <ArrowLeft className="mr-3 h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-sidebar-foreground" />
@@ -289,6 +298,10 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
                     <div className={variant === "portal" ? "ml-auto" : ""}>
                         <ThemeSwitcher />
                     </div>
+                </div>
+
+                <div className="px-3">
+                    <TourTrigger />
                 </div>
 
                 {/* User Info Footer (Portal Style) */}

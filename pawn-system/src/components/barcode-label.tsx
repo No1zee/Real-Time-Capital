@@ -43,7 +43,7 @@ export function BarcodeLabel({ item }: BarcodeLabelProps) {
                         textAlign: "center"
                     }}
                 >
-                    <p style={{ fontSize: "8px", fontWeight: "bold", margin: 0, lineHeight: 1 }}>REAL TIME CAPITAL</p>
+                    <p style={{ fontSize: "8px", fontWeight: "bold", margin: 0, lineHeight: 1 }}>CASHPOINT</p>
                     <p style={{ fontSize: "8px", margin: "2px 0 0 0", whiteSpace: "nowrap", overflow: "hidden", maxWidth: "100%" }}>
                         {item.name.substring(0, 20)}
                     </p>

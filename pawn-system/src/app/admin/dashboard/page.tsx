@@ -13,6 +13,7 @@ import { formatCurrency } from "@/lib/utils"
 import { getRevenueData, getUserGrowthData, getBusinessKPIs } from "@/app/actions/admin/analytics"
 import { AnalyticsWidgets } from "@/components/admin/analytics-widgets"
 import { BusinessKPIGrid } from "@/components/admin/business-kpi-grid"
+import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 
 export default async function AdminDashboardPage() {
     const session = await auth()
@@ -36,13 +37,13 @@ export default async function AdminDashboardPage() {
     })
 
     return (
-        <div className="p-8 space-y-8 min-h-screen text-white">
+        <div className="p-8 space-y-8 min-h-screen text-slate-900 dark:text-white">
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
                     <Link href="/portal" className="inline-flex items-center text-sm text-slate-400 hover:text-amber-500 transition-colors mt-1">
                         <ArrowLeft className="w-4 h-4 mr-1" />
-                        Back to Portal
+                        Back to Overview
                     </Link>
                 </div>
                 <div className="flex items-center gap-3">
@@ -63,35 +64,41 @@ export default async function AdminDashboardPage() {
             <BusinessKPIGrid data={businessKPIs} />
 
             <div className="grid gap-4 md:grid-cols-3">
-                <Card className="glass-card">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">Total Users</CardTitle>
-                        <Users className="h-4 w-4 text-slate-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">{totalUsers}</div>
-                    </CardContent>
-                </Card>
-                <Card className="glass-card">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">Active Auctions</CardTitle>
-                        <Gavel className="h-4 w-4 text-slate-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">{activeAuctions}</div>
-                    </CardContent>
-                </Card>
-                <Card className="glass-card">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-slate-400">Total Volume</CardTitle>
-                        <DollarSign className="h-4 w-4 text-slate-500" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">
-                            {formatCurrency(Number(totalVolume._sum.amount || 0))}
-                        </div>
-                    </CardContent>
-                </Card>
+                <ProTipTrigger tipId="admin-total-users">
+                    <Card className="glass-card h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-400">Total Users</CardTitle>
+                            <Users className="h-4 w-4 text-slate-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">{totalUsers}</div>
+                        </CardContent>
+                    </Card>
+                </ProTipTrigger>
+                <ProTipTrigger tipId="admin-active-auctions">
+                    <Card className="glass-card h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-400">Active Auctions</CardTitle>
+                            <Gavel className="h-4 w-4 text-slate-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">{activeAuctions}</div>
+                        </CardContent>
+                    </Card>
+                </ProTipTrigger>
+                <ProTipTrigger tipId="admin-total-volume">
+                    <Card className="glass-card h-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium text-slate-400">Total Volume</CardTitle>
+                            <DollarSign className="h-4 w-4 text-slate-500" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                                {formatCurrency(Number(totalVolume._sum.amount || 0))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </ProTipTrigger>
             </div>
 
             {/* Analytics Section */}

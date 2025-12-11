@@ -27,7 +27,7 @@ function TermsModal({ isOpen, onClose, onAccept }: { isOpen: boolean; onClose: (
                     <h2 className="text-xl font-bold text-white">Terms & Conditions</h2>
                 </div>
                 <div className="p-6 overflow-y-auto space-y-4 text-slate-300 text-sm">
-                    <p><strong>1. Introduction</strong><br />Welcome to Real Time Capital. By registering, you agree to...</p>
+                    <p><strong>1. Introduction</strong><br />Welcome to Cashpoint. By registering, you agree to...</p>
                     <p><strong>2. Eligibility</strong><br />You must be at least 18 years old...</p>
                     <p><strong>3. Data Privacy</strong><br />We collect your KYC data for legal compliance...</p>
                     <p><strong>4. Repayment</strong><br />Loans must be repaid by the due date...</p>

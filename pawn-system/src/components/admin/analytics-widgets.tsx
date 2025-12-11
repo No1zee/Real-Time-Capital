@@ -17,7 +17,7 @@ export function AnalyticsWidgets({
                     <CardTitle className="text-sm font-medium text-slate-400">Revenue (Last 7 Days)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="h-[200px]">
+                    <div className="h-[200px] w-full min-h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={revenueData}>
                                 <XAxis
@@ -51,7 +51,7 @@ export function AnalyticsWidgets({
                     <CardTitle className="text-sm font-medium text-slate-400">User Growth (Last 7 Days)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="h-[200px]">
+                    <div className="h-[200px] w-full min-h-[200px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <LineChart data={growthData}>
                                 <XAxis

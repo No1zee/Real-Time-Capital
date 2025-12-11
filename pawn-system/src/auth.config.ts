@@ -68,17 +68,28 @@ export const authConfig = {
             if (isCustomerPortalRoute) {
                 if (!isLoggedIn) return false
                 if (userRole !== "CUSTOMER") {
-                    // Staff/Admin really shouldn't be in "My Loans" etc unless strictly debugging, 
-                    // but per requirement we block them to keep UI clean/separated
                     return NextResponse.redirect(new URL("/portal", nextUrl.nextUrl))
                 }
                 return true
             }
 
-            // 7. General Portal Access (Auctions, etc.)
-            // Allow anyone (even guests for public areas if desired, but here we likely block guests except specifically allowed)
-            // Current logic seems to allow guests on /portal/auctions but block elsewhere?
-            // Let's preserve existing guest logic for portal
+            // 7. Password Expiry Check (Req 4b)
+            if (isLoggedIn && auth?.user) {
+                // @ts-ignore
+                const lastSet = auth.user.passwordLastSet as string | undefined
+                if (lastSet) {
+                    const days = (new Date().getTime() - new Date(lastSet).getTime()) / (1000 * 60 * 60 * 24)
+                    const isExpired = days > 42
+                    const isChangePasswordPage = pathname === "/portal/profile" || pathname.startsWith("/api/") // Allow profile & APIs
+
+                    if (isExpired && !isChangePasswordPage) {
+                        // Force redirect to profile to change password
+                        return NextResponse.redirect(new URL("/portal/profile?error=password_expired", nextUrl.nextUrl))
+                    }
+                }
+            }
+
+            // 8. General Portal Access
             if (pathname.startsWith("/portal")) {
                 const isPublicPortal = pathname.startsWith("/portal/auctions") ||
                     pathname.startsWith("/portal/about") ||
@@ -87,14 +98,9 @@ export const authConfig = {
 
                 if (isPublicPortal) return true
 
-                // Dashbaord /portal root needs login
                 if (pathname === "/portal") {
                     if (!isLoggedIn) return NextResponse.redirect(new URL("/portal/auctions", nextUrl.nextUrl))
-
-                    // User Request: Admins/Staff should not land on Customer Dashboard
-                    if (userRole === "ADMIN" || userRole === "STAFF") {
-                        return NextResponse.redirect(new URL("/admin/dashboard", nextUrl.nextUrl))
-                    }
+                    // Allow Admins/Staff to view the portal dashboard (Overview)
                 }
 
                 if (!isLoggedIn) return false
@@ -114,6 +120,8 @@ export const authConfig = {
                 session.user.verificationStatus = token.verificationStatus
                 // @ts-ignore
                 session.user.idImage = token.idImage
+                // @ts-ignore
+                session.user.passwordLastSet = token.passwordLastSet
             }
             return session
         },
@@ -125,6 +133,8 @@ export const authConfig = {
                 token.verificationStatus = user.verificationStatus
                 // @ts-ignore
                 token.idImage = user.idImage
+                // @ts-ignore
+                token.passwordLastSet = user.passwordLastSet
             }
             return token
         },

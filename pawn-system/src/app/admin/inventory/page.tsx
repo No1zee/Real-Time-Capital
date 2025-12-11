@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/table"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Search, Gavel, AlertTriangle, Package, Printer } from "lucide-react"
+import { MobileAdminHeader } from "@/components/admin/mobile-header"
+import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 
 export const dynamic = "force-dynamic"
 
@@ -30,6 +32,7 @@ export default async function AdminInventoryPage() {
 
     return (
         <div className="p-8 space-y-8">
+            <MobileAdminHeader title="Asset Register" backHref="/admin/dashboard" />
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Asset Register</h1>
@@ -56,9 +59,21 @@ export default async function AdminInventoryPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Item</TableHead>
-                                <TableHead>Valuation</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Loan Info</TableHead>
+                                <TableHead>
+                                    <ProTipTrigger tipId="asset-valuation">
+                                        <span className="cursor-help underline decoration-dotted">Valuation</span>
+                                    </ProTipTrigger>
+                                </TableHead>
+                                <TableHead>
+                                    <ProTipTrigger tipId="asset-status">
+                                        <span className="cursor-help underline decoration-dotted">Status</span>
+                                    </ProTipTrigger>
+                                </TableHead>
+                                <TableHead>
+                                    <ProTipTrigger tipId="asset-loan-info">
+                                        <span className="cursor-help underline decoration-dotted">Loan Info</span>
+                                    </ProTipTrigger>
+                                </TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>

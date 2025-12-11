@@ -54,7 +54,7 @@ export function PawnTicket({ loan, customer, items, signatureUrl, ticketRef: ver
                     {/* Header */}
                     <div className="flex justify-between items-start mb-8 border-b-2 border-black pb-4">
                         <div>
-                            <h1 className="text-3xl font-bold uppercase mb-2">Real Time Capital</h1>
+                            <h1 className="text-3xl font-bold uppercase mb-2">Cashpoint</h1>
                             <p>123 Borrowdale Road, Harare, Zimbabwe</p>
                             <p>Tel: +263 77 123 4567 | Reg: 1234/2024</p>
                         </div>
@@ -136,7 +136,7 @@ export function PawnTicket({ loan, customer, items, signatureUrl, ticketRef: ver
 
                     {/* Legal Text */}
                     <div className="text-[10px] text-justify leading-tight mb-8">
-                        <p className="mb-2"><strong>1. PLEDGE & SECURITY:</strong> The Pledgor hereby deposits the described goods with Real Time Capital ("Pawnbroker") as security for the loan. The Pledgor warrants they are the sole owner of these goods and they are free of encumbrances.</p>
+                        <p className="mb-2"><strong>1. PLEDGE & SECURITY:</strong> The Pledgor hereby deposits the described goods with Cashpoint ("Pawnbroker") as security for the loan. The Pledgor warrants they are the sole owner of these goods and they are free of encumbrances.</p>
                         <p className="mb-2"><strong>2. REDEMPTION PERIOD:</strong> The loan must be redeemed by the Due Date specified. Interest accrues daily. Redemption requires payment of principal plus all accrued interest and fees.</p>
                         <p className="mb-2"><strong>3. FORFEITURE & SALE:</strong> Failure to redeem the pledge by the Due Date + Grace Period (if applicable) results in forfeiture. The Pawnbroker acquires absolute title and may sell/auction the goods to recover the debt without further notice. Proceeds above the debt + costs may be claimable by the Pledgor within statutory limits.</p>
                         <p className="mb-2"><strong>4. LIABILITY:</strong> The Pawnbroker is not liable for loss or damage caused by fire, theft, burglary, or events beyond reasonable control, provided reasonable care was exercised.</p>
@@ -156,7 +156,7 @@ export function PawnTicket({ loan, customer, items, signatureUrl, ticketRef: ver
                         </div>
                         <div className="border-t border-black pt-2">
                             <div className="h-12 mb-2 flex items-end font-script text-lg">
-                                Real Time Capital
+                                Cashpoint
                             </div>
                             <p className="text-xs uppercase font-bold">Authorized Representative</p>
                             <p className="text-[10px]">{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
@@ -164,7 +164,7 @@ export function PawnTicket({ loan, customer, items, signatureUrl, ticketRef: ver
                     </div>
 
                     <div className="mt-12 text-center text-[10px] text-gray-500 border-t pt-2">
-                        System Generated Ticket • Real Time Capital • {verificationRef || loan.id}
+                        System Generated Ticket • Cashpoint • {verificationRef || loan.id}
                     </div>
                 </div>
             </div>

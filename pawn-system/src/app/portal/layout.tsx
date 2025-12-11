@@ -26,7 +26,7 @@ export default async function PortalLayout({
                 {/* Mobile Header */}
                 <div className="lg:hidden p-4 bg-sidebar/80 backdrop-blur-xl border-b border-sidebar-border flex items-center justify-between sticky top-0 z-50">
                     <Link href="/portal/auctions">
-                        <h1 className="text-xl font-bold text-sidebar-foreground cursor-pointer">
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white cursor-pointer">
                             <span className="text-primary">Real Time</span> Capital
                         </h1>
                     </Link>

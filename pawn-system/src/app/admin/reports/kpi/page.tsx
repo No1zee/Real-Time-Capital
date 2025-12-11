@@ -94,19 +94,19 @@ export default async function KPIDashboardPage() {
                 </CardHeader>
                 <CardContent className="grid gap-4 text-sm text-slate-400">
                     <div className="grid grid-cols-[1fr_3fr] gap-4 pb-4 border-b border-white/10">
-                        <span className="font-semibold text-white">Redemption Rate</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">Redemption Rate</span>
                         <span>Indicates the quality of your loan customers. High redemption means customers value their items and pay back loans, generating reliable interest income.</span>
                     </div>
                     <div className="grid grid-cols-[1fr_3fr] gap-4 pb-4 border-b border-white/10">
-                        <span className="font-semibold text-white">Active Loan Book</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">Active Loan Book</span>
                         <span>Total principal amount currently lent out. This represents your financial exposure and potential interest revenue base.</span>
                     </div>
                     <div className="grid grid-cols-[1fr_3fr] gap-4 pb-4 border-b border-white/10">
-                        <span className="font-semibold text-white">Sell-Through Rate</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">Sell-Through Rate</span>
                         <span>Percentage of auctioned items that actually sell. A low rate suggests items are priced too high or not attractive to your bidder base.</span>
                     </div>
                     <div className="grid grid-cols-[1fr_3fr] gap-4">
-                        <span className="font-semibold text-white">Bid-to-View Ratio</span>
+                        <span className="font-semibold text-slate-900 dark:text-white">Bid-to-View Ratio</span>
                         <span>Measures how "hot" your inventory is. If people view but don't bid, the price or presentation might be wrong.</span>
                     </div>
                 </CardContent>

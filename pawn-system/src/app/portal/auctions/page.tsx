@@ -1,199 +1,157 @@
-
-import { getAuctions } from "@/app/actions/auction"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { checkBiddingEligibility, getActiveAuctions, getEndedAuctions } from "@/app/actions/auctions"
+import { AuctionRegistrationCard } from "@/components/auctions/registration-card"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
-import { Gavel } from "lucide-react"
-import { Countdown } from "@/components/countdown"
-import { SearchFilters } from "@/components/search-filters"
+import { formatCurrency, formatDistanceToNow } from "@/lib/utils"
+import Image from "next/image"
+import { Timer, Gavel } from "lucide-react"
+import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 
-import { auth } from "@/auth"
-import { getWatchlist } from "@/app/actions/watchlist"
-import { WatchlistButton } from "@/components/watchlist-button"
-
-export const dynamic = "force-dynamic"
-
-export default async function CustomerAuctionsPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | undefined }>
-}) {
+export default async function AuctionsPage() {
     const session = await auth()
-    const params = await searchParams
+    if (!session?.user) redirect("/login")
 
-    const filters = {
-        query: params.query,
-        category: params.category,
-        minPrice: params.minPrice ? Number(params.minPrice) : undefined,
-        maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
-        sort: params.sort,
-    }
+    // 1. Gatekeeper: Check Deposit
+    const eligibility = await checkBiddingEligibility()
 
-    const auctions = await getAuctions("CUSTOMER", filters)
-    const watchlist = await getWatchlist()
-    const watchedIds = new Set(watchlist.map((a: any) => a.id))
+    // 2. Fetch Auctions (Eligible Users Only)
+    const auctions = await getActiveAuctions()
+    const endedAuctions = await getEndedAuctions()
 
     return (
-        <div className="space-y-4 md:space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Active Auctions</h2>
-                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">Bid on items in real-time.</p>
+                    <h1 className="text-3xl font-bold tracking-tight">Live Auctions</h1>
+                    <p className="text-muted-foreground">Place your bids on premium verified assets.</p>
                 </div>
-                <Link href="/portal/auctions/archive">
-                    <Button variant="outline" className="gap-2 text-sm md:text-base h-9 md:h-10">
-                        View Past Auctions
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                    {eligibility.eligible ? (
+                        <Badge variant="outline" className="h-8 gap-1 px-3">
+                            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                            Verified Bidder
+                        </Badge>
+                    ) : (
+                        <Button asChild variant="outline" size="sm">
+                            <Link href="/portal/auctions/register">Register to Bid</Link>
+                        </Button>
+                    )}
+                </div>
             </div>
 
-            <SearchFilters />
-
-            <div className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {auctions.map((auction: any) => {
-                    let imageUrl = "https://placehold.co/600x400?text=No+Image"
-                    try {
-                        const rawImages = auction.Item.images
-                        let images: string[] = []
-
-                        if (typeof rawImages === 'string') {
-                            images = JSON.parse(rawImages)
-                        } else if (Array.isArray(rawImages)) {
-                            images = rawImages
-                        }
-
-                        if (Array.isArray(images) && images.length > 0) {
-                            imageUrl = images[0]
-                        }
-                    } catch (e) {
-                        console.error("Error parsing images for item:", auction.Item.name, e)
-                    }
-
-                    return (
-                        <Card key={auction.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 pb-0 md:p-6 md:pb-2">
-                                <CardTitle className="text-xs md:text-sm font-medium text-slate-600 dark:text-slate-400 truncate pr-2">
-                                    {auction.Item.name}
-                                </CardTitle>
-                                <Badge variant={auction.status === "ACTIVE" ? "default" : "secondary"} className="text-[10px] px-1.5 py-0 h-5 md:text-xs md:px-2.5 md:py-0.5 md:h-auto">
-                                    {auction.status}
-                                </Badge>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="relative h-32 md:h-48 w-full overflow-hidden rounded-t-lg mt-2 md:mt-0">
-                                    <img
-                                        src={imageUrl}
-                                        alt={auction.Item.name}
-                                        className="h-full w-full object-cover transition-transform hover:scale-105"
-                                    />
-                                    <div className="absolute top-2 right-2 z-10 scale-75 md:scale-100 origin-top-right">
-                                        <WatchlistButton
-                                            auctionId={auction.id}
-                                            initialIsWatched={watchedIds.has(auction.id)}
-                                            isLoggedIn={!!session?.user}
-                                        />
-                                    </div>
-                                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs font-mono">
-                                        <Countdown targetDate={auction.endTime} />
-                                    </div>
-                                </div>
-                                <div className="p-3 md:p-6 pt-2 md:pt-4">
-                                    <div className="text-lg md:text-2xl font-bold text-slate-900 dark:text-white mb-1 md:mb-2">
-                                        {formatCurrency(Number(auction.currentBid || auction.startPrice))}
-                                    </div>
-                                    <p className="text-[10px] md:text-xs text-slate-500 dark:text-slate-400 mb-2 md:mb-4">
-                                        Current Price
-                                    </p>
-
-                                    <div className="space-y-1 md:space-y-2 text-[10px] md:text-sm text-slate-500 dark:text-slate-400 mb-3 md:mb-4">
-                                        <div className="flex justify-between">
-                                            <span>Ends:</span>
-                                            <span>{formatDate(auction.endTime)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span>Bids:</span>
-                                            <span>{auction._count.Bid}</span>
-                                        </div>
-                                    </div>
-
-                                    <Link href={`/portal/auctions/${auction.id}`}>
-                                        <Button className="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs md:text-base h-8 md:h-10">
-                                            View
-                                        </Button>
-                                    </Link>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )
-                })}
-                {auctions.length === 0 && (
-                    <div className="col-span-full text-center py-12 bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800">
-                        <Gavel className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-700 mb-4" />
-                        <h3 className="text-lg font-medium text-slate-900 dark:text-white">No active auctions</h3>
-                        <p className="text-slate-500 dark:text-slate-400 mt-2">Check back later for new items.</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Recently Ended Section */}
-            <div className="pt-6 md:pt-10 border-t border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <div>
-                        <h2 className="text-xl md:text-2xl font-semibold text-slate-900 dark:text-white">Recently Ended</h2>
-                        <p className="text-sm md:text-base text-slate-500 dark:text-slate-400">Auctions that have closed recently.</p>
-                    </div>
-                    <Link href="/portal/auctions/archive">
-                        <Button variant="ghost" className="hidden md:flex">View All Past Auctions</Button>
-                    </Link>
+            {auctions.length === 0 ? (
+                <div className="text-center py-20 bg-muted/30 rounded-lg border-2 border-dashed">
+                    <Gavel className="h-10 w-10 mx-auto text-muted-foreground mb-4 opacity-50" />
+                    <h3 className="text-lg font-medium">No Active Auctions</h3>
+                    <p className="text-muted-foreground">Check back later for new inventory.</p>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-4 opacity-75 grayscale hover:grayscale-0 transition-all duration-300">
-                    {(await getAuctions("CUSTOMER", { ...filters, sort: "endTime_desc" }, true)).slice(0, 4).map((auction: any) => {
-                        let imageUrl = "https://placehold.co/600x400?text=No+Image"
-                        try {
-                            const rawImages = auction.Item.images
-                            let images: string[] = []
-                            if (typeof rawImages === 'string') {
-                                images = JSON.parse(rawImages)
-                            } else if (Array.isArray(rawImages)) {
-                                images = rawImages
-                            }
-                            if (Array.isArray(images) && images.length > 0) imageUrl = images[0]
-                        } catch (e) { }
+            ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {auctions.map((auction) => {
+                        const images = JSON.parse(auction.Item.images)
+                        const coverImage = images[0] || "/placeholder.png"
 
                         return (
-                            <Link href={`/portal/auctions/${auction.id}`} key={auction.id} className="block group">
-                                <Card className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 h-full overflow-hidden hover:ring-2 hover:ring-slate-400 dark:hover:ring-slate-600 transition-all">
-                                    <div className="relative h-28 md:h-32 w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                        <img src={imageUrl} alt={auction.Item.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
-                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                            <span className="bg-black/60 text-white px-2 py-0.5 md:px-3 md:py-1 rounded text-[10px] md:text-sm font-medium border border-white/20">ENDED</span>
+                            <ProTipTrigger key={auction.id} tipId="auction-listing">
+                                <Card className="overflow-hidden flex flex-col hover-subtle group h-full">
+                                    <div className="aspect-[4/3] relative bg-muted">
+                                        {coverImage !== "/placeholder.png" ? (
+                                            <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
+                                        )}
+                                        <div className="absolute top-2 right-2">
+                                            <Badge className="bg-black/70 backdrop-blur-sm border-none text-white hover:bg-black/70">
+                                                {auction.Item.category}
+                                            </Badge>
                                         </div>
                                     </div>
-                                    <CardContent className="p-3 md:p-4">
-                                        <h3 className="font-medium truncate text-xs md:text-base" title={auction.Item.name}>{auction.Item.name}</h3>
-                                        <div className="flex flex-col md:flex-row md:justify-between md:items-center mt-1 md:mt-2 text-[10px] md:text-sm">
-                                            <span className="text-slate-500">Sold:</span>
-                                            <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(Number(auction.currentBid || auction.startPrice))}</span>
+                                    <CardHeader className="space-y-1 p-4">
+                                        <CardTitle className="line-clamp-1 text-lg">{auction.Item.name}</CardTitle>
+                                        <div className="flex items-center text-sm text-yellow-600 font-medium">
+                                            <Timer className="h-4 w-4 mr-1" />
+                                            End {formatDistanceToNow(auction.endTime, { addSuffix: true })}
                                         </div>
-                                        <div className="text-[10px] md:text-xs text-slate-400 mt-1 hidden md:block">
-                                            Ends: {formatDate(auction.endTime)}
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-0 flex-1 space-y-2">
+                                        <div className="flex justify-between items-baseline">
+                                            <span className="text-sm text-muted-foreground">Current Bid</span>
+                                            <span className="text-lg font-bold">
+                                                {formatCurrency(Number(auction.currentBid || auction.startPrice))}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground flex justify-between">
+                                            <span>{auction._count.Bid} Bids</span>
+                                            <span>Start: {formatCurrency(Number(auction.startPrice))}</span>
                                         </div>
                                     </CardContent>
+                                    <CardFooter className="p-4 pt-0">
+                                        <Button asChild className="w-full">
+                                            <Link href={`/portal/auctions/${auction.id}`}>
+                                                Place Bid
+                                            </Link>
+                                        </Button>
+                                    </CardFooter>
                                 </Card>
-                            </Link>
+                            </ProTipTrigger>
                         )
                     })}
                 </div>
+            )}
 
-                <div className="mt-6 md:hidden">
-                    <Link href="/portal/auctions/archive" className="w-full block">
-                        <Button variant="outline" className="w-full">View All Past Auctions</Button>
-                    </Link>
+            {/* Ended Auctions Section */}
+            {endedAuctions.length > 0 && (
+                <div className="space-y-4 pt-8 border-t">
+                    <h2 className="text-2xl font-bold tracking-tight text-muted-foreground">Recent Ended Auctions</h2>
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {endedAuctions.map((auction) => {
+                            const images = JSON.parse(auction.Item.images)
+                            const coverImage = images[0] || "/placeholder.png"
+
+                            return (
+                                <Card key={auction.id} className="overflow-hidden flex flex-col opacity-75 grayscale hover:grayscale-0 transition-all">
+                                    <div className="aspect-[4/3] relative bg-muted">
+                                        {coverImage !== "/placeholder.png" ? (
+                                            <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
+                                        )}
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <Badge variant="secondary" className="text-lg px-4 py-1">ENDED</Badge>
+                                        </div>
+                                    </div>
+                                    <CardHeader className="space-y-1 p-4">
+                                        <CardTitle className="line-clamp-1 text-lg">{auction.Item.name}</CardTitle>
+                                        <div className="text-sm text-muted-foreground">
+                                            Closed {formatDistanceToNow(auction.endTime, { addSuffix: true })}
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-0 flex-1 space-y-2">
+                                        <div className="flex justify-between items-baseline">
+                                            <span className="text-sm text-muted-foreground">Final Bid</span>
+                                            <span className="text-lg font-bold">
+                                                {formatCurrency(Number(auction.currentBid || auction.startPrice))}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                            {auction._count.Bid} Bids Placed
+                                        </div>
+                                    </CardContent>
+                                    <CardFooter className="p-4 pt-0">
+                                        <Button variant="secondary" disabled className="w-full">
+                                            Auction Closed
+                                        </Button>
+                                    </CardFooter>
+                                </Card>
+                            )
+                        })}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }

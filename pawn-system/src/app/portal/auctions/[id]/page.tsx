@@ -1,162 +1,176 @@
-import { getAuction, placeBid, setAutoBid } from "@/app/actions/auction"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { auth } from "@/auth"
+import { notFound, redirect } from "next/navigation"
+import { db } from "@/lib/db"
+import { checkBiddingEligibility, placeBid } from "@/app/actions/auctions"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { formatCurrency, formatDate } from "@/lib/utils"
-import { notFound } from "next/navigation"
-import { Gavel, Clock, User, AlertCircle, TrendingUp, DollarSign } from "lucide-react"
-import { Countdown } from "@/components/countdown"
-import { auth } from "@/auth"
+import { Badge } from "@/components/ui/badge"
+import { formatCurrency, formatDistanceToNow } from "@/lib/utils"
+import Image from "next/image"
+import { Gavel, Clock, ArrowLeft } from "lucide-react"
 import Link from "next/link"
-import { ImageGallery } from "@/components/image-gallery"
-import { AuctionUpdates } from "@/components/auction-updates"
-import { isWatched } from "@/app/actions/watchlist"
-import { WatchlistButton } from "@/components/watchlist-button"
 
-export default async function AuctionDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function AuctionDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const session = await auth()
-    // @ts-ignore - Bypass type mismatch issues with generated client
-    const auction: any = await getAuction(id)
+    if (!session?.user) redirect("/login")
 
-    if (!auction) {
-        notFound()
+    // Check eligibility logic here (or pass to client? server simpler)
+    const eligibility = await checkBiddingEligibility()
+
+    const auction = await db.auction.findUnique({
+        where: { id },
+        include: {
+            Item: true,
+            Bid: {
+                orderBy: { amount: 'desc' },
+                take: 10,
+                include: { User: { select: { name: true } } }
+            }
+        }
+    })
+
+    if (!auction) notFound()
+
+    const currentPrice = Number(auction.currentBid || auction.startPrice)
+    const minBid = currentPrice + 1 // Simple increment rule
+    const isOwner = session.user.id === auction.Item.userId // Unlikely for pawned item but possible
+
+    async function handleBid(formData: FormData) {
+        "use server"
+        const amount = Number(formData.get("amount"))
+        if (!amount) return
+        await placeBid(id, amount)
     }
 
-    const isUserWatched = session?.user?.id ? await isWatched(auction.id) : false
+    const images = JSON.parse(auction.Item.images)
+    const mainImage = images[0] || "/placeholder.png"
+    const item = auction.Item as any
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row gap-8">
-                {/* Image Gallery */}
-                <div className="w-full md:w-1/2">
-                    {/* @ts-ignore */}
-                    <ImageGallery
-                        images={(() => {
-                            try {
-                                return JSON.parse(auction.Item.images)
-                            } catch (e) {
-                                return []
-                            }
-                        })()}
-                        title={auction.Item.name}
-                    />
-                </div>
+        <div className="container mx-auto max-w-5xl py-8 space-y-6">
+            <Link href="/portal/auctions" className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Auctions
+            </Link>
 
-                {/* Auction Details & Bidding */}
-                <div className="w-full md:w-1/2 space-y-6">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">{auction.Item.name}</h1>
-                        <p className="text-muted-foreground mt-2">{auction.Item.description}</p>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                        <Badge variant={auction.status === 'ACTIVE' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+            <div className="grid md:grid-cols-2 gap-8">
+                {/* Left: Images */}
+                <div className="space-y-4">
+                    <div className="aspect-square relative rounded-lg overflow-hidden border bg-muted">
+                        {mainImage !== "/placeholder.png" ? (
+                            <Image src={mainImage} alt={auction.Item.name} fill className="object-cover" />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
+                        )}
+                        <Badge className="absolute top-4 left-4 text-lg">
                             {auction.status}
                         </Badge>
-                        <div className="flex items-center text-muted-foreground">
-                            <Clock className="w-4 h-4 mr-2" />
-                            <Countdown targetDate={auction.endTime} />
+                    </div>
+                    {/* Thumbnails grid would go here */}
+                </div>
+
+                {/* Right: Info & Bidding */}
+                <div className="space-y-6">
+                    <div>
+                        <h1 className="text-3xl font-bold">{auction.Item.name}</h1>
+                        <p className="text-xl text-primary font-semibold mt-2">
+                            Current Price: {formatCurrency(currentPrice)}
+                        </p>
+                        <div className="flex items-center text-muted-foreground mt-2">
+                            <Clock className="h-4 w-4 mr-2" />
+                            Time Left: {formatDistanceToNow(auction.endTime, { addSuffix: true })}
                         </div>
                     </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Current Status</CardTitle>
+                    <Card className={`border-2 ${eligibility.eligible ? "border-primary/10" : "border-yellow-500/20"}`}>
+                        <CardHeader className="bg-muted/50 pb-3">
+                            <CardTitle className="text-lg flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <Gavel className="mr-2 h-5 w-5" />
+                                    {eligibility.eligible ? "Place a Bid" : "Registration Required"}
+                                </div>
+                                {!eligibility.eligible && (
+                                    <Badge variant="outline" className="text-yellow-600 border-yellow-500">
+                                        Deposit Unpaid
+                                    </Badge>
+                                )}
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex justify-between items-end border-b pb-4">
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Current Price</p>
-                                    <p className="text-3xl font-bold text-primary">
-                                        {formatCurrency(Number(auction.currentBid || auction.startPrice))}
-                                    </p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-muted-foreground">Market Valuation</p>
-                                    <p className="text-lg font-semibold">
-                                        {formatCurrency(Number(auction.Item.valuation))}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {session?.user ? (
-                                <form action={async (formData) => {
-                                    "use server"
-                                    const amount = Number(formData.get("amount"))
-                                    await placeBid(auction.id, amount)
-                                }} className="space-y-4">
-                                    <div className="flex gap-2">
-                                        <div className="relative flex-1">
-                                            <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                            <Input
-                                                type="number"
-                                                name="amount"
-                                                placeholder={`Min bid: ${formatCurrency(Number(auction.currentBid || auction.startPrice) + 2)}`}
-                                                className="pl-9"
-                                                min={Number(auction.currentBid || auction.startPrice) + 2}
-                                                step={2}
-                                                required
-                                            />
-                                        </div>
-                                        <Button type="submit">Place Bid</Button>
+                        <CardContent className="pt-6">
+                            {eligibility.eligible ? (
+                                <form action={handleBid} className="flex gap-4">
+                                    <div className="flex-1">
+                                        <Input
+                                            type="number"
+                                            name="amount"
+                                            min={minBid}
+                                            step="1"
+                                            defaultValue={minBid}
+                                            className="text-lg"
+                                        />
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Minimum bid: {formatCurrency(minBid)}
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">
-                                        Minimum bid increment: {formatCurrency(2)}
-                                    </p>
+                                    <Button type="submit" size="lg" className="px-8">
+                                        Bid Now
+                                    </Button>
                                 </form>
                             ) : (
-                                <div className="bg-muted p-4 rounded-lg text-center">
-                                    <p className="text-sm text-muted-foreground mb-2">Login to place a bid</p>
-                                    <Button asChild variant="secondary">
-                                        <Link href={`/login?callbackUrl=/portal/auctions/${id}`}>Login</Link>
+                                <div className="text-center space-y-4">
+                                    <p className="text-sm text-muted-foreground">
+                                        To maintain the integrity of our auctions, a refundable security deposit of
+                                        <span className="font-semibold text-foreground"> {formatCurrency(eligibility.requiredDeposit || 50)} </span>
+                                        is required to place bids.
+                                    </p>
+                                    <Button asChild size="lg" className="w-full">
+                                        <Link href="/portal/auctions/register">Pay Deposit to Unlock Bidding</Link>
                                     </Button>
                                 </div>
                             )}
-
-                            {/* Watchlist Button */}
-                            <div className="flex justify-end pt-2">
-                                {/* @ts-ignore */}
-                                <WatchlistButton auctionId={auction.id} initialIsWatched={isUserWatched} isLoggedIn={!!session?.user} />
-                            </div>
                         </CardContent>
                     </Card>
 
-                    {/* Auto Bid Section */}
-                    {session?.user && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-sm flex items-center">
-                                    <TrendingUp className="mr-2 h-4 w-4" /> Auto-Bidding
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <form action={async (formData) => {
-                                    "use server"
-                                    const maxAmount = Number(formData.get("maxAmount"))
-                                    await setAutoBid(auction.id, maxAmount)
-                                }} className="flex gap-2">
-                                    <Input
-                                        type="number"
-                                        name="maxAmount"
-                                        placeholder="Max limit"
-                                        className="h-8 text-sm"
-                                        min={Number(auction.currentBid || auction.startPrice)}
-                                    />
-                                    <Button size="sm" variant="outline">Set</Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    )}
-                </div>
-            </div>
+                    <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Item Details</h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="space-y-1">
+                                <span className="text-muted-foreground block">Category</span>
+                                <span className="font-medium">{auction.Item.category}</span>
+                            </div>
+                            <div className="space-y-1">
+                                <span className="text-muted-foreground block">Condition</span>
+                                <span className="font-medium">{item.condition}</span>
+                            </div>
+                            <div className="space-y-1">
+                                <span className="text-muted-foreground block">Description</span>
+                                <span>{auction.Item.description}</span>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Auction Updates / History */}
-            <div className="mt-12">
-                <h3 className="text-xl font-bold mb-4">Auction History</h3>
-                {/* @ts-ignore */}
-                <AuctionUpdates auctionId={auction.id} initialBids={auction.bids} />
+                    <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Recent Bids</h3>
+                        <div className="space-y-2">
+                            {auction.Bid.length === 0 ? (
+                                <p className="text-muted-foreground text-sm">No bids yet. Be the first!</p>
+                            ) : (
+                                auction.Bid.map((bid) => (
+                                    <div key={bid.id} className="flex justify-between text-sm py-2 border-b last:border-0">
+                                        <span>{bid.User.name || "Anonymous"}</span>
+                                        <div className="flex gap-4">
+                                            <span className="text-muted-foreground">
+                                                {formatDistanceToNow(bid.createdAt, { addSuffix: true })}
+                                            </span>
+                                            <span className="font-bold">{formatCurrency(Number(bid.amount))}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     )

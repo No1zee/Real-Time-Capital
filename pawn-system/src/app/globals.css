@@ -94,61 +94,9 @@
 
 @layer base {
   :root {
-    /* DEFAULT: Luxury Theme (Gold/Navy) */
-    --background: 224 71% 4%;
-    --foreground: 46 87% 96%;
-    /* Warm/Gold tinted white */
-
-    --card: 224 71% 6%;
-    /* Slightly lighter than bg */
-    --card-foreground: 46 87% 96%;
-
-    --popover: 224 71% 5%;
-    --popover-foreground: 46 87% 96%;
-
-    --primary: 46 96% 58%;
-    /* More vibrant, lighter gold */
-    --primary-foreground: 224 71% 4%;
-
-    --secondary: 224 40% 15%;
-    /* Richer navy secondary */
-    --secondary-foreground: 46 87% 96%;
-
-    --muted: 224 40% 15%;
-    --muted-foreground: 224 20% 65%;
-
-    --accent: 46 96% 58%;
-    --accent-foreground: 224 71% 4%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 224 40% 20%;
-    /* Visible border */
-    --input: 224 40% 20%;
-    --ring: 46 96% 58%;
-    --radius: 0.75rem;
-
-    /* Sidebar - Luxury matches background */
-    --sidebar: 224 71% 4%;
-    --sidebar-foreground: 46 87% 96%;
-    --sidebar-primary: 46 96% 58%;
-    --sidebar-primary-foreground: 224 71% 4%;
-    --sidebar-accent: 224 40% 15%;
-    --sidebar-accent-foreground: 46 87% 96%;
-    --sidebar-border: 224 40% 20%;
-    --sidebar-ring: 46 96% 58%;
-  }
-
-  [data-theme="luxury"] {
-    /* Same as root/default */
-  }
-
-  [data-theme="corporate"],
-  .dark[data-theme="corporate"] {
-    /* Corporate Theme (Royal Blue/Slate) - Trustworthy */
+    /* DEFAULT: Cashpoint Cyan (Matches Logo) */
     --background: 0 0% 100%;
-    /* Pure White */
+    /* Very light blue-grey */
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -157,86 +105,79 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
-    /* Strong Royal Blue */
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 221 70% 96%;
-    /* Tinted Blue (Not Grey) */
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 221 30% 96%;
-    /* Soft Blue Tint */
-    --muted-foreground: 215 25% 40%;
-
-    --accent: 221 83% 53%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 221 30% 90%;
-    /* Blueish Border */
-    --input: 221 30% 90%;
-    --ring: 221 83% 53%;
-    --radius: 0.5rem;
-
-    /* Sidebar - Corporate Light */
-    --sidebar: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 221 83% 53%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 221 70% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 221 30% 90%;
-    --sidebar-ring: 221 83% 53%;
-  }
-
-  [data-theme="modern"],
-  .dark[data-theme="modern"] {
-    /* Modern Theme (Vibrant Teal) - Fresh */
-    --background: 0 0% 100%;
-    --foreground: 170 50% 10%;
-    /* Deep Teal/Black */
-
-    --card: 0 0% 100%;
-    --card-foreground: 170 50% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 170 50% 10%;
-
-    --primary: 170 85% 35%;
-    /* Vibrant Teal */
+    /* Cashpoint Primary: Vibrant Cyan/Sky Blue */
+    --primary: 199 89% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 170 60% 96%;
-    /* Minty Tint (Not Grey) */
-    --secondary-foreground: 170 50% 10%;
+    --secondary: 199 40% 96%;
+    /* Soft Cyan Tint */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 170 30% 96%;
-    --muted-foreground: 170 20% 40%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 170 85% 35%;
+    --accent: 199 89% 48%;
+    /* Same as primary for highlights */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 170 30% 90%;
-    /* Minty Border */
-    --input: 170 30% 90%;
-    --ring: 170 85% 35%;
-    --radius: 1rem;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 199 89% 48%;
 
-    /* Sidebar - Modern Light */
+    --radius: 0.75rem;
+
+    /* Sidebar - Matches Primary Brand or Clean White */
     --sidebar: 0 0% 100%;
-    --sidebar-foreground: 170 50% 10%;
-    --sidebar-primary: 170 85% 35%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 60% 96%;
-    --sidebar-accent-foreground: 170 50% 10%;
-    --sidebar-border: 170 30% 90%;
-    --sidebar-ring: 170 85% 35%;
+    --sidebar-accent: 199 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214.3 31.8% 91.4%;
+    --sidebar-ring: 199 89% 48%;
+  }
+
+  .dark {
+    /* DARK MODE: Deep Blue/Navy background with Neon Cyan accents */
+    --background: 222 47% 8%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 199 89% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217 32% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 199 89% 48%;
+
+    --sidebar: 222 47% 8%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 32% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 32% 17%;
+    --sidebar-ring: 199 89% 48%;
   }
 }
 
@@ -246,23 +187,18 @@
   }
 
   body {
-    @apply bg-background text-foreground min-h-screen;
-    background-image:
-      radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.2) 0%, transparent 50%),
-      radial-gradient(circle at 85% 30%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 50% 80%, rgba(30, 64, 175, 0.2) 0%, transparent 50%);
-    background-attachment: fixed;
-    background-size: cover;
+    @apply bg-background text-foreground min-h-screen antialiased;
+    /* Clean background, no gradients */
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-sm;
+    @apply bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200 dark:border-white/5 shadow-sm;
   }
 
   .glass-card {
-    @apply bg-white/60 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.01];
+    @apply bg-white/80 dark:bg-slate-900/60 backdrop-blur-2xl border border-slate-200 dark:border-white/5 shadow-lg dark:shadow-xl transition-all duration-300 hover:shadow-xl hover:scale-[1.01];
   }
 
   .glass-panel {
@@ -276,5 +212,13 @@
 
   :is(.dark .neo-brutal) {
     box-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 0.1);
+  }
+
+  .subtle-shadow {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .hover-subtle {
+    @apply transition-colors duration-200 hover:bg-muted/50;
   }
 }

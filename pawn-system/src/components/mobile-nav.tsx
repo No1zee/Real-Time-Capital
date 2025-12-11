@@ -10,27 +10,27 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
 
     return (
         <div className="lg:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="bg-amber-500 text-slate-900 hover:bg-amber-400 hover:text-slate-900 shadow-lg shadow-amber-500/20 rounded-full h-10 w-10">
+            <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg rounded-full h-10 w-10">
                 <Menu className="h-6 w-6" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-slate-900" />
+                    <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-red-500 ring-2 ring-background" />
                 )}
             </Button>
 
             {isOpen && (
-                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                     <div
-                        className="fixed inset-y-0 left-0 w-72 bg-slate-900/95 backdrop-blur-xl border-r border-white/10 shadow-2xl transition-transform flex flex-col"
+                        className="fixed inset-y-0 left-0 w-72 h-[100dvh] bg-background border-r border-border shadow-2xl transition-transform flex flex-col pt-16 lg:pt-0"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between p-6 pb-2">
                             <Link href="/portal/auctions" onClick={() => setIsOpen(false)}>
-                                <h1 className="text-2xl font-bold text-white cursor-pointer">
-                                    <span className="text-amber-500">Real Time</span> Capital
+                                <h1 className="text-2xl font-bold text-foreground cursor-pointer">
+                                    <span className="text-primary">Real Time</span> Capital
                                 </h1>
                             </Link>
-                            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/10">
+                            <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground">
                                 <X className="h-5 w-5" />
                             </Button>
                         </div>
@@ -45,7 +45,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/admin/dashboard"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <LayoutDashboard className="w-5 h-5" />
                                             Admin Dashboard
@@ -53,7 +53,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/admin/inventory"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <Package className="w-5 h-5" />
                                             Inventory
@@ -61,7 +61,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/admin/users"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <Users className="w-5 h-5" />
                                             Users
@@ -77,7 +77,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <LayoutDashboard className="w-5 h-5" />
                                             Dashboard
@@ -87,7 +87,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/loans"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <FileText className="w-5 h-5" />
                                             My Loans
@@ -95,7 +95,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/items"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <Package className="w-5 h-5" />
                                             My Items
@@ -115,7 +115,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/watchlist"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <Heart className="w-5 h-5" />
                                             My Watchlist
@@ -123,7 +123,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/notifications"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <div className="relative">
                                                 <Bell className="w-5 h-5" />
@@ -141,7 +141,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                         <Link
                                             href="/portal/education"
                                             onClick={() => setIsOpen(false)}
-                                            className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                                            className="flex items-center gap-3 px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                                         >
                                             <BookOpen className="w-5 h-5" />
                                             Education Hub
