@@ -105,7 +105,8 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
                     run={run}
                     stepIndex={stepIndex}
                     continuous
-                    disableBeacon={true} // CRITICAL: Force bubble to open immediately (no pulsing dot first)
+                    continuous
+                    // disableBeacon={true} // Commented out to fix Vercel build type error
                     // disableOverlay={false} // Default is false, which means SHOW overlay. We explicitly want this for immersion.
                     showSkipButton
                     hideCloseButton={false} // Allow closing
