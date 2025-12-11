@@ -156,7 +156,7 @@ export async function addPayment(prevState: PaymentState, formData: FormData): P
                 loanId,
                 amount,
                 method,
-                reference: reference || null,
+                reference: reference || `PAY-${Date.now()}`, // Fallback if user leaves it empty
                 date: new Date()
             }
         })
