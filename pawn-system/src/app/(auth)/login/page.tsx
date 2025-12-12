@@ -23,7 +23,7 @@ function LoginForm() {
                         <span className="font-bold text-slate-900 text-2xl">R</span>
                     </div>
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight text-white">Welcome</h1>
+                <h1 className="text-3xl font-bold tracking-tight text-black">Welcome</h1>
                 <p className="text-slate-400">Enter your credentials to access your account</p>
             </div>
             <form action={dispatch} className="space-y-4">
@@ -33,7 +33,7 @@ function LoginForm() {
                         Email
                     </label>
                     <input
-                        className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:border-amber-500/50 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:border-amber-500/50 transition-all disabled:cursor-not-allowed disabled:opacity-50"
                         id="email"
                         type="email"
                         name="email"
@@ -51,7 +51,7 @@ function LoginForm() {
                         </Link>
                     </div>
                     <input
-                        className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:border-amber-500/50 transition-all disabled:cursor-not-allowed disabled:opacity-50 relative z-10"
+                        className="flex h-11 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/50 focus-visible:border-amber-500/50 transition-all disabled:cursor-not-allowed disabled:opacity-50 relative z-10"
                         id="password"
                         type="password"
                         name="password"
