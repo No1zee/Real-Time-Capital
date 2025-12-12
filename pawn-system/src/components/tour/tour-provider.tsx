@@ -15,7 +15,7 @@ const TourContext = createContext<TourContextType>({
 
 export const useTour = () => useContext(TourContext)
 
-export function TourProvider({ children }: { children: React.ReactNode }) {
+export function TourProvider({ children, user }: { children: React.ReactNode, user?: any }) {
     const [mounted, setMounted] = useState(false)
     const [isReady, setIsReady] = useState(false) // New: Wait for storage read
     const [run, setRun] = useState(false)
@@ -34,16 +34,21 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
         setIsReady(true)
     }, [isDemoMode])
 
-    // 2. Filter steps based on current route AND state
+    // 2. Filter steps based on current route AND state AND role
+    const userRole = user?.role || "GUEST"
+
     const steps = tourSteps.filter(step => {
         if (!step.route) return false
 
+        // Role Filter
+        if (step.roles && !step.roles.includes(userRole)) return false
+
         // 1a. Global Intro Check: Rely on React State
         // Priority Override: If Demo Mode, ALWAYS include intro, ignoring seen state
-        if (isDemoMode && step.id === 'intro-global') return true
+        if (isDemoMode && (step.id === 'intro-global' || step.id === 'intro-guest' || step.id === 'intro-user')) return true
 
         // ONLY filter if we are ready and have seen it. 
-        if (isReady && step.id === 'intro-global' && hasSeenGlobalIntro) return false
+        if (isReady && (step.id === 'intro-global' || step.id === 'intro-guest' || step.id === 'intro-user') && hasSeenGlobalIntro) return false
 
         if (Array.isArray(step.route)) return step.route.some(r => pathname === r || pathname?.startsWith(r))
         return pathname === step.route || pathname?.startsWith(step.route)
@@ -113,7 +118,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Mark global intro as seen immediately in state and storage
-        if ((step as any).id === 'intro-global') {
+        if ((step as any).id === 'intro-global' || (step as any).id === 'intro-guest' || (step as any).id === 'intro-user') {
             if (!hasSeenGlobalIntro) {
                 setHasSeenGlobalIntro(true)
                 localStorage.setItem('hasSeenGlobalIntro', 'true')

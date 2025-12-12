@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { auth } from "@/auth";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -22,11 +23,14 @@ export const metadata: Metadata = {
   description: "Pawn Shop Management System",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  const user = session?.user;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -34,7 +38,7 @@ export default function RootLayout({
       >
         <Providers>
           <Suspense fallback={null}>
-            <TourProvider>
+            <TourProvider user={user}>
               <TipProvider>
                 {children}
                 <Toaster position="top-center" richColors />
