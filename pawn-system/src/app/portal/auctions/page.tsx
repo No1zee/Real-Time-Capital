@@ -62,13 +62,16 @@ export default async function AuctionsPage() {
                         return (
                             <ProTipTrigger key={auction.id} tipId="auction-listing">
                                 <Card className="overflow-hidden flex flex-col hover-subtle group h-full">
-                                    <div className="aspect-[4/3] relative bg-muted">
+                                    <div className="aspect-[4/3] relative bg-muted group-hover:opacity-90 transition-opacity">
+                                        <Link href={`/portal/auctions/${auction.id}`} className="absolute inset-0 z-10">
+                                            <span className="sr-only">View {auction.Item.name}</span>
+                                        </Link>
                                         {coverImage !== "/placeholder.png" ? (
                                             <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
                                         )}
-                                        <div className="absolute top-2 right-2">
+                                        <div className="absolute top-2 right-2 z-20">
                                             <Badge className="bg-black/70 backdrop-blur-sm border-none text-white hover:bg-black/70">
                                                 {auction.Item.category}
                                             </Badge>
@@ -92,8 +95,8 @@ export default async function AuctionsPage() {
                                     </CardContent>
                                     <CardFooter className="p-4 pt-0">
                                         <Button asChild className="w-full">
-                                            <Link href={session?.user ? `/portal/auctions/${auction.id}` : `/login?callbackUrl=/portal/auctions/${auction.id}`}>
-                                                Place Bid
+                                            <Link href={`/portal/auctions/${auction.id}`}>
+                                                {session?.user ? "Place Bid" : "View Auction"}
                                             </Link>
                                         </Button>
                                     </CardFooter>
