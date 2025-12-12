@@ -14,7 +14,7 @@ export default async function UserInventoryPage() {
         <div className="space-y-6 pb-20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">My Items</h1>
+                    <h1 id="user-inventory-title" className="text-3xl font-bold tracking-tight text-foreground">My Items</h1>
                     <p className="text-muted-foreground mt-1">
                         Track your submitted assets, valuations, and auction history.
                     </p>

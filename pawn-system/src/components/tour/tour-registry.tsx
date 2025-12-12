@@ -75,7 +75,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Inventory / Items ---
     {
-        target: 'main',
+        target: '#admin-inventory-title, #user-inventory-title',
         content: (
             <div>
                 <TourHeader title="Inventory" />
@@ -115,7 +115,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Users / CRM ---
     {
-        target: 'table',
+        target: '#admin-users-title',
         content: (
             <div>
                 <TourHeader title="CRM" />
@@ -142,7 +142,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Valuations ---
     {
-        target: 'h1',
+        target: '#admin-valuations-title',
         content: (
             <div>
                 <TourHeader title="Valuations" />
@@ -185,7 +185,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Admin Auctions ---
     {
-        target: 'h1',
+        target: '#admin-auctions-title',
         content: (
             <div>
                 <TourHeader title="Auctions" />

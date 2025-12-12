@@ -33,7 +33,7 @@ export default async function AdminValuationsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Pending Valuations</h1>
+                    <h1 id="admin-valuations-title" className="text-3xl font-bold tracking-tight">Pending Valuations</h1>
                     <p className="text-muted-foreground">Review and assess customer item submissions.</p>
                 </div>
                 <Badge variant="secondary" className="px-4 py-1">
