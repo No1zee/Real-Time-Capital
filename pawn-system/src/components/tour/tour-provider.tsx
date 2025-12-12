@@ -62,9 +62,9 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
 
         // Generate a unique key for this route's tour
         const routeKey = `hasSeenTour_${pathname}`
-        const hasSeenRoute = localStorage.getItem(routeKey)
+        // const hasSeenRoute = localStorage.getItem(routeKey) // MVP: Override history
 
-        if (!hasSeenRoute && steps.length > 0) {
+        if (steps.length > 0) {
             setRun(true)
             setStepIndex(0)
         }
@@ -98,7 +98,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
                     return prev + 1
                 } else {
                     setRun(false)
-                    localStorage.setItem(`hasSeenTour_${pathname}`, "true")
+                    // localStorage.setItem(`hasSeenTour_${pathname}`, "true") // MVP: Don't save seen state so it runs every refresh
                     return prev
                 }
             })
@@ -128,7 +128,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
             setRun(false)
             if (status === STATUS.SKIPPED) {
-                localStorage.setItem(`hasSeenTour_${pathname}`, "true")
+                // localStorage.setItem(`hasSeenTour_${pathname}`, "true") // MVP Check
             }
         }
     }
