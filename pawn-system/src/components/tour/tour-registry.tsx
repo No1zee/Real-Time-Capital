@@ -36,7 +36,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Customer Dashboard ---
     {
-        target: '#dashboard-section',
+        target: 'body',
         content: (
             <div>
                 <TourHeader title="Dashboard" />
