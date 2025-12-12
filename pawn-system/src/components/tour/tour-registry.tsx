@@ -3,7 +3,7 @@ import { Sparkles, Bot } from "lucide-react"
 
 export interface AppTourStep extends Step {
     id?: string
-    id?: string
+
     route?: string | string[]
     roles?: string[] // Optional: If defined, only show for these roles. If undefined, show for all.
 }
