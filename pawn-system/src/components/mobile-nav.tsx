@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Menu, X, LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Heart, Bell, Users, PlusCircle, BookOpen } from "lucide-react"
+import { Menu, X, LogOut, LayoutDashboard, FileText, Package, Gavel, Info, Mail, Heart, Bell, Users, PlusCircle, BookOpen, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useTour } from "@/components/tour/tour-provider"
 
 export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: number }) {
     const [isOpen, setIsOpen] = useState(false)
+    const { startTour } = useTour()
 
     return (
         <div className="lg:hidden">
@@ -169,6 +171,21 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                     Contact Us
                                 </Link>
                             </nav>
+                            <div className="px-4 py-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        localStorage.clear() // Still clear storage for good measure
+                                        const url = new URL(window.location.href)
+                                        url.searchParams.set("demo", "true")
+                                        window.location.href = url.toString()
+                                    }}
+                                    className="w-full justify-start gap-2 border-dashed border-primary/50 text-primary hover:bg-primary/10"
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                    Reset Demo Tour
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Footer (User Profile) */}
@@ -192,7 +209,7 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                 </div>
                             ) : (
                                 <Link href="/login" onClick={() => setIsOpen(false)}>
-                                    <Button className="w-full rounded-xl bg-amber-500 text-slate-900 hover:bg-amber-600 font-bold shadow-lg shadow-amber-500/20">
+                                    <Button className="w-full rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold shadow-lg shadow-primary/20">
                                         Sign In
                                     </Button>
                                 </Link>

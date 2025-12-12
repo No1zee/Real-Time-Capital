@@ -24,8 +24,9 @@ export const tourSteps: AppTourStep[] = [
         content: (
             <div>
                 <TourHeader title="Welcome" icon={Bot} />
-                <h3 className="font-bold text-lg mb-2 text-slate-800">Digital Core Active</h3>
-                <p className="text-slate-600">I am your MVP assistant. I'm running in the background to monitor your operations.</p>
+                <h3 className="font-bold text-lg mb-2 text-slate-800">System Capability Demo</h3>
+                <p className="text-slate-600 mb-2">Welcome to this self-presenting demo. We are excited to show you the core features of the proposed system.</p>
+                <p className="text-slate-600 text-sm">While it is far from a finished product, this demo will highlight what the system is capable of so far and how it meets your business needs.</p>
             </div>
         ),
         placement: 'center',
@@ -33,9 +34,22 @@ export const tourSteps: AppTourStep[] = [
         route: ['/portal', '/portal/auctions', '/admin/dashboard']
     },
 
+    // --- Customer Dashboard ---
+    {
+        target: '#dashboard-section',
+        content: (
+            <div>
+                <TourHeader title="Dashboard" />
+                <h3 className="font-bold text-lg mb-2 text-slate-800">Your Command Center</h3>
+                <p className="text-slate-600">Track your active loans, total debt, and pawned items at a glance. We calculate your liquidity so you don't have to.</p>
+            </div>
+        ),
+        route: '/portal'
+    },
+
     // --- Auctions Page ---
     {
-        target: 'h1',
+        target: '#auctions-title',
         content: (
             <div>
                 <TourHeader title="Auctions" />
@@ -141,12 +155,16 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Content / Education Hub ---
     {
-        target: 'h1',
+        target: '#education-title',
         content: (
             <div>
                 <TourHeader title="Knowledge" />
-                <h3 className="font-bold text-lg mb-2 text-slate-800">The Knowledge Hub</h3>
-                <p className="text-slate-600">Empower yourself. Read guides on how to get the best value for your items and manage your loans responsibly.</p>
+                <h3 className="font-bold text-lg mb-2 text-slate-800">The User Education Engine</h3>
+                <p className="text-slate-600 mb-2">This is more than just articles. It's a strategic tool.</p>
+                <div className="space-y-2 text-sm text-slate-600">
+                    <p><strong>For Users:</strong> It provides critical financial literacy and guides on how to maximize their asset's value.</p>
+                    <p><strong>For Business:</strong> It builds trust and filters for higher-quality applications by educating customers <em>before</em> they apply.</p>
+                </div>
             </div>
         ),
         route: '/portal/education'
@@ -154,7 +172,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Content / Education Hub (Admin) ---
     {
-        target: 'h1',
+        target: '#admin-content-title',
         content: (
             <div>
                 <TourHeader title="Content" />
@@ -193,7 +211,7 @@ export const tourSteps: AppTourStep[] = [
 
     // --- Admin Audit Log ---
     {
-        target: 'h1',
+        target: '#audit-title',
         content: (
             <div>
                 <TourHeader title="Audit Log" />
@@ -201,6 +219,6 @@ export const tourSteps: AppTourStep[] = [
                 <p className="text-slate-600">Security first. I log every single action taken by staff or customers for full accountability.</p>
             </div>
         ),
-        route: '/admin/transactions'
+        route: '/admin/audit'
     }
 ]

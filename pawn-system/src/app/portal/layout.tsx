@@ -22,7 +22,7 @@ export default async function PortalLayout({
             {/* Temporarily disabled to test notification badge */}
             {/* <NotificationListener /> */}
 
-            <main className="flex-1 overflow-y-auto flex flex-col relative z-0 bg-background w-full">
+            <main id="portal-main" className="flex-1 overflow-y-auto flex flex-col relative z-0 bg-background w-full">
                 {/* Mobile Header */}
                 <div className="lg:hidden p-4 bg-sidebar/80 backdrop-blur-xl border-b border-sidebar-border flex items-center justify-between sticky top-0 z-50">
                     <Link href="/portal/auctions">

@@ -15,7 +15,7 @@ export const authConfig = {
 
             const pathname = nextUrl.nextUrl.pathname
 
-            // 1. Root Redirect
+            // 1. Root Redirect - Allow explicit root access if needed, or keep redirect but ensure /portal/auctions is public.
             if (pathname === "/") {
                 return NextResponse.redirect(new URL("/portal/auctions", nextUrl.nextUrl))
             }

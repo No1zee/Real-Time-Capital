@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import Joyride, { CallBackProps, STATUS, Step } from "react-joyride"
 import { tourSteps } from "./tour-registry"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 
 interface TourContextType {
     startTour: () => void
@@ -22,40 +22,34 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     const [stepIndex, setStepIndex] = useState(0)
     const [hasSeenGlobalIntro, setHasSeenGlobalIntro] = useState(false)
     const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const isDemoMode = searchParams?.get('demo') === 'true'
 
     // 1. Initialize State from Storage (Client-side only)
     useEffect(() => {
         setMounted(true)
-        let seenIntro = localStorage.getItem('hasSeenGlobalIntro') === 'true'
-
-        // 1b. Legacy Migration: If user has seen the main dashboard tour, imply they've seen the intro
-        if (!seenIntro) {
-            const seenDashboard = localStorage.getItem('hasSeenTour_/portal')
-            // Also check generic 'hasSeenTour' if we ever used it, or check successful login hints? 
-            // Stick to dashboard for now as it's the primary landing.
-            if (seenDashboard) {
-                seenIntro = true
-                localStorage.setItem('hasSeenGlobalIntro', 'true')
-            }
-        }
-
-        setHasSeenGlobalIntro(seenIntro)
+        const seenIntro = localStorage.getItem('hasSeenGlobalIntro') === 'true'
+        // If demo mode, force seenIntro to false
+        setHasSeenGlobalIntro(isDemoMode ? false : seenIntro)
         setIsReady(true)
-    }, [])
+    }, [isDemoMode])
 
     // 2. Filter steps based on current route AND state
     const steps = tourSteps.filter(step => {
         if (!step.route) return false
 
         // 1a. Global Intro Check: Rely on React State
+        // Priority Override: If Demo Mode, ALWAYS include intro, ignoring seen state
+        if (isDemoMode && step.id === 'intro-global') return true
+
         // ONLY filter if we are ready and have seen it. 
-        // If not ready, we technically shouldn't render yet, or default to not showing intro to be safe?
-        // Better: If isReady is true, apply logic.
         if (isReady && step.id === 'intro-global' && hasSeenGlobalIntro) return false
 
         if (Array.isArray(step.route)) return step.route.some(r => pathname === r || pathname?.startsWith(r))
         return pathname === step.route || pathname?.startsWith(step.route)
     })
+
+
 
     // 3. Auto-start on first visit logic (Per Route)
     useEffect(() => {
@@ -70,6 +64,14 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
             setStepIndex(0)
         }
     }, [pathname, steps.length, mounted, isReady])
+
+    // 3b. Force Run in Demo Mode
+    useEffect(() => {
+        if (isDemoMode && isReady && mounted && steps.length > 0) {
+            setRun(true)
+            setStepIndex(0) // Start from beginning
+        }
+    }, [isDemoMode, isReady, mounted, steps.length])
 
     // 4. Reset index when route changes
     useEffect(() => {
@@ -102,7 +104,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
 
 
     const handleJoyrideCallback = (data: CallBackProps) => {
-        const { status, step } = data
+        const { status, type, step } = data
+
+        if (status === 'error' || type === 'error:target_not_found') {
+            import("sonner").then(({ toast }) => {
+                toast.error(`Tour Error: ${type} - Target: ${step.target}`, { duration: 10000 })
+            })
+        }
 
         // Mark global intro as seen immediately in state and storage
         if ((step as any).id === 'intro-global') {
@@ -123,6 +131,8 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     const startTour = () => {
         // Force restart: Clear seen status for this page so it runs even if seen before
         localStorage.removeItem(`hasSeenTour_${pathname}`)
+        localStorage.removeItem('hasSeenGlobalIntro') // For Demo: Clear global intro too
+        setHasSeenGlobalIntro(false) // Reset state to allow intro step logic to pass
         setRun(true)
         setStepIndex(0)
     }
@@ -149,7 +159,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
                             overlayColor: 'rgba(0, 0, 0, 0.5)',
                             primaryColor: '#06b6d4', // Cyan Main
                             textColor: '#0f172a', // Slate 900
-                            zIndex: 1000,
+                            zIndex: 10000,
                         },
                         tooltip: {
                             borderRadius: '0.75rem',
@@ -172,6 +182,18 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
                         disableAnimation: true, // Reduce motion issues
                     }}
                 />
+            )}
+            {/* VISUAL DEBUG BANNER - TEMPORARY */}
+            {isDemoMode && (
+                <div className="fixed top-20 right-4 z-[99999] bg-red-900/90 text-white p-4 rounded-lg shadow-xl text-xs font-mono border border-red-500 pointer-events-none">
+                    <p className="font-bold underline mb-1">Tour Debugger</p>
+                    <p>Path: {pathname}</p>
+                    <p>Steps: {steps.length}</p>
+                    <p>Run: {String(run)}</p>
+                    <p>SeenGlobal: {String(hasSeenGlobalIntro)}</p>
+                    <p>Ready: {String(isReady)}</p>
+                    <p>Mounted: {String(mounted)}</p>
+                </div>
             )}
         </TourContext.Provider>
     )

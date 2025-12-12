@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { formatCurrency, formatDistanceToNow } from "@/lib/utils"
 import Image from "next/image"
-import { Timer, Gavel } from "lucide-react"
+import { Gavel } from "lucide-react"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
+import { AuctionTimer } from "@/components/auctions/auction-timer"
 
 export default async function AuctionsPage() {
     const session = await auth()
-    if (!session?.user) redirect("/login")
+    // if (!session?.user) redirect("/login")
 
     // 1. Gatekeeper: Check Deposit
     const eligibility = await checkBiddingEligibility()
@@ -27,7 +28,7 @@ export default async function AuctionsPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Live Auctions</h1>
+                    <h1 id="auctions-title" className="text-3xl font-bold tracking-tight">Live Auctions</h1>
                     <p className="text-muted-foreground">Place your bids on premium verified assets.</p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -38,7 +39,9 @@ export default async function AuctionsPage() {
                         </Badge>
                     ) : (
                         <Button asChild variant="outline" size="sm">
-                            <Link href="/portal/auctions/register">Register to Bid</Link>
+                            <Link href={session?.user ? "/portal/auctions/register" : "/login?callbackUrl=/portal/auctions/register"}>
+                                {session?.user ? "Register to Bid" : "Login to Bid"}
+                            </Link>
                         </Button>
                     )}
                 </div>
@@ -73,10 +76,7 @@ export default async function AuctionsPage() {
                                     </div>
                                     <CardHeader className="space-y-1 p-4">
                                         <CardTitle className="line-clamp-1 text-lg">{auction.Item.name}</CardTitle>
-                                        <div className="flex items-center text-sm text-yellow-600 font-medium">
-                                            <Timer className="h-4 w-4 mr-1" />
-                                            End {formatDistanceToNow(auction.endTime, { addSuffix: true })}
-                                        </div>
+                                        <AuctionTimer endTime={auction.endTime} />
                                     </CardHeader>
                                     <CardContent className="p-4 pt-0 flex-1 space-y-2">
                                         <div className="flex justify-between items-baseline">
@@ -92,7 +92,7 @@ export default async function AuctionsPage() {
                                     </CardContent>
                                     <CardFooter className="p-4 pt-0">
                                         <Button asChild className="w-full">
-                                            <Link href={`/portal/auctions/${auction.id}`}>
+                                            <Link href={session?.user ? `/portal/auctions/${auction.id}` : `/login?callbackUrl=/portal/auctions/${auction.id}`}>
                                                 Place Bid
                                             </Link>
                                         </Button>

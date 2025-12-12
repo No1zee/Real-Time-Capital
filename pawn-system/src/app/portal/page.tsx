@@ -19,10 +19,10 @@ export default async function PortalDashboard() {
     }, 0)
 
     return (
-        <div className="space-y-4 md:space-y-8">
+        <div id="dashboard-section" className="space-y-4 md:space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
+                    <h2 id="dashboard-title" className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
                     <p className="text-sm md:text-base text-slate-400">Welcome back! Here is an overview of your account.</p>
                 </div>
                 <div className="hidden md:block">

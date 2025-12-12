@@ -8,7 +8,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             attribute="data-theme"
             defaultTheme="sunset"
             enableSystem={false}
-            themes={["light", "dark", "luxury", "corporate", "modern", "sunset"]}
+            themes={["light", "dark", "luxury", "corporate", "modern", "sunset", "crimson", "cyber", "synthwave"]}
         >
             {children}
         </ThemeProvider>

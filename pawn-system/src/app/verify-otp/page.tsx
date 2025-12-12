@@ -38,25 +38,25 @@ function VerifyOtpContent() {
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 p-4">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-2xl">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
+            <div className="w-full max-w-md bg-card border border-border rounded-xl p-8 shadow-2xl">
                 <div className="flex justify-center mb-6">
-                    <div className="bg-amber-500/10 p-4 rounded-full">
-                        <ShieldCheck className="h-12 w-12 text-amber-500" />
+                    <div className="bg-primary/10 p-4 rounded-full">
+                        <ShieldCheck className="h-12 w-12 text-primary" />
                     </div>
                 </div>
 
-                <h1 className="text-2xl font-bold text-white text-center mb-2">Verify Your Account</h1>
-                <p className="text-slate-400 text-center mb-6">
-                    We sent a 6-digit code to <span className="text-white font-medium">{email}</span>.
+                <h1 className="text-2xl font-bold text-foreground text-center mb-2">Verify Your Account</h1>
+                <p className="text-muted-foreground text-center mb-6">
+                    We sent a 6-digit code to <span className="text-foreground font-medium">{email}</span>.
                     <br />Checks your "Messages" (Mock Console)
                 </p>
 
                 <form onSubmit={handleVerify} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-200">Enter OTP Code</label>
+                        <label className="text-sm font-medium text-muted-foreground">Enter OTP Code</label>
                         <input
-                            className="flex h-12 w-full text-center text-2xl tracking-widest rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-white placeholder:text-slate-600 focus-visible:outline-none focus-visible:border-amber-500 transition-colors"
+                            className="flex h-12 w-full text-center text-2xl tracking-widest rounded-lg border border-input bg-background px-3 py-2 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-primary transition-colors"
                             value={otp}
                             onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                             placeholder="000000"
@@ -66,7 +66,7 @@ function VerifyOtpContent() {
 
                     <Button
                         type="submit"
-                        className="w-full h-12 text-lg font-bold bg-amber-500 text-slate-900 hover:bg-amber-400"
+                        className="w-full h-12 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90"
                         disabled={isPending || otp.length < 6}
                     >
                         {isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Verify Code"}
@@ -79,7 +79,7 @@ function VerifyOtpContent() {
 
 export default function VerifyOtpPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
             <VerifyOtpContent />
         </Suspense>
     )

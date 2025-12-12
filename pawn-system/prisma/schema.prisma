@@ -386,6 +386,7 @@ model User {
   emailVerified      DateTime?
   image              String?
   password           String?
+  passwordLastSet    DateTime?      @default(now())
   role               UserRole         @default(CUSTOMER)
   tier               UserTier         @default(BRONZE)
   verificationStatus VerificationStatus         @default(UNVERIFIED)

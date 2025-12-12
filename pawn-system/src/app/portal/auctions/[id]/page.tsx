@@ -14,10 +14,7 @@ import Link from "next/link"
 export default async function AuctionDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
     const session = await auth()
-    if (!session?.user) redirect("/login")
-
-    // Check eligibility logic here (or pass to client? server simpler)
-    const eligibility = await checkBiddingEligibility()
+    const eligibility = session?.user ? await checkBiddingEligibility() : { eligible: false, requiredDeposit: 50, reason: "NOT_LOGGED_IN" }
 
     const auction = await db.auction.findUnique({
         where: { id },
@@ -35,7 +32,6 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
 
     const currentPrice = Number(auction.currentBid || auction.startPrice)
     const minBid = currentPrice + 1 // Simple increment rule
-    const isOwner = session.user.id === auction.Item.userId // Unlikely for pawned item but possible
 
     async function handleBid(formData: FormData) {
         "use server"
@@ -88,9 +84,9 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                             <CardTitle className="text-lg flex items-center justify-between">
                                 <div className="flex items-center">
                                     <Gavel className="mr-2 h-5 w-5" />
-                                    {eligibility.eligible ? "Place a Bid" : "Registration Required"}
+                                    {eligibility.eligible ? "Place a Bid" : session?.user ? "Registration Required" : "Login Required"}
                                 </div>
-                                {!eligibility.eligible && (
+                                {!eligibility.eligible && session?.user && (
                                     <Badge variant="outline" className="text-yellow-600 border-yellow-500">
                                         Deposit Unpaid
                                     </Badge>
@@ -117,6 +113,20 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                                         Bid Now
                                     </Button>
                                 </form>
+                            ) : !session?.user ? (
+                                <div className="text-center space-y-4">
+                                    <p className="text-sm text-muted-foreground">
+                                        You must be logged in to participate in this auction.
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Button asChild variant="outline" size="lg">
+                                            <Link href={`/login?callbackUrl=/portal/auctions/${id}`}>Sign In</Link>
+                                        </Button>
+                                        <Button asChild size="lg">
+                                            <Link href="/register">Create Account</Link>
+                                        </Button>
+                                    </div>
+                                </div>
                             ) : (
                                 <div className="text-center space-y-4">
                                     <p className="text-sm text-muted-foreground">

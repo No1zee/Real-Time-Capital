@@ -26,7 +26,7 @@ export default async function AuctionArchivePage() {
                 {auctions.map((auction: any) => {
                     let imageUrl = "https://placehold.co/600x400?text=No+Image"
                     try {
-                        const rawImages = auction.item.images
+                        const rawImages = auction.Item.images
                         let images: string[] = []
 
                         if (typeof rawImages === 'string') {
@@ -46,7 +46,7 @@ export default async function AuctionArchivePage() {
                         <Card key={auction.id} className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 opacity-80 hover:opacity-100 transition-opacity">
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                    {auction.item.name}
+                                    {auction.Item.name}
                                 </CardTitle>
                                 <Badge variant="secondary">
                                     {auction.status}
@@ -56,7 +56,7 @@ export default async function AuctionArchivePage() {
                                 <div className="relative h-48 w-full overflow-hidden rounded-t-lg grayscale hover:grayscale-0 transition-all">
                                     <img
                                         src={imageUrl}
-                                        alt={auction.item.name}
+                                        alt={auction.Item.name}
                                         className="h-full w-full object-cover"
                                     />
                                     <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">

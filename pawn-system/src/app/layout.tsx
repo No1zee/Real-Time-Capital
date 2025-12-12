@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -32,12 +33,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <TourProvider>
-            <TipProvider>
-              {children}
-              <Toaster position="top-center" richColors />
-            </TipProvider>
-          </TourProvider>
+          <Suspense fallback={null}>
+            <TourProvider>
+              <TipProvider>
+                {children}
+                <Toaster position="top-center" richColors />
+              </TipProvider>
+            </TourProvider>
+          </Suspense>
         </Providers>
       </body>
     </html>

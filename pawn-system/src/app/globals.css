@@ -253,6 +253,9 @@
     --input: 150 10% 90%;
     --ring: 151 55% 45%;
 
+    --radius: 1.5rem;
+    /* Super Rounded */
+
     --sidebar: 0 0% 100%;
     --sidebar-foreground: 150 10% 10%;
     --sidebar-primary: 151 55% 45%;
@@ -309,49 +312,176 @@
   [data-theme="sunset"] {
     /* Pastel Sunset Theme */
     --background: 14 90% 94%;
-    /* Misty Rose */
     --foreground: 13 30% 30%;
-    /* Darker Brown for text contrast */
-
     --card: 21 82% 87%;
-    /* Apricot */
     --card-foreground: 13 30% 30%;
-
     --popover: 14 90% 94%;
     --popover-foreground: 13 30% 30%;
-
-    --primary: 173 36% 55%;
-    /* Teal */
+    --primary: 190 100% 50%;
+    /* Bright Sky Blue */
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 178 95% 87%;
-    /* Light Cyan */
-    --secondary-foreground: 173 40% 30%;
-
-    --muted: 13 13% 65%;
-    /* Cinereous */
-    --muted-foreground: 13 30% 40%;
-
-    --accent: 178 95% 87%;
-    /* Light Cyan */
-    --accent-foreground: 173 40% 30%;
-
+    --secondary: 190 100% 95%;
+    /* Light Blue Tint */
+    --secondary-foreground: 190 100% 30%;
+    --muted: 190 30% 96%;
+    --muted-foreground: 190 60% 40%;
+    --accent: 190 100% 90%;
+    /* Lighter Blue */
+    --accent-foreground: 190 100% 30%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 13 13% 65%;
-    /* Cinereous */
-    --input: 13 13% 65%;
-    --ring: 173 36% 55%;
-
+    --border: 190 30% 80%;
+    --input: 190 30% 80%;
+    --ring: 190 100% 50%;
     --sidebar: 14 90% 94%;
     --sidebar-foreground: 13 30% 30%;
-    --sidebar-primary: 173 36% 55%;
+    --sidebar-primary: 190 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 178 95% 87%;
-    --sidebar-accent-foreground: 173 40% 30%;
-    --sidebar-border: 13 13% 65%;
-    --sidebar-ring: 173 36% 55%;
+    --sidebar-accent: 190 100% 95%;
+    --sidebar-accent-foreground: 190 100% 30%;
+    --sidebar-border: 190 30% 80%;
+    --sidebar-ring: 190 100% 50%;
+  }
+
+  [data-theme="crimson"] {
+    /* Crimson Tide: Aggressive Red/Black -> Now Richer, less flat */
+    --background: 0 0% 4%;
+    /* Soft Dark Grey, not pitch black */
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 8%;
+    /* Distinctly lighter card */
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 348 93% 60%;
+    /* Bright Crimson */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 348 20% 15%;
+    /* Red-tinted grey */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 70%;
+    /* Brighter muted text */
+
+    --accent: 348 93% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    /* Visible borders */
+    --input: 0 0% 20%;
+    --ring: 348 93% 60%;
+
+    --radius: 0rem;
+    /* Sharp/Aggressive */
+
+    --sidebar: 0 0% 4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 348 93% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 348 20% 15%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 348 93% 60%;
+  }
+
+  [data-theme="cyber"] {
+    /* Cyber Blue: TRON -> More 'Electric', less 'Navy' */
+    --background: 220 30% 8%;
+    /* Slightly lighter deep blue */
+    --foreground: 180 100% 90%;
+
+    --card: 220 30% 12%;
+    --card-foreground: 180 100% 90%;
+
+    --popover: 220 30% 12%;
+    --popover-foreground: 180 100% 90%;
+
+    --primary: 190 100% 50%;
+    /* Electric Cyan */
+    --primary-foreground: 220 40% 2%;
+
+    --secondary: 190 20% 15%;
+    /* Cyan-tinted dark */
+    --secondary-foreground: 180 100% 90%;
+
+    --muted: 220 30% 15%;
+    --muted-foreground: 190 20% 70%;
+
+    --accent: 190 100% 50%;
+    --accent-foreground: 220 40% 2%;
+
+    --destructive: 0 90% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 190 30% 20%;
+    /* Cyan-tinted borders */
+    --input: 190 30% 20%;
+    --ring: 190 100% 50%;
+
+    --radius: 0.2rem;
+    /* Tech/Chiseled - slight corner */
+
+    --sidebar: 220 30% 8%;
+    --sidebar-foreground: 180 100% 90%;
+    --sidebar-primary: 190 100% 50%;
+    --sidebar-primary-foreground: 220 40% 2%;
+    --sidebar-accent: 190 20% 15%;
+    --sidebar-accent-foreground: 180 100% 90%;
+    --sidebar-border: 190 30% 20%;
+    --sidebar-ring: 190 100% 50%;
+  }
+
+  [data-theme="synthwave"] {
+    /* Synthwave: Retro -> More Vibrant/Neon */
+    --background: 265 40% 10%;
+    /* Rich Deep Purple, not black */
+    --foreground: 300 100% 95%;
+
+    --card: 265 40% 15%;
+    /* Lighter purple card */
+    --card-foreground: 300 100% 95%;
+
+    --popover: 265 40% 15%;
+    --popover-foreground: 300 100% 95%;
+
+    --primary: 320 100% 60%;
+    /* Hot Neon Pink */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 265 30% 25%;
+    --secondary-foreground: 300 100% 95%;
+
+    --muted: 265 30% 20%;
+    --muted-foreground: 280 20% 80%;
+
+    --accent: 280 90% 65%;
+    /* Bright Violet */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 320 40% 25%;
+    /* Pinkish borders */
+    --input: 320 40% 25%;
+    --ring: 320 100% 60%;
+
+    --sidebar: 265 40% 10%;
+    --sidebar-foreground: 300 100% 95%;
+    --sidebar-primary: 320 100% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 265 30% 25%;
+    --sidebar-accent-foreground: 300 100% 95%;
+    --sidebar-border: 320 40% 25%;
+    --sidebar-ring: 320 100% 60%;
   }
 }
 
@@ -360,11 +490,46 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground min-h-screen antialiased;
-    /* Clean background, no gradients */
-  }
+  @apply bg-background text-foreground min-h-screen antialiased;
 }
+
+/* --- THEME TEXTURES & FONTS --- */
+
+[data-theme="cyber"] body {
+  background-image: linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+[data-theme="cyber"] h1,
+[data-theme="cyber"] h2,
+[data-theme="cyber"] h3,
+[data-theme="cyber"] h4,
+[data-theme="cyber"] h5,
+[data-theme="cyber"] h6,
+[data-theme="cyber"] .font-heading {
+  font-family: var(--font-geist-mono);
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+[data-theme="crimson"] body {
+  background-image: repeating-linear-gradient(45deg,
+      rgba(255, 0, 0, 0.02),
+      rgba(255, 0, 0, 0.02) 1px,
+      transparent 1px,
+      transparent 10px);
+}
+
+[data-theme="luxury"] body {
+  background-image: radial-gradient(rgba(200, 150, 50, 0.05) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+[data-theme="modern"] body {
+  background-image: radial-gradient(rgba(0, 150, 80, 0.03) 2px, transparent 0);
+  background-size: 40px 40px;
+}
+
 
 @layer utilities {
   .glass {

@@ -17,6 +17,17 @@ const initialState: RegisterState = {
     errors: {},
 }
 
+function FieldError({ errors }: { errors?: string[] }) {
+    if (!errors || errors.length === 0) return null
+    return (
+        <p className="text-red-400 text-xs mt-1.5 font-medium flex items-center gap-1 animate-in slide-in-from-top-1 fade-in duration-200">
+            <Info className="h-3 w-3" />
+            {errors[0]}
+        </p>
+    )
+}
+
+
 // Terms Modal Component
 function TermsModal({ isOpen, onClose, onAccept }: { isOpen: boolean; onClose: () => void; onAccept: () => void }) {
     if (!isOpen) return null
@@ -62,6 +73,12 @@ function RegisterWizard() {
     const [fileName, setFileName] = useState<string | null>(null)
     const [showTerms, setShowTerms] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false) // Manual tracking for visual feedback outside formAction
+
+    // Helper to get error
+    const getError = (field: keyof NonNullable<RegisterState["errors"]>) => state.errors?.[field]
+    const getInputClass = (field: keyof NonNullable<RegisterState["errors"]>) =>
+        `input-field ${getError(field) ? "border-red-500 focus:border-red-500 bg-red-900/10 text-red-100 placeholder:text-red-400/50" : ""}`
+
 
     useEffect(() => {
         if (state.message) {
@@ -153,25 +170,50 @@ function RegisterWizard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-200">Full Name</label>
-                                <input className="input-field" name="name" value={formData.name} onChange={handleChange} placeholder="John Doe" required />
+                                <input
+                                    className={getInputClass("name")}
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="John Doe"
+                                    required
+                                />
+                                <FieldError errors={getError("name")} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-200">Date of Birth</label>
-                                <input className="input-field" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} required />
+                                <input
+                                    className={getInputClass("dateOfBirth")}
+                                    name="dateOfBirth"
+                                    type="date"
+                                    value={formData.dateOfBirth}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <FieldError errors={getError("dateOfBirth")} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-200">National ID</label>
-                                <input className="input-field" name="nationalId" value={formData.nationalId} onChange={handleChange} placeholder="63-1234567-T-07" required />
+                                <input
+                                    className={getInputClass("nationalId")}
+                                    name="nationalId"
+                                    value={formData.nationalId}
+                                    onChange={handleChange}
+                                    placeholder="63-1234567-T-07"
+                                    required
+                                />
+                                <FieldError errors={getError("nationalId")} />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-slate-200">Upload ID</label>
                                 <div className="relative">
                                     <input type="file" id="idImage" name="idImage" accept="image/*,application/pdf" className="hidden"
                                         onChange={(e) => setFileName(e.target.files?.[0]?.name || null)} />
-                                    <label htmlFor="idImage" className="flex h-11 w-full items-center justify-between rounded-lg border border-white/10 bg-slate-950 px-3 cursor-pointer hover:bg-slate-900">
-                                        <span className="text-slate-400 truncate text-sm">{fileName || "Select File"}</span>
-                                        <Upload className="h-4 w-4 text-amber-500" />
+                                    <label htmlFor="idImage" className={`flex h-11 w-full items-center justify-between rounded-lg border bg-slate-950 px-3 cursor-pointer hover:bg-slate-900 transition-colors ${getError("idImage") ? "border-red-500 bg-red-900/10" : "border-white/10"}`}>
+                                        <span className={`truncate text-sm ${getError("idImage") ? "text-red-300" : "text-slate-400"}`}>{fileName || "Select File"}</span>
+                                        <Upload className={`h-4 w-4 ${getError("idImage") ? "text-red-400" : "text-amber-500"}`} />
                                     </label>
+                                    <FieldError errors={getError("idImage")} />
                                 </div>
                             </div>
                         </div>
@@ -183,19 +225,49 @@ function RegisterWizard() {
                     <div className="space-y-4 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Email</label>
-                            <input className="input-field" name="email" type="email" value={formData.email} onChange={handleChange} required />
+                            <input
+                                className={getInputClass("email")}
+                                name="email"
+                                type="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("email")} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Phone</label>
-                            <input className="input-field" name="phoneNumber" type="tel" value={formData.phoneNumber} onChange={handleChange} required />
+                            <input
+                                className={getInputClass("phoneNumber")}
+                                name="phoneNumber"
+                                type="tel"
+                                value={formData.phoneNumber}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("phoneNumber")} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Address</label>
-                            <input className="input-field" name="address" value={formData.address} onChange={handleChange} required />
+                            <input
+                                className={getInputClass("address")}
+                                name="address"
+                                value={formData.address}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("address")} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">City/Location</label>
-                            <input className="input-field" name="location" value={formData.location} onChange={handleChange} required />
+                            <input
+                                className={getInputClass("location")}
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("location")} />
                         </div>
                     </div>
                 </div>
@@ -205,11 +277,27 @@ function RegisterWizard() {
                     <div className="space-y-4 bg-white/5 p-4 md:p-6 rounded-xl border border-white/10">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Password</label>
-                            <input className="input-field" name="password" type="password" value={formData.password} onChange={handleChange} required title="Min 8 chars, 1 upper, 1 lower, 1 digit, 1 special" />
+                            <input
+                                className={getInputClass("password")}
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("password")} />
                         </div>
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-slate-200">Confirm Password</label>
-                            <input className="input-field" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} required />
+                            <input
+                                className={getInputClass("confirmPassword")}
+                                name="confirmPassword"
+                                type="password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                required
+                            />
+                            <FieldError errors={getError("confirmPassword")} />
                         </div>
                         <ul className="text-xs text-slate-400 list-disc pl-4 space-y-1 mt-2">
                             <li>Min. 8 characters</li>
@@ -230,19 +318,20 @@ function RegisterWizard() {
                         </dl>
 
                         <div className="pt-4 border-t border-white/10">
-                            <div className="flex items-center gap-3 bg-amber-500/10 p-4 rounded-lg border border-amber-500/20">
+                            <div className={`flex items-center gap-3 p-4 rounded-lg border transition-colors ${getError("terms") ? "bg-red-900/10 border-red-500" : "bg-amber-500/10 border-amber-500/20"}`}>
                                 <input
                                     type="checkbox" id="terms" name="terms"
                                     checked={formData.terms}
-                                    className="h-5 w-5 rounded border-slate-600 bg-slate-800 text-amber-500 focus:ring-amber-500"
+                                    className={`h-5 w-5 rounded bg-slate-800 text-amber-500 focus:ring-amber-500 ${getError("terms") ? "border-red-500" : "border-slate-600"}`}
                                     // Make read-only here, controlled by modal
                                     readOnly
                                     onClick={(e) => { e.preventDefault(); setShowTerms(true); }}
                                 />
-                                <label htmlFor="terms" className="text-sm text-slate-300 cursor-pointer select-none" onClick={() => setShowTerms(true)}>
+                                <label htmlFor="terms" className={`text-sm cursor-pointer select-none ${getError("terms") ? "text-red-300" : "text-slate-300"}`} onClick={() => setShowTerms(true)}>
                                     I agree to the <span className="text-amber-500 underline font-medium">Terms & Conditions</span>
                                 </label>
                             </div>
+                            <FieldError errors={getError("terms")} />
                         </div>
                     </div>
                 </div>

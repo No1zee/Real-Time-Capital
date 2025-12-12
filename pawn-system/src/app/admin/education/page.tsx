@@ -30,7 +30,7 @@ export default async function AdminContentPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Education Hub</h1>
+                    <h1 id="admin-content-title" className="text-3xl font-bold tracking-tight">Education Hub</h1>
                     <p className="text-muted-foreground">Manage articles and guides for customers.</p>
                 </div>
                 <Link href="/admin/education/create">

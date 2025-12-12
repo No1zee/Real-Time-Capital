@@ -12,7 +12,7 @@ export default async function EducationPage() {
     return (
         <div className="container py-8 space-y-8">
             <div className="space-y-4">
-                <h1 className="text-4xl font-bold tracking-tight text-primary">Knowledge Hub</h1>
+                <h1 id="education-title" className="text-4xl font-bold tracking-tight text-primary">Knowledge Hub</h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
                     Learn everything you need to know about pawning, valuations, and financial management with Cashpoint.
                 </p>

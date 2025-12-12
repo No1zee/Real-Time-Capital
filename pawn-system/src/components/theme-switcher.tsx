@@ -9,6 +9,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
+    DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 
 export function ThemeSwitcher() {
@@ -49,6 +50,18 @@ export function ThemeSwitcher() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setTheme("modern")} className={theme === "modern" ? "bg-accent" : ""}>
                     Modern (Green)
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => setTheme("crimson")} className={theme === "crimson" ? "bg-accent" : ""}>
+                    Crimson Tide (Red)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("cyber")} className={theme === "cyber" ? "bg-accent" : ""}>
+                    Cyber Blue (Neon)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("synthwave")} className={theme === "synthwave" ? "bg-accent" : ""}>
+                    Synthwave (Purple)
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
