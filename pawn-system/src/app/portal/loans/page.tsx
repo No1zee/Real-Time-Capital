@@ -6,6 +6,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { Plus, Sparkles, Clock, CheckCircle2, AlertCircle } from "lucide-react"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export default async function PortalLoansPage() {
     const loans = await getCustomerLoans()
@@ -212,23 +213,13 @@ export default async function PortalLoansPage() {
 
             {/* EMPTY STATE */}
             {loans.length === 0 && (
-                <div className="text-center py-16 bg-white dark:bg-slate-950 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-800">
-                    <div className="max-w-md mx-auto">
-                        <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Plus className="w-8 h-8 text-amber-600 dark:text-amber-500" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Loans Yet</h3>
-                        <p className="text-slate-500 dark:text-slate-400 mb-6">
-                            Apply for your first loan to get started
-                        </p>
-                        <Button asChild className="bg-amber-600 hover:bg-amber-700">
-                            <Link href="/portal/loans/apply">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Quick Apply
-                            </Link>
-                        </Button>
-                    </div>
-                </div>
+                <EmptyState
+                    icon={Plus}
+                    title="No Loans Yet"
+                    description="Apply for your first loan to get started with our secure lending process."
+                    actionLabel="Quick Apply"
+                    actionHref="/portal/loans/apply"
+                />
             )}
             <div className="mt-8">
                 <KnowledgeWidget category="loans" title="Borrowing Guides" limit={3} />

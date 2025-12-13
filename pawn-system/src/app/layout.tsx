@@ -21,6 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cashpoint",
   description: "Pawn Shop Management System",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0", // Prevent zooming issues
 };
 
 export default async function RootLayout({

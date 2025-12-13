@@ -12,6 +12,7 @@ import { Gavel } from "lucide-react"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 import { AuctionTimer } from "@/components/auctions/auction-timer"
+import { EmptyState } from "@/components/ui/empty-state"
 
 export default async function AuctionsPage() {
     const session = await auth()
@@ -48,11 +49,13 @@ export default async function AuctionsPage() {
             </div>
 
             {auctions.length === 0 ? (
-                <div className="text-center py-20 bg-muted/30 rounded-lg border-2 border-dashed">
-                    <Gavel className="h-10 w-10 mx-auto text-muted-foreground mb-4 opacity-50" />
-                    <h3 className="text-lg font-medium">No Active Auctions</h3>
-                    <p className="text-muted-foreground">Check back later for new inventory.</p>
-                </div>
+                <EmptyState
+                    icon={Gavel}
+                    title="No Active Auctions"
+                    description="Check back later for new premium assets. Our inventory is constantly updated."
+                    actionLabel="View Ended Auctions"
+                    actionHref="/portal/auctions?view=ended"
+                />
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {auctions.map((auction) => {

@@ -170,6 +170,15 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
     const { theme } = useTheme()
     const isDark = theme === "dark"
 
+    // Mobile Detection
+    const [isMobile, setIsMobile] = useState(false)
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+
     // Premium Styles Configuration
     const styles = {
         options: {
@@ -181,18 +190,18 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
             zIndex: 10000,
         },
         tooltip: {
-            borderRadius: '1rem',
+            borderRadius: isMobile ? '0.75rem' : '1rem', // Smaller radius on mobile
             boxShadow: isDark
                 ? '0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)'
                 : '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-            padding: '1.5rem',
-            fontSize: '0.95rem',
-            backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(12px)',
-            border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
+            padding: isMobile ? '0.75rem' : '1.5rem', // Reduced padding (was 1.5rem)
+            fontSize: isMobile ? '0.85rem' : '0.95rem', // Smaller font (was 0.95rem)
+            backgroundColor: isDark ? 'rgba(30, 41, 59, 1)' : 'rgba(255, 255, 255, 1)', // Remove opacity for better readibility on small screens? Kept solid for safety.
+            // backdropFilter: 'blur(12px)', // Mobile performance might suffer, potential cause of "bulky" feel if laggy? Keeping it off the solid color suggestion above implies removing this, but let's keep it for premium feel if possible. 
+            // Actually, let's keep backdrop filter but ensure bg has high alpha. The previous code had 0.9/0.95 alpha.
         },
         tooltipContent: {
-            padding: '5px 0 10px 0'
+            padding: isMobile ? '2px 0 5px 0' : '5px 0 10px 0'
         },
         buttonNext: {
             display: 'none' // Hide next button for auto-play
@@ -201,7 +210,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
             display: 'none'
         },
         spotlight: {
-            borderRadius: '1rem',
+            borderRadius: isMobile ? '0.5rem' : '1rem',
         }
     }
 

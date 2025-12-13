@@ -3,6 +3,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { MobileNav } from "@/components/mobile-nav"
+import { DashboardBreadcrumb } from "@/components/dashboard-breadcrumb"
 
 export default async function DashboardLayout({
     children,
@@ -39,6 +40,7 @@ export default async function DashboardLayout({
                 </div>
 
                 <div className="p-4 md:p-8">
+                    <DashboardBreadcrumb />
                     {children}
                 </div>
             </main>
