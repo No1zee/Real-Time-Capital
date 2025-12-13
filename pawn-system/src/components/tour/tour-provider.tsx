@@ -25,16 +25,39 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
     const [hasSeenGlobalIntro, setHasSeenGlobalIntro] = useState(false)
     const pathname = usePathname()
     const searchParams = useSearchParams()
-    const isDemoMode = searchParams?.get('demo') === 'true'
+    const [isDemoMode, setIsDemoMode] = useState(false)
 
-    // 1. Initialize State from Storage (Client-side only)
+    // 1. Initialize State from Storage (Client-side only) & Handle Persistence
     useEffect(() => {
         setMounted(true)
         const seenIntro = localStorage.getItem('hasSeenGlobalIntro') === 'true'
+
+        // Demo Mode Persistence Logic
+        const demoParam = searchParams?.get('demo')
+        const storedDemo = localStorage.getItem('isDemoMode')
+
+        // Logic: Default to TRUE (Always On) unless explicitly set to 'false'
+        let activeDemo = true
+
+        if (demoParam === 'false') {
+            activeDemo = false
+            localStorage.setItem('isDemoMode', 'false')
+        } else if (storedDemo === 'false') {
+            activeDemo = false
+        } else {
+            // Default case (or demo=true or storedDemo=true)
+            activeDemo = true
+            if (activeDemo && storedDemo !== 'true') {
+                localStorage.setItem('isDemoMode', 'true') // Ensure compatibility
+            }
+        }
+
+        setIsDemoMode(activeDemo)
+
         // If demo mode, force seenIntro to false
-        setHasSeenGlobalIntro(isDemoMode ? false : seenIntro)
+        setHasSeenGlobalIntro(activeDemo ? false : seenIntro)
         setIsReady(true)
-    }, [isDemoMode])
+    }, [searchParams])
 
     // 2. Filter steps based on current route AND state AND role
     const userRole = user?.role || "GUEST"
@@ -165,6 +188,11 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
         setHasSeenGlobalIntro(false) // Reset state to allow intro step logic to pass
         setRun(true)
         setStepIndex(0)
+
+        // Also enable demo mode if triggered manually via startTour (optional, but good for "Show Walkthrough" button)
+        // localStorage.setItem('isDemoMode', 'true') 
+        // setIsDemoMode(true)
+        // Actually, keep startTour distinct from "System Demo Mode" to allow simple restarts without full demo effects.
     }
 
     const { theme } = useTheme()
@@ -236,16 +264,32 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
                     }}
                 />
             )}
-            {/* VISUAL DEBUG BANNER - TEMPORARY */}
+            {/* DEMO MODE INDICATOR */}
             {isDemoMode && (
-                <div className="fixed top-20 right-4 z-[99999] bg-red-900/90 text-white p-4 rounded-lg shadow-xl text-xs font-mono border border-red-500 pointer-events-none">
-                    <p className="font-bold underline mb-1">Tour Debugger</p>
-                    <p>Path: {pathname}</p>
-                    <p>Steps: {steps.length}</p>
-                    <p>Run: {String(run)}</p>
-                    <p>SeenGlobal: {String(hasSeenGlobalIntro)}</p>
-                    <p>Ready: {String(isReady)}</p>
-                    <p>Mounted: {String(mounted)}</p>
+                <div className="fixed bottom-4 right-4 z-[9999] animate-in slide-in-from-bottom-4 fade-in duration-500">
+                    <div className="bg-slate-900/90 backdrop-blur-md text-white p-1.5 pr-3 rounded-full shadow-2xl border border-white/10 flex items-center gap-3">
+                        <div className="bg-primary/20 p-2 rounded-full animate-pulse">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                            </span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">System Mode</span>
+                            <span className="text-sm font-bold text-white leading-none">Interactive Demo</span>
+                        </div>
+                        <div className="h-8 w-px bg-white/10 mx-1" />
+                        <button
+                            onClick={() => {
+                                localStorage.setItem('isDemoMode', 'false'); // Explicitly disable
+                                setIsDemoMode(false);
+                                window.location.reload();
+                            }}
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
+                        >
+                            Exit
+                        </button>
+                    </div>
                 </div>
             )}
         </TourContext.Provider>

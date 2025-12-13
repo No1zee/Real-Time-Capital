@@ -175,15 +175,16 @@ export function MobileNav({ user, unreadCount = 0 }: { user: any, unreadCount?: 
                                 <Button
                                     variant="outline"
                                     onClick={() => {
-                                        localStorage.clear() // Still clear storage for good measure
+                                        localStorage.removeItem('hasSeenGlobalIntro')
+                                        localStorage.setItem('isDemoMode', 'true') // Enable persistent demo
                                         const url = new URL(window.location.href)
-                                        url.searchParams.set("demo", "true")
+                                        url.searchParams.set("demo", "true") // Keep URL for immediate effect/sharing
                                         window.location.href = url.toString()
                                     }}
                                     className="w-full justify-start gap-2 border-dashed border-primary/50 text-primary hover:bg-primary/10"
                                 >
                                     <Sparkles className="w-4 h-4" />
-                                    Reset Demo Tour
+                                    Start Demo Mode
                                 </Button>
                             </div>
                         </div>

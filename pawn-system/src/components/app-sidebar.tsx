@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { getUnreadCount } from "@/app/actions/notification"
 import { TourTrigger } from "@/components/tour/tour-trigger"
+import { DemoTrigger } from "@/components/demo-trigger"
 
 type SidebarVariant = "default" | "admin" | "portal"
 
@@ -300,8 +301,9 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
                     </div>
                 </div>
 
-                <div className="px-3">
+                <div className="px-3 space-y-1">
                     <TourTrigger />
+                    <DemoTrigger className="w-full justify-start text-xs hover:bg-amber-500/10" />
                 </div>
 
                 {/* User Info Footer (Portal Style) */}
