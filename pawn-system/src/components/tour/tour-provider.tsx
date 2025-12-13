@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from "react"
 import Joyride, { CallBackProps, STATUS, Step } from "react-joyride"
 import { tourSteps } from "./tour-registry"
 import { usePathname, useSearchParams } from "next/navigation"
+import { useTheme } from "next-themes"
+import confetti from "canvas-confetti"
 
 interface TourContextType {
     startTour: () => void
@@ -127,8 +129,31 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
 
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
             setRun(false)
-            if (status === STATUS.SKIPPED) {
-                // localStorage.setItem(`hasSeenTour_${pathname}`, "true") // MVP Check
+            if (status === STATUS.FINISHED) {
+                // Celebration!
+                const end = Date.now() + 3 * 1000; // 3 seconds
+                const colors = ['#06b6d4', '#ffffff', '#f59e0b']; // Cyan, White, Amber
+
+                (function frame() {
+                    confetti({
+                        particleCount: 2,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: colors
+                    });
+                    confetti({
+                        particleCount: 2,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: colors
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
             }
         }
     }
@@ -140,6 +165,44 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
         setHasSeenGlobalIntro(false) // Reset state to allow intro step logic to pass
         setRun(true)
         setStepIndex(0)
+    }
+
+    const { theme } = useTheme()
+    const isDark = theme === "dark"
+
+    // Premium Styles Configuration
+    const styles = {
+        options: {
+            arrowColor: isDark ? '#1e293b' : '#ffffff',
+            backgroundColor: isDark ? '#1e293b' : '#ffffff',
+            overlayColor: isDark ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)',
+            primaryColor: '#06b6d4', // Cyan Main
+            textColor: isDark ? '#f8fafc' : '#0f172a',
+            zIndex: 10000,
+        },
+        tooltip: {
+            borderRadius: '1rem',
+            boxShadow: isDark
+                ? '0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5)'
+                : '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+            padding: '1.5rem',
+            fontSize: '0.95rem',
+            backgroundColor: isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(12px)',
+            border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
+        },
+        tooltipContent: {
+            padding: '5px 0 10px 0'
+        },
+        buttonNext: {
+            display: 'none' // Hide next button for auto-play
+        },
+        buttonBack: {
+            display: 'none'
+        },
+        spotlight: {
+            borderRadius: '1rem',
+        }
     }
 
     return (
@@ -157,31 +220,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
                     hideCloseButton={false} // Allow closing
                     disableScrolling={true} // Avoid jumping around too much
                     callback={handleJoyrideCallback}
-                    styles={{
-                        options: {
-                            arrowColor: '#fff',
-                            backgroundColor: '#fff',
-                            overlayColor: 'rgba(0, 0, 0, 0.5)',
-                            primaryColor: '#06b6d4', // Cyan Main
-                            textColor: '#0f172a', // Slate 900
-                            zIndex: 10000,
-                        },
-                        tooltip: {
-                            borderRadius: '0.75rem',
-                            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
-                            padding: '1rem',
-                            fontSize: '0.9rem',
-                        },
-                        tooltipContent: {
-                            padding: '5px 10px'
-                        },
-                        buttonNext: {
-                            display: 'none' // Hide next button for auto-play
-                        },
-                        buttonBack: {
-                            display: 'none'
-                        }
-                    }}
+                    styles={styles}
                     floaterProps={{
                         hideArrow: false,
                         disableAnimation: true, // Reduce motion issues

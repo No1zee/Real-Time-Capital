@@ -8,12 +8,12 @@ export function TourTrigger() {
 
     return (
         <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={startTour}
-            className="w-full justify-start text-xs font-semibold text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+            className="w-full justify-start text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-primary/5 hover:border-primary/20 transition-all duration-300"
         >
-            <span className="mr-2">✨</span> Start MVP Tour
+            <span className="mr-2 text-base">✨</span> Show Walkthrough
         </Button>
     )
 }

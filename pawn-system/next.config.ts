@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "api.dicebear.com",
+      },
+      {
+        protocol: "https",
+        hostname: "loremflickr.com", // Added for seed images
+      },
+      {
+        protocol: "https",
+        hostname: "avatars.githubusercontent.com", // Added for auth
       }
     ]
   },
@@ -50,7 +58,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy', // Req 1f: CSP
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://images.unsplash.com https://plus.unsplash.com; font-src 'self';",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://images.unsplash.com https://plus.unsplash.com https://loremflickr.com https://avatars.githubusercontent.com; font-src 'self';",
           }
         ],
       },

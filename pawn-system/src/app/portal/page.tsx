@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 
+import { auth } from "@/auth"
+import { Greeting } from "@/components/dashboard/greeting"
+import { QuickActions } from "@/components/dashboard/quick-actions"
+
 export default async function PortalDashboard() {
+    const session = await auth()
     const loans = await getCustomerLoans()
     const items = await getCustomerItems()
 
@@ -19,18 +24,17 @@ export default async function PortalDashboard() {
     }, 0)
 
     return (
-        <div id="dashboard-section" className="space-y-4 md:space-y-8">
+        <div id="dashboard-section" className="space-y-4 md:space-y-6">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 id="dashboard-title" className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Dashboard</h2>
-                    <p className="text-sm md:text-base text-slate-400">Welcome back! Here is an overview of your account.</p>
-                </div>
+                <Greeting name={session?.user?.name} />
                 <div className="hidden md:block">
                     <span className="inline-flex items-center rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-500 ring-1 ring-inset ring-amber-500/20">
                         Verified Member
                     </span>
                 </div>
             </div>
+
+            <QuickActions />
 
             {/* Bento Grid Layout */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 auto-rows-[160px] md:auto-rows-[180px]">
