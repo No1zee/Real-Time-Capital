@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { auth } from "@/auth";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -46,6 +47,7 @@ export default async function RootLayout({
             </TourProvider>
           </Suspense>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
