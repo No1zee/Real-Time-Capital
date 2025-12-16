@@ -31,7 +31,7 @@ async function testAutoExtension() {
             name: "Test Car",
             description: "Test",
             userId: seller.id,
-            status: "AVAILABLE",
+            status: "VALUED",
             type: "VEHICLE",
             valuation: 5000,
             images: "[]" // JSON string
