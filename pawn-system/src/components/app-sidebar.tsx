@@ -111,6 +111,7 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
             { name: "Dashboard", href: "/portal", icon: LayoutDashboard, roles: ["CUSTOMER"], header: "Menu" },
             { name: "My Loans", href: "/portal/loans", icon: FileText, roles: ["CUSTOMER"] },
             { name: "My Items", href: "/portal/items", icon: Package, roles: ["CUSTOMER"] },
+            { name: "My Bids & Wins", href: "/portal/auctions/my-bids", icon: Gavel, roles: ["CUSTOMER"] },
             { name: "My Wallet", href: "/portal/wallet", icon: Wallet, roles: ["CUSTOMER"] },
             { name: "My Watchlist", href: "/portal/watchlist", icon: Heart, roles: ["CUSTOMER"] },
             // New Feature: Online Pawn

@@ -160,6 +160,19 @@ model Auction {
   Dispute    Dispute[]
   Rating     Rating?
   Watchlist  Watchlist[]
+  
+  // Auction Logic Extensions
+  extendedCount   Int     @default(0)
+  allowAutoExtend Boolean @default(true)
+  buyerLevyPercent Float  @default(15.0)
+  vatPercent       Float  @default(15.0)
+  
+  // Trade Me Features
+  buyNowPrice      Decimal?
+  Questions        Question[]
+  
+  winnerId         String?
+  Winner           User?       @relation("AuctionWins", fields: [winnerId], references: [id])
 }
 
 model AutoBid {
@@ -218,6 +231,8 @@ enum AssetType {
   VEHICLE
   COLLECTIBLE
   FURNITURE
+  PROPERTY
+  GOODS
   OTHER
 }
 
@@ -260,6 +275,12 @@ model Item {
   registrationNumber String?
   mileage            Int?
   color              String?
+  
+  // IAAI Style Condition Report
+  primaryDamage      String?
+  secondaryDamage    String?
+  hasKeys            Boolean?
+  runsAndDrives      Boolean?
   
   // Jewelry/Other Specifics
   purity             String? // Karat
@@ -415,6 +436,7 @@ model User {
   Ticket             Ticket[]
   Article            Article[]
   UserPattern        UserPattern[]
+  Questions          Question[]
 
   // CRM Relations
   NotesReceived      CRMNote[]     @relation("NotesReceived")
@@ -425,6 +447,9 @@ model User {
   LogsRecorded       CRMLog[]      @relation("LogAuthor")
   Documents          UserDocument[]
   Tags               UserCRMTag[]
+  
+  // Auction Relations
+  Wins               Auction[]     @relation("AuctionWins")
 }
 
 model CRMNote {
@@ -583,4 +608,17 @@ model UserPattern {
   User      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, type, target])
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  text      String
+  answer    String?
+  userId    String
+  auctionId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  User      User     @relation(fields: [userId], references: [id])
+  Auction   Auction  @relation(fields: [auctionId], references: [id])
 }

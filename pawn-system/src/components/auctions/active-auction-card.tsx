@@ -11,6 +11,8 @@ import { AuctionTimer } from "@/components/auctions/auction-timer"
 import { useRealtimeBids } from "@/hooks/use-realtime-bids"
 import { cn } from "@/lib/utils"
 // import { ProTipTrigger } from "@/components/tips/pro-tip-trigger" // Can't easily import server components in client
+import { WatchlistButton } from "./watchlist-button"
+import { BuyNowButton } from "./buy-now-button"
 
 interface ActiveAuctionCardProps {
     auction: any // detailed type would be better but keeping it flexible for now
@@ -32,11 +34,30 @@ export function ActiveAuctionCard({ auction }: ActiveAuctionCardProps) {
     return (
         <Card className="overflow-hidden flex flex-col hover-subtle group h-full relative">
             {isLive && (
-                <div className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
-                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
-                    <span className="text-[10px] font-medium text-white uppercase tracking-wider">LIVE</span>
+                <div className="absolute top-2 left-2 z-20 flex flex-col gap-1 items-start">
+                    <div className="flex items-center gap-1 bg-black/70 backdrop-blur-sm px-2 py-0.5 rounded-full">
+                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+                        <span className="text-[10px] font-medium text-white uppercase tracking-wider">LIVE</span>
+                    </div>
+                    {(auction.extendedCount > 0) && (
+                        <div className="flex items-center gap-1 bg-amber-600/90 backdrop-blur-sm px-2 py-0.5 rounded-full animate-pulse">
+                            <span className="text-[10px] font-medium text-white uppercase tracking-wider">EXTENDED</span>
+                        </div>
+                    )}
                 </div>
             )}
+
+            <div className="absolute top-2 right-2 z-20 flex flex-col gap-2 items-end">
+                <WatchlistButton
+                    auctionId={auction.id}
+                    className="bg-black/40 text-white hover:bg-black/60 hover:text-red-400"
+                />
+                {auction.buyNowPrice && (
+                    <div className="bg-emerald-600/90 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-lg backdrop-blur-sm animate-pulse">
+                        BUY NOW AVAILABLE
+                    </div>
+                )}
+            </div>
 
             <div className="aspect-[4/3] relative bg-muted group-hover:opacity-90 transition-opacity">
                 <Link href={`/portal/auctions/${auction.id}`} className="absolute inset-0 z-10">
@@ -62,12 +83,22 @@ export function ActiveAuctionCard({ auction }: ActiveAuctionCardProps) {
                     <span className="text-sm text-muted-foreground">Current Bid</span>
                     <span className="text-lg font-bold transition-all duration-300 key={currentBid}">
                         {formatCurrency(currentBid)}
+                        {auction.vatPercent > 0 && <span className="text-xs font-normal text-muted-foreground ml-1">+VAT</span>}
                     </span>
                 </div>
                 <div className="text-xs text-muted-foreground flex justify-between">
-                    <span>{bidCount} Bids</span>
-                    <span>Start: {formatCurrency(Number(auction.startPrice))}</span>
+                    <span>{bidCount} bids</span>
+                    <AuctionTimer endTime={new Date(auction.endTime)} />
                 </div>
+                {Number(auction.buyNowPrice) > 0 && (
+                    <div className="mt-2 pt-2 border-t">
+                        <BuyNowButton
+                            auctionId={auction.id}
+                            price={Number(auction.buyNowPrice)}
+                            className="w-full text-xs h-8 bg-emerald-600 hover:bg-emerald-700"
+                        />
+                    </div>
+                )}
             </CardContent>
             <CardFooter className="p-4 pt-0">
                 <Button asChild className="w-full">

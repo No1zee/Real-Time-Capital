@@ -15,16 +15,18 @@ import { AuctionTimer } from "@/components/auctions/auction-timer"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ActiveAuctionCard } from "@/components/auctions/active-auction-card"
 
-export default async function AuctionsPage() {
+import { FilterTabs } from "@/components/auctions/filter-tabs"
+
+export default async function AuctionsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
     const session = await auth()
-    // if (!session?.user) redirect("/login")
+    const params = await searchParams
+    const category = params.category || "ALL"
 
     // 1. Gatekeeper: Check Deposit
     const eligibility = await checkBiddingEligibility()
 
     // 2. Fetch Auctions (Eligible Users Only)
-    // 2. Fetch Auctions (Eligible Users Only)
-    const rawAuctions = await getActiveAuctions()
+    const rawAuctions = await getActiveAuctions(category)
     // Serialize Decimals for Client Component
     const auctions = rawAuctions.map(a => ({
         ...a,
@@ -55,6 +57,8 @@ export default async function AuctionsPage() {
                     )}
                 </div>
             </div>
+
+            <FilterTabs />
 
             {auctions.length === 0 ? (
                 <EmptyState
