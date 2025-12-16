@@ -409,6 +409,8 @@ export async function buyItem(auctionId: string) {
     if (!auction.buyNowPrice) return { success: false, message: "Buy Now not available" }
     if (auction.status !== "ACTIVE") return { success: false, message: "Auction is not active" }
 
+    const userId = session.user.id!
+
     // End auction immediately and mark user as winner
     try {
         await db.$transaction(async (tx) => {
@@ -418,7 +420,7 @@ export async function buyItem(auctionId: string) {
                 data: {
                     amount: auction.buyNowPrice!,
                     auctionId: auction.id,
-                    userId: session.user.id
+                    userId: userId
                 }
             })
 
@@ -427,7 +429,7 @@ export async function buyItem(auctionId: string) {
                 data: {
                     status: "ENDED",
                     currentBid: auction.buyNowPrice,
-                    winnerId: session.user.id,
+                    winnerId: userId,
                     endTime: new Date() // End now
                 }
             })
