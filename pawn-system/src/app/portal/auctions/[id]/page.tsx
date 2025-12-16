@@ -41,7 +41,7 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
     }
 
     const images = JSON.parse(auction.Item.images)
-    const mainImage = images[0] || "/placeholder.png"
+    const mainImage = images[0] || "/placeholder.svg"
     const item = auction.Item as any
 
     return (
@@ -54,7 +54,7 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                 {/* Left: Images */}
                 <div className="space-y-4">
                     <div className="aspect-square relative rounded-lg overflow-hidden border bg-muted">
-                        {mainImage !== "/placeholder.png" ? (
+                        {mainImage !== "/placeholder.svg" ? (
                             <Image src={mainImage} alt={auction.Item.name} fill className="object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
@@ -94,7 +94,18 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-6">
-                            {eligibility.eligible ? (
+                            {session?.user?.role === "ADMIN" ? (
+                                <div className="text-center space-y-4 p-4 bg-muted/30 rounded-lg border border-dashed">
+                                    <div className="flex justify-center">
+                                        <Badge variant="outline" className="text-muted-foreground border-muted-foreground/50">
+                                            Administrator View
+                                        </Badge>
+                                    </div>
+                                    <p className="text-sm text-muted-foreground">
+                                        As an administrator, you can view auction details but are restricted from participating in bidding to maintain platform integrity.
+                                    </p>
+                                </div>
+                            ) : eligibility.eligible ? (
                                 <form action={handleBid} className="flex gap-4">
                                     <div className="flex-1">
                                         <Input

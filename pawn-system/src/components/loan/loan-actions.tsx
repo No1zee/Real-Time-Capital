@@ -4,8 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { PaymentModal } from "@/components/PaymentModal"
 import { DollarSign, CalendarClock, CreditCard, CheckCircle, Loader2 } from "lucide-react"
-import { toast } from "sonner"
 import { acceptLoanOffer } from "@/app/actions/loans"
+import { useAI } from "@/components/ai/ai-provider"
 
 interface LoanActionsProps {
     loanId: string
@@ -16,13 +16,14 @@ interface LoanActionsProps {
 export function LoanActions({ loanId, remainingBalance, status }: LoanActionsProps) {
     const [isPaymentOpen, setIsPaymentOpen] = useState(false)
     const [isExtensionLoading, setIsExtensionLoading] = useState(false)
+    const { notify } = useAI()
 
     const handleExtensionRequest = async () => {
         setIsExtensionLoading(true)
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1500))
         setIsExtensionLoading(false)
-        toast.success("Extension request sent to admin for review.")
+        notify("Extension request sent to admin for review.", undefined, undefined, "success")
     }
 
     const handleAcceptOffer = async () => {
@@ -30,12 +31,12 @@ export function LoanActions({ loanId, remainingBalance, status }: LoanActionsPro
         try {
             const result = await acceptLoanOffer(loanId)
             if (result.success) {
-                toast.success(result.message)
+                notify(result.message, undefined, undefined, "success")
             } else {
-                toast.error(result.message)
+                notify(result.message, undefined, undefined, "error")
             }
         } catch (e) {
-            toast.error("Failed to accept offer")
+            notify("Failed to accept offer", undefined, undefined, "error")
         } finally {
             setIsExtensionLoading(false)
         }

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Upload, CheckCircle, Clock, XCircle } from "lucide-react"
 import { submitKYC } from "@/app/actions/kyc"
-import { toast } from "sonner"
+import { useAI } from "./ai/ai-provider"
 
 interface KYCUploadFormProps {
     status: string // "UNVERIFIED" | "PENDING" | "VERIFIED" | "REJECTED"
@@ -14,14 +14,15 @@ interface KYCUploadFormProps {
 
 export function KYCUploadForm({ status, note }: KYCUploadFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const { notify } = useAI()
 
     async function handleSubmit(formData: FormData) {
         setIsSubmitting(true)
         try {
             await submitKYC(formData)
-            toast.success("Documents submitted successfully")
+            notify("Documents submitted successfully", undefined, undefined, "success")
         } catch (error) {
-            toast.error("Failed to submit documents")
+            notify("Failed to submit documents", undefined, undefined, "error")
         } finally {
             setIsSubmitting(false)
         }

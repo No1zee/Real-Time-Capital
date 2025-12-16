@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { uploadId } from "@/app/actions/verify"
-import { toast } from "sonner"
+import { useAI } from "./ai/ai-provider"
 import { Loader2, Upload, CheckCircle, AlertCircle } from "lucide-react"
 
 interface ProfileVerificationProps {
@@ -15,14 +15,15 @@ interface ProfileVerificationProps {
 
 export function ProfileVerification({ user }: ProfileVerificationProps) {
     const [isUploading, setIsUploading] = useState(false)
+    const { notify } = useAI()
 
     const handleUpload = async (formData: FormData) => {
         setIsUploading(true)
         try {
             await uploadId(formData)
-            toast.success("ID uploaded successfully. Verification pending.")
+            notify("ID uploaded successfully. Verification pending.", undefined, undefined, "success")
         } catch (error) {
-            toast.error("Failed to upload ID. Please try again.")
+            notify("Failed to upload ID. Please try again.", undefined, undefined, "error")
         } finally {
             setIsUploading(false)
         }

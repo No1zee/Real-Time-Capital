@@ -16,6 +16,7 @@ import { formatCurrency, formatDate } from "@/lib/utils"
 import { Search, Gavel, AlertTriangle, Package, Printer } from "lucide-react"
 import { MobileAdminHeader } from "@/components/admin/mobile-header"
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
+import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 
@@ -86,7 +87,9 @@ export default async function AdminInventoryPage() {
                                                 <Package className="h-4 w-4 text-slate-500" />
                                             </div>
                                             <div>
-                                                <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
+                                                <Link href={`/admin/valuations/${item.id}`} className="hover:underline cursor-pointer block">
+                                                    <p className="font-medium text-slate-900 dark:text-white">{item.name}</p>
+                                                </Link>
                                                 <p className="text-xs text-slate-500">{item.id.slice(0, 8)}</p>
                                             </div>
                                         </div>

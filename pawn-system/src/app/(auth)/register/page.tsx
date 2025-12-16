@@ -5,10 +5,10 @@ import { useActionState, useState, useEffect, Suspense } from "react"
 import { registerUser, RegisterState } from "@/app/actions/auth"
 import { Loader2, Upload, Calendar, MapPin, Phone, User, ShieldCheck, CheckCircle2, ChevronRight, ChevronLeft, Info } from "lucide-react"
 import Link from "next/link"
-import { toast } from "sonner"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import { useFormStatus } from "react-dom"
+import { useAI } from "@/components/ai/ai-provider"
 
 import { Button } from "@/components/ui/button" // Ensure this component exists, or use standard button
 
@@ -57,6 +57,7 @@ function TermsModal({ isOpen, onClose, onAccept }: { isOpen: boolean; onClose: (
 function RegisterWizard() {
     const [state, formAction] = useActionState(registerUser, initialState)
     const router = useRouter()
+    const { notify } = useAI()
 
     // Step State
     const [step, setStep] = useState(1)
@@ -87,13 +88,13 @@ function RegisterWizard() {
                 // Success! Redirect to verify-otp
                 // Pass email to query param
                 // We need the email used. It's in formData.
-                toast.success("Registration Successful! Please verify your OTP.")
+                notify("Registration Successful! Please verify your OTP.", undefined, undefined, "success")
                 router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}`)
             } else if (state.message.includes("Error") || state.message.includes("Failed") || state.message.includes("use")) {
-                toast.error(state.message)
+                notify(state.message, undefined, undefined, "error")
             }
         }
-    }, [state, router, formData.email])
+    }, [state, router, formData.email, notify])
 
     const handleNext = () => setStep(s => Math.min(s + 1, totalSteps))
     const handleBack = () => setStep(s => Math.max(s - 1, 1))

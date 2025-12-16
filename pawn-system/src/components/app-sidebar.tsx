@@ -29,8 +29,6 @@ import { NotificationBell } from "@/components/notification-bell"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { getUnreadCount } from "@/app/actions/notification"
-import { TourTrigger } from "@/components/tour/tour-trigger"
-import { DemoTrigger } from "@/components/demo-trigger"
 
 type SidebarVariant = "default" | "admin" | "portal"
 
@@ -176,7 +174,7 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
                         </div>
                     )}
                 </Link>
-                {variant === "portal" && (userRole === "ADMIN" || userRole === "STAFF") && trustScore && (
+                {(variant === "portal" || variant === "default") && (userRole === "ADMIN" || userRole === "STAFF") && trustScore && (
                     <div className="mt-2 text-xs">
                         {trustScore}
                     </div>
@@ -302,8 +300,7 @@ export function AppSidebar({ user, variant = "default", trustScore, className }:
                 </div>
 
                 <div className="px-3 space-y-1">
-                    <TourTrigger />
-                    <DemoTrigger className="w-full justify-start text-xs hover:bg-amber-500/10" />
+                    {/* AI Assistant now handles Tours & Demos */}
                 </div>
 
                 {/* User Info Footer (Portal Style) */}

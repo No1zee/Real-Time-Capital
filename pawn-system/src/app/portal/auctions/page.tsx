@@ -13,6 +13,7 @@ import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 import { AuctionTimer } from "@/components/auctions/auction-timer"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ActiveAuctionCard } from "@/components/auctions/active-auction-card"
 
 export default async function AuctionsPage() {
     const session = await auth()
@@ -22,7 +23,14 @@ export default async function AuctionsPage() {
     const eligibility = await checkBiddingEligibility()
 
     // 2. Fetch Auctions (Eligible Users Only)
-    const auctions = await getActiveAuctions()
+    // 2. Fetch Auctions (Eligible Users Only)
+    const rawAuctions = await getActiveAuctions()
+    // Serialize Decimals for Client Component
+    const auctions = rawAuctions.map(a => ({
+        ...a,
+        startPrice: a.startPrice.toNumber(),
+        currentBid: a.currentBid?.toNumber() || null,
+    }))
     const endedAuctions = await getEndedAuctions()
 
     return (
@@ -58,55 +66,11 @@ export default async function AuctionsPage() {
                 />
             ) : (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {auctions.map((auction) => {
-                        const images = JSON.parse(auction.Item.images)
-                        const coverImage = images[0] || "/placeholder.png"
-
-                        return (
-                            <ProTipTrigger key={auction.id} tipId="auction-listing">
-                                <Card className="overflow-hidden flex flex-col hover-subtle group h-full">
-                                    <div className="aspect-[4/3] relative bg-muted group-hover:opacity-90 transition-opacity">
-                                        <Link href={`/portal/auctions/${auction.id}`} className="absolute inset-0 z-10">
-                                            <span className="sr-only">View {auction.Item.name}</span>
-                                        </Link>
-                                        {coverImage !== "/placeholder.png" ? (
-                                            <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
-                                        )}
-                                        <div className="absolute top-2 right-2 z-20">
-                                            <Badge className="bg-black/70 backdrop-blur-sm border-none text-white hover:bg-black/70">
-                                                {auction.Item.category}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                    <CardHeader className="space-y-1 p-4">
-                                        <CardTitle className="line-clamp-1 text-lg">{auction.Item.name}</CardTitle>
-                                        <AuctionTimer endTime={auction.endTime} />
-                                    </CardHeader>
-                                    <CardContent className="p-4 pt-0 flex-1 space-y-2">
-                                        <div className="flex justify-between items-baseline">
-                                            <span className="text-sm text-muted-foreground">Current Bid</span>
-                                            <span className="text-lg font-bold">
-                                                {formatCurrency(Number(auction.currentBid || auction.startPrice))}
-                                            </span>
-                                        </div>
-                                        <div className="text-xs text-muted-foreground flex justify-between">
-                                            <span>{auction._count.Bid} Bids</span>
-                                            <span>Start: {formatCurrency(Number(auction.startPrice))}</span>
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter className="p-4 pt-0">
-                                        <Button asChild className="w-full">
-                                            <Link href={`/portal/auctions/${auction.id}`}>
-                                                {session?.user ? "Place Bid" : "View Auction"}
-                                            </Link>
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            </ProTipTrigger>
-                        )
-                    })}
+                    {auctions.map((auction) => (
+                        <ProTipTrigger key={auction.id} tipId="auction-listing">
+                            <ActiveAuctionCard auction={auction} />
+                        </ProTipTrigger>
+                    ))}
                 </div>
             )}
 
@@ -117,12 +81,12 @@ export default async function AuctionsPage() {
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {endedAuctions.map((auction) => {
                             const images = JSON.parse(auction.Item.images)
-                            const coverImage = images[0] || "/placeholder.png"
+                            const coverImage = images[0] || "/placeholder.svg"
 
                             return (
                                 <Card key={auction.id} className="overflow-hidden flex flex-col opacity-75 grayscale hover:grayscale-0 transition-all">
                                     <div className="aspect-[4/3] relative bg-muted">
-                                        {coverImage !== "/placeholder.png" ? (
+                                        {coverImage !== "/placeholder.svg" ? (
                                             <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>

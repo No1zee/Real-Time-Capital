@@ -4,6 +4,7 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 import { TransactionType, TransactionMethod, TransactionStatus } from "@prisma/client"
+import { pusherServer } from "@/lib/pusher"
 
 // Mock Payment Processing
 // BRS: Deposit Fee is required to participate.
@@ -156,6 +157,11 @@ export async function placeBid(auctionId: string, amount: number) {
     const session = await auth()
     if (!session?.user?.id) return { success: false, message: "Login required" }
 
+    // Admin Restriction
+    if (session.user.role === "ADMIN") {
+        return { success: false, message: "Administrators are not permitted to participate in auctions." }
+    }
+
     const auction = await db.auction.findUnique({
         where: { id: auctionId },
         include: { Item: true }
@@ -223,6 +229,24 @@ export async function placeBid(auctionId: string, amount: number) {
                 })
             }
         })
+
+        // 4. Trigger Real-Time Update
+        if (pusherServer) {
+            try {
+                // Get updated count
+                const bidCount = await db.bid.count({ where: { auctionId } })
+
+                await pusherServer.trigger(`auction-${auctionId}`, 'new-bid', {
+                    currentBid: amount,
+                    bidCount: bidCount,
+                    lastBidTime: new Date().toISOString(),
+                    lastBidderId: session.user.id
+                })
+            } catch (pusherError) {
+                console.error("Pusher Trigger Error:", pusherError)
+                // Non-blocking: don't fail the bid if realtime fails
+            }
+        }
 
         revalidatePath(`/portal/auctions/${auctionId}`)
         return { success: true, message: "Bid placed successfully!" }

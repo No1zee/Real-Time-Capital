@@ -5,12 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { verifyOtp } from "@/app/actions/verify-otp"
 import { Button } from "@/components/ui/button"
 import { Loader2, ShieldCheck, Mail } from "lucide-react"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 
 function VerifyOtpContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const email = searchParams.get("email") || ""
+    const { notify } = useAI()
 
     const [otp, setOtp] = useState("")
     const [isPending, setIsPending] = useState(false)
@@ -18,7 +19,7 @@ function VerifyOtpContent() {
     async function handleVerify(e: React.FormEvent) {
         e.preventDefault()
         if (!email) {
-            toast.error("Email missing. Please register again.")
+            notify("Email missing. Please register again.", undefined, undefined, "error")
             return
         }
         setIsPending(true)
@@ -26,10 +27,10 @@ function VerifyOtpContent() {
         setIsPending(false)
 
         if (result.success) {
-            toast.success("Account Verified Successfully!")
+            notify("Account Verified Successfully!", undefined, undefined, "success")
             router.push("/login?verified=true")
         } else {
-            toast.error(result.error)
+            notify(result.error || "Verification failed", undefined, undefined, "error")
         }
     }
 

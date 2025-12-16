@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, CheckCircle2, XCircle, CreditCard, Banknote, Smartphone } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
 import { TransactionMethod } from "@prisma/client"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 
 interface CheckoutDialogProps {
     title: string
@@ -26,6 +26,7 @@ export function CheckoutDialog({ title, description, amount, onConfirm, trigger,
     const [reference, setReference] = useState("") // Phone number or internal ref
     const [loading, setLoading] = useState(false)
     const [result, setResult] = useState<"SUCCESS" | "ERROR" | null>(null)
+    const { notify } = useAI()
 
     async function handlePayment() {
         setLoading(true)
@@ -34,14 +35,14 @@ export function CheckoutDialog({ title, description, amount, onConfirm, trigger,
             const res = await onConfirm(method, reference)
             if (res.success) {
                 setResult("SUCCESS")
-                toast.success("Transaction Completed")
+                notify("Transaction Completed", undefined, undefined, "success")
             } else {
                 setResult("ERROR")
-                toast.error(res.message)
+                notify(res.message, undefined, undefined, "error")
             }
         } catch (e) {
             setResult("ERROR")
-            toast.error("An unexpected error occurred")
+            notify("An unexpected error occurred", undefined, undefined, "error")
         }
         setLoading(false)
     }

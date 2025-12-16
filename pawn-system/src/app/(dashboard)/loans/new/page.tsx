@@ -2,7 +2,7 @@
 
 import { useState, useActionState, useMemo, useEffect } from "react"
 import { ArrowLeft, Upload, Loader2, CheckCircle2, Camera, X } from "lucide-react"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import Link from "next/link"
 import { createLoan, State } from "@/app/actions/loans"
 import { ITEM_CATEGORIES, COMMON_ITEMS } from "@/lib/constants"
@@ -12,19 +12,20 @@ const initialState: State = { message: null, errors: {} }
 export default function NewLoanPage() {
     const [step, setStep] = useState(1)
     const [state, formAction, isPending] = useActionState(createLoan, initialState)
+    const { notify } = useAI()
 
     useEffect(() => {
         if (state.message) {
             if (state.message.includes("success")) {
-                toast.success(state.message)
+                notify(state.message, undefined, undefined, "success")
             } else {
-                toast.error(state.message)
+                notify(state.message, undefined, undefined, "error")
             }
         }
         if (state.errors && Object.keys(state.errors).length > 0) {
-            toast.error("Please fix the errors in the form.")
+            notify("Please fix the errors in the form.", undefined, undefined, "error")
         }
-    }, [state])
+    }, [state, notify])
 
     // Form State
     const [formData, setFormData] = useState({

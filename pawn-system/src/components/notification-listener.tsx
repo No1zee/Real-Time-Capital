@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { getUnreadNotifications, markNotificationAsRead } from "@/app/actions/notification"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -9,37 +8,60 @@ import { Button } from "@/components/ui/button"
 import { Trophy } from "lucide-react"
 import confetti from "canvas-confetti"
 
+import { useAI } from "@/components/ai/ai-provider"
+
 export function NotificationListener() {
     const router = useRouter()
     const pollingRef = useRef<NodeJS.Timeout | null>(null)
+    const { notify } = useAI()
+    // Track notified IDs to avoid spamming the AI bubble (since we don't mark as read immediately)
+    const notifiedIdsRef = useRef<Set<string>>(new Set())
+
+    const [winnerModalOpen, setWinnerModalOpen] = useState(false)
+    const [winnerDetails, setWinnerDetails] = useState<{ title: string, message: string, link?: string } | null>(null)
 
     useEffect(() => {
         const checkNotifications = async () => {
             const notifications = await getUnreadNotifications()
             if (notifications && notifications.length > 0) {
+
                 for (const notification of notifications) {
-                    toast(notification.title, {
-                        description: notification.message,
-                        duration: 2000, // 2 seconds as requested
-                        action: {
-                            label: "View",
-                            onClick: async () => {
-                                if (notification.link) {
-                                    router.push(notification.link)
-                                }
-                                await markNotificationAsRead(notification.id)
+                    if (notifiedIdsRef.current.has(notification.id)) continue
+
+                    notifiedIdsRef.current.add(notification.id)
+
+                    // Special handling for Win Notifications
+                    if (notification.type === "AUCTION_WON") {
+                        setWinnerDetails({
+                            title: notification.title,
+                            message: notification.message,
+                            link: notification.link ?? undefined
+                        })
+                        setWinnerModalOpen(true)
+
+                        // AI also congratulates
+                        notify(`🎉 You won! ${notification.title}`, "Claim Prize", () => {
+                            if (notification.link) router.push(notification.link)
+                            markNotificationAsRead(notification.id)
+                        })
+
+                        // Mark as read immediately to prevent re-trigger on refresh?
+                        // Actually, if we mark as read, it disappears from unread count, which is effectively what we want for "Win" since it opens a modal.
+                        await markNotificationAsRead(notification.id)
+                        continue
+                    }
+
+                    // Standard Notifications -> Route to AI
+                    notify(
+                        notification.title,
+                        "View Details",
+                        async () => {
+                            if (notification.link) {
+                                router.push(notification.link)
                             }
-                        },
-                        onDismiss: async () => {
-                            await markNotificationAsRead(notification.id)
-                        },
-                        onAutoClose: async () => {
                             await markNotificationAsRead(notification.id)
                         }
-                    })
-                    // Don't mark as read immediately - let the badge show the unread count
-                    // The toast callbacks (onDismiss, onAutoClose, onClick) will mark it as read
-                    // await markNotificationAsRead(notification.id)
+                    )
                 }
             }
         }
@@ -53,63 +75,8 @@ export function NotificationListener() {
         return () => {
             if (pollingRef.current) clearInterval(pollingRef.current)
         }
-    }, [router])
+    }, [router, notify]) // notify is stable from useAI context
 
-    const [winnerModalOpen, setWinnerModalOpen] = useState(false)
-    const [winnerDetails, setWinnerDetails] = useState<{ title: string, message: string, link?: string } | null>(null)
-
-    useEffect(() => {
-        const checkNotifications = async () => {
-            const notifications = await getUnreadNotifications()
-            if (notifications && notifications.length > 0) {
-                for (const notification of notifications) {
-
-                    // Special handling for Win Notifications
-                    if (notification.type === "AUCTION_WON") {
-                        setWinnerDetails({
-                            title: notification.title,
-                            message: notification.message,
-                            link: notification.link ?? undefined
-                        })
-                        setWinnerModalOpen(true)
-                        // Mark as read immediately to prevent re-trigger on refresh
-                        await markNotificationAsRead(notification.id)
-                        continue // Skip standard toast for this one
-                    }
-
-                    toast(notification.title, {
-                        description: notification.message,
-                        duration: 3000,
-                        action: {
-                            label: "View",
-                            onClick: async () => {
-                                if (notification.link) {
-                                    router.push(notification.link)
-                                }
-                                await markNotificationAsRead(notification.id)
-                            }
-                        },
-                        onDismiss: async () => {
-                            await markNotificationAsRead(notification.id)
-                        },
-                        onAutoClose: async () => {
-                            await markNotificationAsRead(notification.id)
-                        }
-                    })
-
-                    // Don't mark as read immediately - let the badge show the unread count
-                    // await markNotificationAsRead(notification.id)
-                }
-            }
-        }
-
-        checkNotifications()
-        pollingRef.current = setInterval(checkNotifications, 5000)
-
-        return () => {
-            if (pollingRef.current) clearInterval(pollingRef.current)
-        }
-    }, [router])
 
     useEffect(() => {
         if (winnerModalOpen) {

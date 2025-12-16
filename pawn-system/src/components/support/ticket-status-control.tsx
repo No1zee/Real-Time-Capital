@@ -10,19 +10,20 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { Loader2 } from "lucide-react"
 
 export function TicketStatusControl({ ticketId, currentStatus }: { ticketId: string, currentStatus: TicketStatus }) {
     const [loading, setLoading] = useState(false)
+    const { notify } = useAI()
 
     async function onValueChange(value: TicketStatus) {
         setLoading(true)
         const result = await updateTicketStatus(ticketId, value)
         if (result.success) {
-            toast.success("Status updated")
+            notify("Status updated", undefined, undefined, "success")
         } else {
-            toast.error(result.message)
+            notify(result.message || "Failed to update status", undefined, undefined, "error")
         }
         setLoading(false)
     }

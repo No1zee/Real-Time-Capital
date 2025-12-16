@@ -17,9 +17,9 @@ const COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'
 
 export function CustomPieChart({ data, title }: CustomPieChartProps) {
     return (
-        <div className="w-full">
+        <div className="w-full" style={{ height: 250 }}>
             {title && <h3 className="text-sm font-medium text-slate-400 mb-4">{title}</h3>}
-            <ResponsiveContainer width="100%" height={250}>
+            <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                     <Pie
                         data={data}

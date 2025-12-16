@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { useRouter } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
@@ -35,6 +35,7 @@ interface ArticleFormProps {
 export function ArticleForm({ article, mode }: ArticleFormProps) {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const { notify } = useAI()
 
     const form = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -68,14 +69,14 @@ export function ArticleForm({ article, mode }: ArticleFormProps) {
             }
 
             if (result.error) {
-                toast.error(result.error)
+                notify(result.error, undefined, undefined, "error")
             } else {
-                toast.success(mode === "create" ? "Article created!" : "Article updated!")
+                notify(mode === "create" ? "Article created!" : "Article updated!", undefined, undefined, "success")
                 router.push("/admin/education")
                 router.refresh()
             }
         } catch (error) {
-            toast.error("Something went wrong")
+            notify("Something went wrong", undefined, undefined, "error")
         } finally {
             setIsSubmitting(false)
         }

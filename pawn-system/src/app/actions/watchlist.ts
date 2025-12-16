@@ -34,7 +34,7 @@ export async function toggleWatchlist(auctionId: string) {
             revalidatePath("/portal/watchlist")
             revalidatePath("/portal/auctions")
             revalidatePath(`/portal/auctions/${auctionId}`)
-            return { isWatched: false }
+            return { isWatched: false, message: "Removed from watchlist" }
         } else {
             await prisma.watchlist.create({
                 data: {
@@ -45,7 +45,7 @@ export async function toggleWatchlist(auctionId: string) {
             revalidatePath("/portal/watchlist")
             revalidatePath("/portal/auctions")
             revalidatePath(`/portal/auctions/${auctionId}`)
-            return { isWatched: true }
+            return { isWatched: true, message: "Added to watchlist" }
         }
     } catch (error) {
         console.error("Failed to toggle watchlist:", error)

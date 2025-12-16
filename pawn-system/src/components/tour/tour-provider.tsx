@@ -9,10 +9,12 @@ import confetti from "canvas-confetti"
 
 interface TourContextType {
     startTour: () => void
+    matchCount: number // How many steps match current route/role
 }
 
 const TourContext = createContext<TourContextType>({
     startTour: () => { },
+    matchCount: 0,
 })
 
 export const useTour = () => useContext(TourContext)
@@ -54,8 +56,8 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
 
         setIsDemoMode(activeDemo)
 
-        // If demo mode, force seenIntro to false
-        setHasSeenGlobalIntro(activeDemo ? false : seenIntro)
+        // Respect stored seen state even in Default Demo Mode
+        setHasSeenGlobalIntro(seenIntro)
         setIsReady(true)
     }, [searchParams])
 
@@ -69,8 +71,8 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
         if (step.roles && !step.roles.includes(userRole)) return false
 
         // 1a. Global Intro Check: Rely on React State
-        // Priority Override: If Demo Mode, ALWAYS include intro, ignoring seen state
-        if (isDemoMode && (step.id === 'intro-global' || step.id === 'intro-guest' || step.id === 'intro-user')) return true
+        // Priority Override: REMOVED. Even in Demo Mode (which is now default), respect the 'seen' state so we don't spam the user.
+        // if (isDemoMode && (step.id === 'intro-global' || step.id === 'intro-guest' || step.id === 'intro-user')) return true
 
         // ONLY filter if we are ready and have seen it. 
         if (isReady && (step.id === 'intro-global' || step.id === 'intro-guest' || step.id === 'intro-user') && hasSeenGlobalIntro) return false
@@ -81,27 +83,21 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
 
 
 
-    // 3. Auto-start on first visit logic (Per Route)
-    useEffect(() => {
-        if (!mounted || !isReady) return
-
-        // Generate a unique key for this route's tour
-        const routeKey = `hasSeenTour_${pathname}`
-        // const hasSeenRoute = localStorage.getItem(routeKey) // MVP: Override history
-
-        if (steps.length > 0) {
-            setRun(true)
-            setStepIndex(0)
-        }
-    }, [pathname, steps.length, mounted, isReady])
+    // 3. Auto-start logic REMOVED. 
+    // We now rely entirely on AIProvider or Manual Triggers to start the tour.
+    // This prevents infinite loops where filtered steps changing re-triggers the tour.
 
     // 3b. Force Run in Demo Mode
+    // 3b. Force Run in Demo Mode - REMOVED to prevent unwanted popups.
+    // Tours must be manually simulated or triggered by AI.
+    /*
     useEffect(() => {
         if (isDemoMode && isReady && mounted && steps.length > 0) {
             setRun(true)
-            setStepIndex(0) // Start from beginning
+            setStepIndex(0) 
         }
     }, [isDemoMode, isReady, mounted, steps.length])
+    */
 
     // 4. Reset index when route changes
     useEffect(() => {
@@ -137,9 +133,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
         const { status, type, step } = data
 
         if (status === 'error' || type === 'error:target_not_found') {
-            import("sonner").then(({ toast }) => {
-                toast.error(`Tour Error: ${type} - Target: ${step.target}`, { duration: 10000 })
-            })
+            console.error(`Tour Error: ${type} - Target: ${step.target}`)
         }
 
         // Mark global intro as seen immediately in state and storage
@@ -152,6 +146,9 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
 
         if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
             setRun(false)
+            // Save state so it doesn't auto-run again
+            localStorage.setItem(`hasSeenTour_${pathname}`, "true")
+
             if (status === STATUS.FINISHED) {
                 // Celebration!
                 const end = Date.now() + 3 * 1000; // 3 seconds
@@ -243,15 +240,14 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
     }
 
     return (
-        <TourContext.Provider value={{ startTour }}>
+        <TourContext.Provider value={{ startTour, matchCount: steps.length }}>
             {children}
             {mounted && steps.length > 0 && (
                 <Joyride
                     key={pathname} // CRITICAL: Force re-mount on route change to ensure clean state
-                    steps={steps}
+                    steps={steps.map(s => ({ ...s, disableBeacon: true }))} // FORCE: Disable beacons globally
                     run={run}
                     stepIndex={stepIndex}
-                    // disableBeacon={true} // Commented out to fix Vercel build type error
                     // disableOverlay={false} // Default is false, which means SHOW overlay. We explicitly want this for immersion.
                     showSkipButton
                     hideCloseButton={false} // Allow closing
@@ -264,34 +260,7 @@ export function TourProvider({ children, user }: { children: React.ReactNode, us
                     }}
                 />
             )}
-            {/* DEMO MODE INDICATOR */}
-            {isDemoMode && (
-                <div className="fixed bottom-4 right-4 z-[9999] animate-in slide-in-from-bottom-4 fade-in duration-500">
-                    <div className="bg-slate-900/90 backdrop-blur-md text-white p-1.5 pr-3 rounded-full shadow-2xl border border-white/10 flex items-center gap-3">
-                        <div className="bg-primary/20 p-2 rounded-full animate-pulse">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                            </span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">System Mode</span>
-                            <span className="text-sm font-bold text-white leading-none">Interactive Demo</span>
-                        </div>
-                        <div className="h-8 w-px bg-white/10 mx-1" />
-                        <button
-                            onClick={() => {
-                                localStorage.setItem('isDemoMode', 'false'); // Explicitly disable
-                                setIsDemoMode(false);
-                                window.location.reload();
-                            }}
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-500 hover:text-red-400 px-3 py-1.5 rounded-full text-xs font-bold transition-all"
-                        >
-                            Exit
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Demo Mode Indicator removed - Clutter reduction */}
         </TourContext.Provider>
     )
 }

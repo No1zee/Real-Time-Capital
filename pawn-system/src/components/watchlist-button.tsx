@@ -4,9 +4,10 @@ import { useState } from "react"
 import { Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toggleWatchlist } from "@/app/actions/watchlist"
+import { useAI } from "./ai/ai-provider"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
-import { toast } from "sonner"
+
 
 
 interface WatchlistButtonProps {
@@ -19,19 +20,14 @@ export function WatchlistButton({ auctionId, initialIsWatched, isLoggedIn }: Wat
     const [isWatched, setIsWatched] = useState(initialIsWatched)
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
+    const { notify } = useAI()
 
     const handleToggle = async (e: React.MouseEvent) => {
         e.preventDefault() // Prevent navigation if inside a link
         e.stopPropagation()
 
         if (!isLoggedIn) {
-            toast("Login Required", {
-                description: "Please login to watch items.",
-                action: {
-                    label: "Login",
-                    onClick: () => router.push("/login")
-                },
-            })
+            notify("Login Required to watch items", "Login", () => router.push("/login"), "warning")
             return
         }
 
@@ -43,10 +39,12 @@ export function WatchlistButton({ auctionId, initialIsWatched, isLoggedIn }: Wat
         try {
             const result = await toggleWatchlist(auctionId)
             setIsWatched(result.isWatched)
+            notify(result.message, undefined, undefined, "success")
         } catch (error) {
             // Revert on error
             setIsWatched(previousState)
             console.error("Failed to toggle watchlist", error)
+            notify("Failed to update watchlist", undefined, undefined, "error")
         } finally {
             setIsLoading(false)
         }

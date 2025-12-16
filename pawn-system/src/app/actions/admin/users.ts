@@ -85,3 +85,23 @@ export async function toggleUserStatus(userId: string) {
 
     revalidatePath("/admin/users")
 }
+
+export async function updateUserAccess(userId: string, role: UserRole, permissions: string[]) {
+    const session = await auth()
+    const currentUser = session?.user as any
+
+    if (!currentUser || currentUser.role !== "ADMIN") {
+        throw new Error("Unauthorized: Only Admins can update access")
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            role: role,
+            permissions: permissions.join(",")
+        }
+    })
+
+    revalidatePath("/admin/users")
+    revalidatePath(`/admin/users/${userId}`)
+}

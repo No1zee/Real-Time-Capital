@@ -57,18 +57,19 @@ export const tourSteps: AppTourStep[] = [
         roles: ['ADMIN', 'STAFF', 'CUSTOMER']
     },
 
-    // --- Customer Dashboard ---
-    {
-        target: 'body',
-        content: (
-            <div>
-                <TourHeader title="Dashboard" />
-                <h3 className="font-heading font-bold text-lg mb-2 text-foreground">Your Command Center</h3>
-                <p className="text-muted-foreground leading-relaxed">Track your active loans, total debt, and pawned items at a glance. We calculate your liquidity so you don't have to.</p>
-            </div>
-        ),
-        route: '/portal'
-    },
+    // --- Dashboard Step Moved to AI Tip (dashboard-overview) ---
+    // {
+    //     target: 'body',
+    //     content: (
+    //         <div>
+    //             <TourHeader title="Dashboard" />
+    //             <h3 className="font-heading font-bold text-lg mb-2 text-foreground">Your Command Center</h3>
+    //             <p className="text-muted-foreground leading-relaxed">Track your active loans, total debt, and pawned items at a glance. We calculate your liquidity so you don't have to.</p>
+    //         </div>
+    //     ),
+    //     route: '/portal',
+    //     roles: ['ADMIN', 'STAFF', 'CUSTOMER']
+    // },
 
     // --- Auctions Page ---
     {

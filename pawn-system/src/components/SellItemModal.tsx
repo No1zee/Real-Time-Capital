@@ -2,8 +2,8 @@
 
 import { useState, useActionState, useEffect } from "react"
 import { X, Loader2, DollarSign } from "lucide-react"
-import { toast } from "sonner"
 import { markItemAsSold, InventoryState } from "@/app/actions/inventory"
+import { useAI } from "./ai/ai-provider"
 
 interface SellItemModalProps {
     item: {
@@ -21,16 +21,18 @@ export function SellItemModal({ item, isOpen, onClose }: SellItemModalProps) {
     const [state, formAction, isPending] = useActionState(markItemAsSold, initialState)
     const [price, setPrice] = useState("")
 
+    const { notify } = useAI()
+
     useEffect(() => {
         if (state.message) {
             if (state.message.includes("success")) {
-                toast.success(state.message)
+                notify(state.message, undefined, undefined, "success")
                 onClose()
             } else {
-                toast.error(state.message)
+                notify(state.message, undefined, undefined, "error")
             }
         }
-    }, [state, onClose])
+    }, [state, onClose, notify])
 
     if (!isOpen) return null
 

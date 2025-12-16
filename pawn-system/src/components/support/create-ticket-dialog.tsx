@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select"
 import { TicketCategory, TicketPriority } from "@prisma/client"
 import { createTicket } from "@/app/actions/support"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { MessageSquarePlus } from "lucide-react"
 
 function SubmitButton() {
@@ -38,15 +38,16 @@ function SubmitButton() {
 
 export function CreateTicketDialog() {
     const [open, setOpen] = useState(false)
+    const { notify } = useAI()
 
     async function action(formData: FormData) {
         const result = await createTicket({}, formData)
         if (result.message && !result.errors) {
             if (result.success) {
-                toast.success(result.message)
+                notify(result.message, undefined, undefined, "success")
                 setOpen(false)
             } else {
-                toast.error(result.message)
+                notify(result.message, undefined, undefined, "error")
             }
         }
     }

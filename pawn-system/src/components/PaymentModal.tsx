@@ -2,8 +2,9 @@
 
 import { useState, useActionState, useEffect } from "react"
 import { X, Loader2, DollarSign } from "lucide-react"
-import { toast } from "sonner"
+
 import { addPayment, PaymentState } from "@/app/actions/payments"
+import { useAI } from "./ai/ai-provider"
 
 interface PaymentModalProps {
     loanId: string
@@ -18,16 +19,18 @@ export function PaymentModal({ loanId, isOpen, onClose, remainingBalance }: Paym
     const [state, formAction, isPending] = useActionState(addPayment, initialState)
     const [amount, setAmount] = useState("")
 
+    const { notify } = useAI()
+
     useEffect(() => {
         if (state.message) {
             if (state.message.includes("success")) {
-                toast.success(state.message)
+                notify(state.message, undefined, undefined, "success")
                 onClose()
             } else {
-                toast.error(state.message)
+                notify(state.message, undefined, undefined, "error")
             }
         }
-    }, [state, onClose])
+    }, [state, onClose, notify])
 
     if (!isOpen) return null
 

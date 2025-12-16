@@ -10,7 +10,7 @@ import { SenderType } from "@prisma/client"
 import { sendMessage } from "@/app/actions/support"
 import { formatDistanceToNow } from "date-fns"
 import { Send } from "lucide-react"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 
 type Message = {
     id: string
@@ -31,6 +31,7 @@ function SubmitButton() {
 export function ChatInterface({ ticketId, messages, userId }: { ticketId: string, messages: Message[], userId: string }) {
     const bottomRef = useRef<HTMLDivElement>(null)
     const formRef = useRef<HTMLFormElement>(null)
+    const { notify } = useAI()
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -44,7 +45,7 @@ export function ChatInterface({ ticketId, messages, userId }: { ticketId: string
         if (result.success) {
             formRef.current?.reset()
         } else {
-            toast.error(result.message)
+            notify(result.message || "Failed to send message", undefined, undefined, "error")
         }
     }
 
@@ -65,8 +66,8 @@ export function ChatInterface({ ticketId, messages, userId }: { ticketId: string
                                 <div>
                                     <div
                                         className={`p-3 rounded-lg text-sm ${isMe
-                                                ? "bg-primary text-primary-foreground rounded-tr-none"
-                                                : "bg-muted text-foreground rounded-tl-none"
+                                            ? "bg-primary text-primary-foreground rounded-tr-none"
+                                            : "bg-muted text-foreground rounded-tl-none"
                                             }`}
                                     >
                                         {msg.message}

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { verifyUser } from "@/app/actions/kyc"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { Check, X, ExternalLink } from "lucide-react"
 import { useState } from "react"
 
@@ -17,14 +17,15 @@ interface PendingUser {
 
 export function AdminVerificationTable({ users }: { users: PendingUser[] }) {
     const [pendingUsers, setPendingUsers] = useState(users)
+    const { notify } = useAI()
 
     async function handleVerify(userId: string, action: "APPROVE" | "REJECT") {
         try {
             await verifyUser(userId, action)
-            toast.success(`User ${action === "APPROVE" ? "verified" : "rejected"}`)
+            notify(`User ${action === "APPROVE" ? "verified" : "rejected"}`, undefined, undefined, "success")
             setPendingUsers(prev => prev.filter(u => u.id !== userId))
         } catch (error) {
-            toast.error("Action failed")
+            notify("Action failed", undefined, undefined, "error")
         }
     }
 

@@ -414,6 +414,90 @@ model User {
   AuditLog           AuditLog[]
   Ticket             Ticket[]
   Article            Article[]
+  UserPattern        UserPattern[]
+
+  // CRM Relations
+  NotesReceived      CRMNote[]     @relation("NotesReceived")
+  NotesWritten       CRMNote[]     @relation("NotesAuthored")
+  TasksAssigned      CRMTask[]     @relation("TaskAssignee")
+  TasksAbout         CRMTask[]     @relation("TaskSubject")
+  LogsAbout          CRMLog[]      @relation("LogSubject")
+  LogsRecorded       CRMLog[]      @relation("LogAuthor")
+  Documents          UserDocument[]
+  Tags               UserCRMTag[]
+}
+
+model CRMNote {
+  id        String   @id @default(cuid())
+  userId    String
+  authorId  String
+  content   String
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User      User     @relation("NotesReceived", fields: [userId], references: [id])
+  Author    User     @relation("NotesAuthored", fields: [authorId], references: [id])
+}
+
+model CRMTask {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  priority    String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  dueDate     DateTime?
+  
+  assigneeId  String?
+  userId      String   // The client this task is about
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  Assignee    User?    @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  User        User     @relation("TaskSubject", fields: [userId], references: [id])
+}
+
+model CRMLog {
+  id        String   @id @default(cuid())
+  type      String   // CALL, EMAIL, MEETING, NOTE_LOG
+  summary   String
+  details   String?  @db.Text
+  date      DateTime @default(now())
+  
+  userId    String   // Client
+  authorId  String   // Staff
+  
+  User      User     @relation("LogSubject", fields: [userId], references: [id])
+  Author    User     @relation("LogAuthor", fields: [authorId], references: [id])
+}
+
+model CRMTag {
+  id        String       @id @default(cuid())
+  name      String       @unique
+  color     String       @default("gray")
+  users     UserCRMTag[]
+}
+
+model UserCRMTag {
+  userId    String
+  tagId     String
+  user      User     @relation(fields: [userId], references: [id])
+  tag       CRMTag   @relation(fields: [tagId], references: [id])
+  
+  @@id([userId, tagId])
+}
+
+model UserDocument {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  url         String
+  type        String   // ID, PROOF_RES, CONTRACT, OTHER
+  status      String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  uploadedAt  DateTime @default(now())
+  
+  User        User     @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
@@ -487,4 +571,16 @@ model Article {
   updatedAt   DateTime @updatedAt
 
   Author User @relation(fields: [authorId], references: [id])
+}
+
+model UserPattern {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // CLICK, VIEW, BID, LIKE
+  target    String   // e.g., "/portal/jewelry", "BID_BUTTON"
+  count     Int      @default(1)
+  lastAt    DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, type, target])
 }

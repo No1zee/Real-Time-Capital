@@ -4,12 +4,13 @@ import { reverseTransaction, resubmitTransaction } from "@/app/actions/admin/tra
 import { Button } from "@/components/ui/button"
 import { RefreshCw, AlertTriangle, Loader2 } from "lucide-react"
 import { useState } from "react"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { useRouter } from "next/navigation"
 
 export function TransactionActions({ id, status }: { id: string, status: string }) {
     const [loading, setLoading] = useState(false)
     const router = useRouter()
+    const { notify } = useAI()
 
     const handleReverse = async () => {
         if (!confirm("Are you sure you want to reverse this transaction? This action cannot be undone.")) return
@@ -17,10 +18,10 @@ export function TransactionActions({ id, status }: { id: string, status: string 
         setLoading(true)
         try {
             await reverseTransaction(id, "Manual Reversal via Portal")
-            toast.success("Transaction Reversed")
+            notify("Transaction Reversed", undefined, undefined, "success")
             router.refresh()
         } catch (err) {
-            toast.error("Failed to reverse")
+            notify("Failed to reverse", undefined, undefined, "error")
         } finally {
             setLoading(false)
         }
@@ -30,10 +31,10 @@ export function TransactionActions({ id, status }: { id: string, status: string 
         setLoading(true)
         try {
             await resubmitTransaction(id)
-            toast.success("Transaction Resubmitted")
+            notify("Transaction Resubmitted", undefined, undefined, "success")
             router.refresh()
         } catch (err) {
-            toast.error("Failed to resubmit")
+            notify("Failed to resubmit", undefined, undefined, "error")
         } finally {
             setLoading(false)
         }

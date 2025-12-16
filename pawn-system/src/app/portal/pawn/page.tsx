@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Upload, Loader2, CheckCircle } from "lucide-react"
-import { toast } from "sonner"
+import { useAI } from "@/components/ai/ai-provider"
 import { useRouter } from "next/navigation"
 
 const initialState: ValuationState = { message: null, errors: {} }
@@ -18,12 +18,13 @@ export default function PawnItemPage() {
     const [state, formAction, isPending] = useActionState(submitValuationRequest, initialState)
     const [success, setSuccess] = useState(false)
     const router = useRouter()
+    const { notify } = useAI()
 
     // Monitor state changes for success/error toast
     if (state.message) {
         if (state.message === "success" && !success) {
             setSuccess(true)
-            toast.success("Request submitted successfully!")
+            notify("Request submitted successfully!", undefined, undefined, "success")
             setTimeout(() => router.push("/portal"), 2000)
         } else if (state.message !== "success") {
             // Avoid toast spam loop, rely on inline errors for now or simple check
