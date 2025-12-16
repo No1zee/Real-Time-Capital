@@ -45,9 +45,8 @@ async function testAutoExtension() {
             itemId: item.id,
             startPrice: 1000,
             endTime: endTime,
-            status: "ACTIVE",
             // allowAutoExtend: true, // Default is true
-            extendedCount: 0,
+            // extendedCount: 0, // Default is 0
             updatedAt: new Date()
         }
     })
