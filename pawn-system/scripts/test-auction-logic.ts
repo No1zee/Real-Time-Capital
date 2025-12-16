@@ -44,6 +44,7 @@ async function testAutoExtension() {
         data: {
             itemId: item.id,
             startPrice: 1000,
+            startTime: new Date(),
             endTime: endTime,
             // allowAutoExtend: true, // Default is true
             // extendedCount: 0, // Default is 0
