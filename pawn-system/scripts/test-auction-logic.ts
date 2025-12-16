@@ -34,7 +34,8 @@ async function testAutoExtension() {
             status: "VALUED",
             type: "VEHICLE",
             valuation: 5000,
-            images: "[]" // JSON string
+            images: "[]", // JSON string,
+            updatedAt: new Date()
         }
     })
 
@@ -45,8 +46,9 @@ async function testAutoExtension() {
             startPrice: 1000,
             endTime: endTime,
             status: "ACTIVE",
-            allowAutoExtend: true,
-            extendedCount: 0
+            // allowAutoExtend: true, // Default is true
+            extendedCount: 0,
+            updatedAt: new Date()
         }
     })
 
