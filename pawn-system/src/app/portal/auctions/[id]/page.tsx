@@ -27,6 +27,10 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                 orderBy: { amount: 'desc' },
                 take: 10,
                 include: { User: { select: { name: true } } }
+            },
+            Questions: {
+                include: { User: { select: { name: true } } },
+                orderBy: { createdAt: 'desc' }
             }
         }
     })
