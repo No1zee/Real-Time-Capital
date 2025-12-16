@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { auth } from "@/auth";
@@ -20,10 +20,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // themeColor: [
+  //   { media: "(prefers-color-scheme: light)", color: "white" },
+  //   { media: "(prefers-color-scheme: dark)", color: "black" },
+  // ],
+}
+
 export const metadata: Metadata = {
   title: "Cashpoint",
   description: "Pawn Shop Management System",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0", // Prevent zooming issues
 };
 
 export default async function RootLayout({
