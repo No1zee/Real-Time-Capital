@@ -38,8 +38,12 @@ export function WatchlistButton({ auctionId, initialIsWatched, isLoggedIn }: Wat
 
         try {
             const result = await toggleWatchlist(auctionId)
-            setIsWatched(result.isWatched)
-            notify(result.message, undefined, undefined, "success")
+            if (result.success && typeof result.active === 'boolean') {
+                setIsWatched(result.active)
+                notify(result.message, undefined, undefined, "success")
+            } else {
+                throw new Error(result.message)
+            }
         } catch (error) {
             // Revert on error
             setIsWatched(previousState)
