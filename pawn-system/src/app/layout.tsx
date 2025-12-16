@@ -9,6 +9,7 @@ import { TourProvider } from "@/components/tour/tour-provider";
 import { TipProvider } from "@/components/tips/tip-provider";
 import { AIProvider } from "@/components/ai/ai-provider";
 import { AIAssistant } from "@/components/ai/ai-assistant";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,10 +26,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  // themeColor: [
-  //   { media: "(prefers-color-scheme: light)", color: "white" },
-  //   { media: "(prefers-color-scheme: dark)", color: "black" },
-  // ],
 }
 
 export const metadata: Metadata = {
@@ -71,6 +68,7 @@ export default async function RootLayout({
                 <TipProvider>
                   {children}
                   <AIAssistant />
+                  <SpeedInsights />
                 </TipProvider>
               </AIProvider>
             </TourProvider>
