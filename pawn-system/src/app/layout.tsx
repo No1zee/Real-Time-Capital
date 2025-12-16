@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import { Providers } from "./providers";
 import { TourProvider } from "@/components/tour/tour-provider";
 import { TipProvider } from "@/components/tips/tip-provider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default async function RootLayout({
               <TipProvider>
                 {children}
                 <Toaster position="top-center" richColors />
+                <SpeedInsights />
               </TipProvider>
             </TourProvider>
           </Suspense>
