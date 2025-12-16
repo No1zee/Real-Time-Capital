@@ -84,7 +84,7 @@ export function ReportsDashboard({
                                     tickFormatter={(value) => `$${value}`}
                                 />
                                 <Tooltip
-                                    formatter={(value: number) => formatCurrency(value)}
+                                    formatter={(value: number) => formatCurrency(Number(value || 0))}
                                     contentStyle={{ borderRadius: '8px' }}
                                 />
                                 <Bar dataKey="value" fill="#adfa1d" radius={[4, 4, 0, 0]} />
@@ -110,7 +110,7 @@ export function ReportsDashboard({
                                     axisLine={false}
                                     tickFormatter={(value) => `$${value}`}
                                 />
-                                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                                <Tooltip formatter={(value: number) => formatCurrency(Number(value || 0))} />
                                 <Line type="monotone" dataKey="amount" stroke="#8884d8" strokeWidth={2} dot={false} />
                             </LineChart>
                         </ResponsiveContainer>
