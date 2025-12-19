@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { auth } from "@/auth";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { Providers } from "./providers";
 import { TourProvider } from "@/components/tour/tour-provider";
@@ -11,15 +12,9 @@ import { AIProvider } from "@/components/ai/ai-provider";
 import { AIAssistant } from "@/components/ai/ai-assistant";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Local Geist font configuration
+const geistSans = GeistSans;
+const geistMono = GeistMono;
 
 export const viewport: Viewport = {
   width: "device-width",
