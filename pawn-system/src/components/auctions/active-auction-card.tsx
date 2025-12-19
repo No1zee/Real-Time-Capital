@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { formatCurrency } from "@/lib/utils"
+import { formatCurrency, safeJsonParse } from "@/lib/utils"
 import Image from "next/image"
 import { AuctionTimer } from "@/components/auctions/auction-timer"
 import { useRealtimeBids } from "@/hooks/use-realtime-bids"
@@ -19,7 +19,7 @@ interface ActiveAuctionCardProps {
 }
 
 export function ActiveAuctionCard({ auction }: ActiveAuctionCardProps) {
-    const images = JSON.parse(auction.Item.images)
+    const images = safeJsonParse<string[]>(auction.Item.images, [])
     const coverImage = images[0] || "/placeholder.svg"
 
     const initialData = useMemo(() => ({

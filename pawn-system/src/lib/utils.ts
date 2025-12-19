@@ -22,6 +22,17 @@ export function formatDate(date: string | Date) {
 
 import { formatDistanceToNow as fnsDistance } from "date-fns"
 
+
 export function formatDistanceToNow(date: string | Date, options?: { addSuffix?: boolean }) {
   return fnsDistance(new Date(date), options)
+}
+
+export function safeJsonParse<T>(jsonString: string | null | undefined, fallback: T): T {
+  if (!jsonString) return fallback
+  try {
+    return JSON.parse(jsonString) as T
+  } catch (error) {
+    console.error("Failed to parse JSON:", error)
+    return fallback
+  }
 }

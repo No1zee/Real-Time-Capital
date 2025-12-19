@@ -6,15 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { formatCurrency, formatDistanceToNow } from "@/lib/utils"
+import { formatCurrency, formatDistanceToNow, safeJsonParse } from "@/lib/utils"
 import Image from "next/image"
 import { Gavel } from "lucide-react"
+
 import { ProTipTrigger } from "@/components/tips/pro-tip-trigger"
 import { KnowledgeWidget } from "@/components/content/knowledge-widget"
 import { AuctionTimer } from "@/components/auctions/auction-timer"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ActiveAuctionCard } from "@/components/auctions/active-auction-card"
-
 import { FilterTabs } from "@/components/auctions/filter-tabs"
 
 export default async function AuctionsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
@@ -84,7 +84,7 @@ export default async function AuctionsPage({ searchParams }: { searchParams: Pro
                     <h2 className="text-2xl font-bold tracking-tight text-muted-foreground">Recent Ended Auctions</h2>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                         {endedAuctions.map((auction) => {
-                            const images = JSON.parse(auction.Item.images)
+                            const images = safeJsonParse<string[]>(auction.Item.images, [])
                             const coverImage = images[0] || "/placeholder.svg"
 
                             return (
