@@ -64,7 +64,13 @@ export function ActiveAuctionCard({ auction }: ActiveAuctionCardProps) {
                     <span className="sr-only">View {auction.Item.name}</span>
                 </Link>
                 {coverImage !== "/placeholder.svg" ? (
-                    <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
+                    <Image
+                        src={coverImage}
+                        alt={auction.Item.name}
+                        fill
+                        className="object-cover"
+                        unoptimized={coverImage.includes("loremflickr.com")}
+                    />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
                 )}

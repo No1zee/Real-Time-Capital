@@ -62,7 +62,13 @@ export default async function AuctionDetailPage({ params }: { params: Promise<{ 
                 <div className="space-y-4">
                     <div className="aspect-square relative rounded-lg overflow-hidden border bg-muted">
                         {mainImage !== "/placeholder.svg" ? (
-                            <Image src={mainImage} alt={auction.Item.name} fill className="object-cover" />
+                            <Image
+                                src={mainImage}
+                                alt={auction.Item.name}
+                                fill
+                                className="object-cover"
+                                unoptimized={mainImage.includes("loremflickr.com")}
+                            />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
                         )}

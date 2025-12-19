@@ -91,7 +91,13 @@ export default async function AuctionsPage({ searchParams }: { searchParams: Pro
                                 <Card key={auction.id} className="overflow-hidden flex flex-col opacity-75 grayscale hover:grayscale-0 transition-all">
                                     <div className="aspect-[4/3] relative bg-muted">
                                         {coverImage !== "/placeholder.svg" ? (
-                                            <Image src={coverImage} alt={auction.Item.name} fill className="object-cover" />
+                                            <Image
+                                                src={coverImage}
+                                                alt={auction.Item.name}
+                                                fill
+                                                className="object-cover"
+                                                unoptimized={coverImage.includes("loremflickr.com")}
+                                            />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>
                                         )}
