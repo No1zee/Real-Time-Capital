@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ValuationCard } from "./valuation-card";
-import { Search, LayoutGrid, List as ListIcon, Clock, Package, ExternalLink } from "lucide-react";
+import { Search, LayoutGrid, List as ListIcon, Clock, Package, ExternalLink, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -34,7 +34,13 @@ export function ValuationView({ items }: ValuationViewProps) {
     );
 
     const pendingReviewItems = filteredItems.filter(i =>
-        i.valuationStatus === "PENDING" || i.status === "PENDING_VALUATION"
+        (i.valuationStatus === "PENDING" || i.status === "PENDING_VALUATION") &&
+        i.valuationStatus !== "PENDING_APPROVAL" &&
+        i.valuationStatus !== "REJECTED_BY_CHECKER"
+    );
+
+    const pendingApprovalItems = filteredItems.filter(i =>
+        i.valuationStatus === "PENDING_APPROVAL" || i.valuationStatus === "REJECTED_BY_CHECKER"
     );
 
     const marketEvalItems = filteredItems.filter(i =>
@@ -91,8 +97,9 @@ export function ValuationView({ items }: ValuationViewProps) {
             </div>
 
             <Tabs defaultValue="pending" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
                     <TabsTrigger value="pending">Pending ({pendingReviewItems.length})</TabsTrigger>
+                    <TabsTrigger value="approval">Approvals ({pendingApprovalItems.length})</TabsTrigger>
                     <TabsTrigger value="market">Market Eval ({marketEvalItems.length})</TabsTrigger>
                     <TabsTrigger value="offer">Offer Ready ({offerReadyItems.length})</TabsTrigger>
                     <TabsTrigger value="completed">History ({completedItems.length})</TabsTrigger>
@@ -102,6 +109,9 @@ export function ValuationView({ items }: ValuationViewProps) {
                 <div className="mt-6">
                     <TabsContent value="pending" className="mt-0">
                         {renderContent(pendingReviewItems)}
+                    </TabsContent>
+                    <TabsContent value="approval" className="mt-0">
+                        {renderContent(pendingApprovalItems)}
                     </TabsContent>
                     <TabsContent value="market" className="mt-0">
                         {renderContent(marketEvalItems)}
@@ -175,9 +185,11 @@ function ValuationRow({ item }: { item: any }) {
             case "PENDING_MARKET_EVAL": return "bg-blue-500";
             case "MARKET_EVAL_COMPLETE": return "bg-indigo-500";
             case "PENDING_FINAL_OFFER": return "bg-purple-500";
+            case "PENDING_APPROVAL": return "bg-orange-500";
             case "OFFER_READY": return "bg-amber-500";
             case "OFFER_ACCEPTED": return "bg-green-500";
             case "REJECTED": return "bg-red-500";
+            case "REJECTED_BY_CHECKER": return "bg-red-600";
             default: return "bg-slate-500";
         }
     };
@@ -211,9 +223,17 @@ function ValuationRow({ item }: { item: any }) {
                 <span className="text-slate-500 text-sm">{formatDate(item.createdAt)}</span>
             </TableCell>
             <TableCell>
-                <Badge className={`${getStatusColor(item.valuationStatus)} text-white border-0 hover:bg-opacity-90`}>
-                    {item.valuationStatus}
-                </Badge>
+                <div className="flex items-center gap-2">
+                    <Badge className={`${getStatusColor(item.valuationStatus)} text-white border-0 hover:bg-opacity-90`}>
+                        {item.valuationStatus.replace(/_/g, " ")}
+                    </Badge>
+                    {/* Show Maker Badge if waiting for approval */}
+                    {item.valuationStatus === 'PENDING_APPROVAL' && (
+                        <div title="Needs Approval">
+                            <AlertCircle className="w-4 h-4 text-orange-500" />
+                        </div>
+                    )}
+                </div>
             </TableCell>
             <TableCell className="text-right">
                 <Link href={`/admin/valuations/${item.id}`}>

@@ -31,8 +31,14 @@ export default async function PortalLayout({
                         </h1>
                     </Link>
                     <div className="flex items-center gap-2">
-                        <NotificationBell initialCount={user ? await getUnreadCount() : 0} />
-                        <MobileNav user={user} unreadCount={user ? await getUnreadCount() : 0} />
+                        {/* Error handled unread count to prevent crash */}
+                        <NotificationBell
+                            initialCount={user ? await getUnreadCount().catch(() => 0) : 0}
+                        />
+                        <MobileNav
+                            user={user}
+                            unreadCount={user ? await getUnreadCount().catch(() => 0) : 0}
+                        />
                     </div>
                 </div>
 

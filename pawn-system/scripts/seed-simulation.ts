@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, UserRole, ItemStatus, LoanStatus, AuctionStatus, AuctionType } from '@prisma/client';
+import { PrismaClient, Prisma, UserRole, ItemStatus, LoanStatus, AuctionStatus, AuctionType, AssetType } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 
 const prisma = new PrismaClient();
@@ -54,48 +54,85 @@ async function main() {
     }
     console.log(`Created ${customers.length} offline customers.`);
 
-    // 3. Create ~40 Items
+    // 3. Create ~60 Items
     console.log('Seeding Items...');
     const allItems = [];
-    const itemCategories = ['JEWELRY', 'ELECTRONICS', 'VEHICLE', 'COLLECTIBLE', 'FURNITURE', 'OTHER'] as const;
 
-    // Dynamic Image Generation using LoremFlickr with locks for stability & variety
-    const getImageUrl = (category: string, index: number) => {
-        const keywords: Record<string, string> = {
-            VEHICLE: 'transport,car',
-            JEWELRY: 'jewelry,necklace',
-            ELECTRONICS: 'technology,computer',
-            COLLECTIBLE: 'antique,art',
-            FURNITURE: 'furniture,interior',
-            OTHER: 'object'
-        };
-        const keyword = keywords[category] || 'object';
+    // Specific Item Templates for Realistic Data
+    const ITEM_TEMPLATES: { category: AssetType, name: string, keyword: string, description: string }[] = [
+        // Jewelry
+        { category: AssetType.JEWELRY, name: 'Rolex Submariner Date', keyword: 'watch,rolex', description: 'Classic luxury divers watch with black dial and ceramic bezel.' },
+        { category: AssetType.JEWELRY, name: 'Diamond Engagement Ring', keyword: 'diamond,ring', description: '1.5 carat round cut diamond in 18k white gold setting.' },
+        { category: AssetType.JEWELRY, name: '24k Gold Cuban Link Chain', keyword: 'gold,chain', description: 'Heavy solid gold chain with high-polish finish.' },
+        { category: AssetType.JEWELRY, name: 'Vancleef & Arpels Bracelet', keyword: 'bracelet,gold', description: 'Alhambra 5 motifs bracelet in 18k yellow gold.' },
+
+        // Electronics
+        { category: AssetType.ELECTRONICS, name: 'iPhone 15 Pro Max', keyword: 'smartphone,iphone', description: 'Latest Apple flagship with Titanium build and A17 Pro chip.' },
+        { category: AssetType.ELECTRONICS, name: 'MacBook Pro 16"', keyword: 'laptop,macbook', description: 'Powerful workstation with M3 Max chip and Liquid Retina XDR display.' },
+        { category: AssetType.ELECTRONICS, name: 'Sony A7 IV Mirrorless Camera', keyword: 'camera,sony', description: 'High-resolution full-frame camera for professionals.' },
+        { category: AssetType.ELECTRONICS, name: 'Bose QuietComfort Ultra', keyword: 'headphones,bose', description: 'Premium noise-cancelling wireless headphones.' },
+        { category: AssetType.ELECTRONICS, name: 'PlayStation 5 Console', keyword: 'gaming,console', description: 'Next-gen gaming console with dual-sense controller.' },
+
+        // Vehicles
+        { category: AssetType.VEHICLE, name: 'Toyota Corolla 2022', keyword: 'car,toyota', description: 'Reliable sedan with modern safety features and fuel efficiency.' },
+        { category: AssetType.VEHICLE, name: 'BMW 3 Series M Sport', keyword: 'car,bmw', description: 'Luxury sports sedan with premium interior and performance.' },
+        { category: AssetType.VEHICLE, name: 'Honda Civic VTEC', keyword: 'car,honda', description: 'Sporty and reliable compact car with great handling.' },
+        { category: AssetType.VEHICLE, name: 'Mercedes-Benz C-Class', keyword: 'car,mercedes', description: 'Elegant luxury sedan with cutting-edge technology.' },
+        { category: AssetType.VEHICLE, name: 'Ford Ranger Wildtrak', keyword: 'truck,ford', description: 'Rugged and versatile pickup truck for all terrains.' },
+
+        // Collectibles
+        { category: AssetType.COLLECTIBLE, name: 'Charizard Base Set Holo', keyword: 'pokemon,card', description: 'Rare vintage Pokemon card in PSA 9 condition.' },
+        { category: AssetType.COLLECTIBLE, name: 'Signed Babe Ruth Baseball', keyword: 'baseball,antique', description: 'Authentic vintage baseball signed by the legend.' },
+        { category: AssetType.COLLECTIBLE, name: 'First Edition Spider-Man #1', keyword: 'comic,book', description: 'Iconic Marvel comic book in high grade condition.' },
+
+        // Furniture
+        { category: AssetType.FURNITURE, name: 'Eames Lounge Chair & Ottoman', keyword: 'furniture,chair', description: 'Iconic mid-century modern design classic.' },
+        { category: AssetType.FURNITURE, name: 'Chesterfield Leather Sofa', keyword: 'sofa,furniture', description: 'Classic tufted leather sofa in deep burgundy.' },
+        { category: AssetType.FURNITURE, name: 'Marble Top Dining Table', keyword: 'table,marble', description: 'Elegant 8-seater dining table with Italian marble top.' },
+
+        // Property
+        { category: AssetType.PROPERTY, name: 'Residential Stand - Borrowdale', keyword: 'land,nature', description: 'Prime 2000sqm residential stand in a gated community.' },
+        { category: AssetType.PROPERTY, name: 'Commercial Building - CBD', keyword: 'building,city', description: 'Two-story retail space with high foot traffic in the city center.' },
+        { category: AssetType.PROPERTY, name: 'Apartment - Avondale', keyword: 'apartment,modern', description: 'Modern 3-bedroom penthouse with panoramic views.' },
+
+        // Goods
+        { category: AssetType.GOODS, name: 'Solar Energy System (5kVA)', keyword: 'solar,panel', description: 'Complete solar kit with hybrid inverter and lithium batteries.' },
+        { category: AssetType.GOODS, name: 'Industrial Welding Machine', keyword: 'machine,tool', description: 'High-power TIG/MIG welder for heavy duty fabrication.' },
+        { category: AssetType.GOODS, name: 'Commercial Coffee Maker', keyword: 'coffee,espresso', description: 'Professional 2-group espresso machine for cafes.' },
+
+        // Other
+        { category: AssetType.OTHER, name: 'Gibson Les Paul Custom', keyword: 'guitar,gibson', description: 'Ebony finish electric guitar with gold hardware.' },
+        { category: AssetType.OTHER, name: 'Louis Vuitton Keepall 55', keyword: 'bag,luxury', description: 'Classic monogram canvas travel bag.' },
+        { category: AssetType.OTHER, name: 'Yamaha Upright Piano', keyword: 'piano,musical', description: 'Professional grade acoustic piano with rich tone.' }
+    ];
+
+    // Dynamic Image Generation using LoremFlickr with template-specific keywords
+    const getImageUrl = (keyword: string, index: number) => {
         // Use index as lock to ensure same image for same item re-runs, but different per item
-        return `https://loremflickr.com/800/600/${keyword}?lock=${index + 100}`;
+        return `https://loremflickr.com/800/600/${keyword}?lock=${index + 500}`;
     };
 
-    for (let i = 0; i < 40; i++) {
-        const isVehicle = Math.random() > 0.8;
-        const category = isVehicle ? 'VEHICLE' : faker.helpers.arrayElement(itemCategories);
+    for (let i = 0; i < 60; i++) {
+        const template = faker.helpers.arrayElement(ITEM_TEMPLATES);
         const owner = faker.helpers.arrayElement(users);
+        const isVehicle = template.category === 'VEHICLE';
 
-        const selectedImage = getImageUrl(category, i);
+        const selectedImage = getImageUrl(template.keyword, i);
 
         const item = await prisma.item.create({
             data: {
-                name: isVehicle ? `${faker.vehicle.manufacturer()} ${faker.vehicle.model()}` : faker.commerce.productName(),
-                description: faker.commerce.productDescription(),
-                category: category,
+                name: template.name,
+                description: `${template.description} ${faker.commerce.productDescription()}`,
+                category: template.category,
                 condition: faker.helpers.arrayElement(['NEW', 'LIKE_NEW', 'USED', 'DAMAGED']),
-                marketValue: parseFloat(faker.commerce.price({ min: 100, max: 5000 })),
-                userEstimatedValue: parseFloat(faker.commerce.price({ min: 100, max: 5000 })),
-                finalValuation: parseFloat(faker.commerce.price({ min: 100, max: 5000 })),
-                valuation: parseFloat(faker.commerce.price({ min: 100, max: 5000 })), // Legacy field
-                status: ItemStatus.VALUED, // Default state, will update for loans/auctions
+                marketValue: parseFloat(faker.commerce.price({ min: 500, max: 25000 })),
+                userEstimatedValue: parseFloat(faker.commerce.price({ min: 500, max: 25000 })),
+                finalValuation: parseFloat(faker.commerce.price({ min: 300, max: 15000 })),
+                valuation: parseFloat(faker.commerce.price({ min: 300, max: 15000 })),
+                status: ItemStatus.VALUED,
                 userId: owner.id,
                 images: JSON.stringify([selectedImage]),
                 updatedAt: new Date(),
-                // Vehicle specifics if applicable
                 ...(isVehicle ? {
                     vin: faker.vehicle.vin(),
                     mileage: faker.number.int({ min: 1000, max: 150000 }),

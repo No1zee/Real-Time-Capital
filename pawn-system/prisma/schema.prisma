@@ -248,9 +248,11 @@ enum ValuationStatus {
   PENDING_MARKET_EVAL
   MARKET_EVAL_COMPLETE
   PENDING_FINAL_OFFER
+  PENDING_APPROVAL
   OFFER_READY
   OFFER_ACCEPTED
   REJECTED
+  REJECTED_BY_CHECKER
 }
 
 model Item {
@@ -309,6 +311,14 @@ model Item {
   User         User?     @relation(fields: [userId], references: [id])
   Auction      Auction?
   Loan         Loan?     @relation(fields: [loanId], references: [id])
+  
+  // Maker Checker
+  makerId      String?
+  checkerId    String?
+  checkedAt    DateTime?
+  rejectionReason String?
+  Maker        User?     @relation("ItemMaker", fields: [makerId], references: [id])
+  Checker      User?     @relation("ItemChecker", fields: [checkerId], references: [id])
 }
 
 model Loan {
@@ -332,6 +342,13 @@ model Loan {
   User            User?     @relation(fields: [userId], references: [id])
   Customer        Customer? @relation(fields: [customerId], references: [id])
   Payment         Payment[]
+  
+  // Maker Checker
+  makerId         String?
+  checkerId       String?
+  checkedAt       DateTime?
+  Maker           User?     @relation("LoanMaker", fields: [makerId], references: [id])
+  Checker         User?     @relation("LoanChecker", fields: [checkerId], references: [id])
 }
 
 model Notification {
@@ -450,6 +467,12 @@ model User {
   
   // Auction Relations
   Wins               Auction[]     @relation("AuctionWins")
+  
+  // Maker Checker Relations
+  ItemsMade          Item[]        @relation("ItemMaker")
+  ItemsChecked       Item[]        @relation("ItemChecker")
+  LoansMade          Loan[]        @relation("LoanMaker")
+  LoansChecked       Loan[]        @relation("LoanChecker")
 }
 
 model CRMNote {

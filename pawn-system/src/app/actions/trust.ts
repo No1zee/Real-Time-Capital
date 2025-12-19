@@ -47,11 +47,16 @@ export async function getAuctionRating(auctionId: string) {
 }
 
 export async function getAverageRating() {
-    const ratings = await prisma.rating.findMany()
-    if (ratings.length === 0) return 0
+    try {
+        const ratings = await prisma.rating.findMany()
+        if (ratings.length === 0) return 0
 
-    const total = ratings.reduce((sum, r) => sum + r.score, 0)
-    return (total / ratings.length).toFixed(1)
+        const total = ratings.reduce((sum, r) => sum + r.score, 0)
+        return (total / ratings.length).toFixed(1)
+    } catch (error) {
+        console.error('[getAverageRating] Error:', error)
+        return 0
+    }
 }
 
 export async function submitDispute(auctionId: string, reason: string, description: string) {

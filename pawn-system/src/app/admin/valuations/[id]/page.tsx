@@ -168,13 +168,18 @@ export default async function ValuationDetailPage({ params }: PageProps) {
                 <div className="space-y-6">
                     {/* Valuation Workflow Component */}
                     <div className="sticky top-6">
-                        <ValuationControls item={{
-                            id: item.id,
-                            valuationStatus: item.valuationStatus,
-                            marketValue: item.marketValue ? Number(item.marketValue) : null,
-                            finalValuation: item.finalValuation ? Number(item.finalValuation) : null,
-                            userEstimatedValue: item.userEstimatedValue ? Number(item.userEstimatedValue) : null
-                        }} />
+                        <ValuationControls
+                            item={{
+                                id: item.id,
+                                valuationStatus: item.valuationStatus,
+                                marketValue: item.marketValue ? Number(item.marketValue) : null,
+                                finalValuation: item.finalValuation ? Number(item.finalValuation) : null,
+                                userEstimatedValue: item.userEstimatedValue ? Number(item.userEstimatedValue) : null,
+                                makerId: item.makerId,
+                                rejectionReason: item.rejectionReason
+                            }}
+                            currentUserId={session?.user?.id || ""}
+                        />
 
                         {/* User Card */}
                         <Card className="mt-6 border-slate-200 dark:border-slate-800">
